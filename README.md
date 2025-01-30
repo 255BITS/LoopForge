@@ -13,12 +13,15 @@ This project demonstrates an AI-powered development workflow where:
 3. Bugs are described through stacktrace only and fixed with gptdiff.
 
 ## Workflow
+
 ```bash
-while true; do gptdiff "make the game a fantasy themed incremental rpg with a ui in index.html. Make the aspects that are there more fun. Add aspects that are missing. Make the game playable. Prioritize the bugs" --apply; done
+while true; do
+    gptdiff "make the game a fantasy themed incremental rpg with a ui in index.html. Make the aspects that are there more fun. Add aspects that are missing. Make the game playable. Prioritize the bugs" --apply
+done
 ```
 
 ## Goal
-Test how effectively AI can iteratively develop complex software through incremental improvements while maintaining a functional codebase.
+See how well AI agent loops work on creating software from scratch with a fun game example.
 
 ## deepseek-r1
 ![screenshot](deepseek-r1/screenshot.png)
