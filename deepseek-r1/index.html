@@ -1,0 +1,282 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dragon's Hoard RPG</title>
+    <!-- Added new dragon animation styling -->
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'MedievalSharp', cursive;
+            background: #1a0f00 url('https://img.freepik.com/free-photo/old-brown-paper-texture-background_1373-431.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #4a3728;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            border: 3px solid #6b4f32;
+        }
+        .main-spell {
+            text-align: center;
+            padding: 20px;
+        }
+        button {
+            background: #6b4f32;
+            color: white;
+            border: 2px solid #4a3728;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            margin: 5px;
+        }
+        button:hover {
+            background: #8b6d4f;
+        }
+        button:active {
+            background: #8b6d4f;
+            transform: scale(1.05);
+        }
+        .upgrade-section {
+            background: rgba(107, 79, 50, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .resource-bar {
+            width: 200px;
+            height: 20px;
+            background: #4a3728;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .resource-progress {
+            height: 100%;
+            background: linear-gradient(to right, #00ffff, #ff00ff);
+            transition: width 0.3s ease;
+        }
+        .dragon-animation {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            opacity: 0.3;
+            z-index: -1;
+            transition: opacity 0.5s;
+        }
+        .dragon-visible {
+            opacity: 1;
+            z-index: 1;
+        }
+        .dragon-animation:hover {
+            transform: scale(1.1);
+        }
+        /* Enhanced dragon summon animation */
+        .dragon-summon {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            animation: dragonSummon 2s ease-out forwards; 
+            z-index: 999;
+            pointer-events: none
+        }
+        @keyframes shake { 
+            0% { transform: translateX(0); }
+            25% { transform: translateX(5px); }
+            50% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
+        .achievement-notification {
+            background: rgba(255, 215, 0, 0.9);
+            color: #4a3728;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s ease-out;
+        }
+        #heroes, #enemies {
+            min-height: 150px;
+            padding: 10px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        #heroes, #enemies {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .hero, .enemy {
+            background: rgba(255,255,255,0.9);
+            padding: 10px;
+            min-width: 150px;
+        }
+        .hero {
+            border: 2px solid #666;
+        }
+        .hero.dead { opacity: 0.5; filter: grayscale(1); }
+        .enemy.elite {
+            border: 2px solid #ff5555;
+            border-radius: 5px;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        .magic-effect {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            animation: pulse 1s ease-out forwards;
+            pointer-events: none;
+        }
+        .magic-effect.mini {
+            width: 30px;
+            height: 30px;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        .damage-number {
+            position: absolute;
+            font-weight: bold;
+            font-size: 18px;
+            animation: floatUp 1s ease-out forwards;
+        }
+        .player-damage { color: #ff4444; }
+        .enemy-damage { color: #44ff44; }
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-50px); opacity: 0; }
+        }
+        #prestige-section {
+            background: linear-gradient(to right, #ffd700, #ffcc00);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        #prestige-section button {
+            background: #4a3728;
+            margin-top: 10px;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid gold;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .ability {
+            display: inline-block;
+            background: rgba(107,79,50,0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            margin: 2px;
+        }
+    </style>
+</head>
+<body>
+    <img src="https://www.freeiconspng.com/uploads/dragon-png-5.png" class="dragon-animation">
+    <div class="container">
+        <div class="main-spell">
+            <h1>Dragon's Hoard RPG v1.1</h1>
+            <p>Gold: <span id="gold">0</span> 🪙</p>
+            <p>Crystals: <span id="crystals">0</span> 💎</p>
+            <button onclick="gameManager.castSpell('fireball')">🔥 Fireball (<span id="fireball-cost">10</span>c)</button>
+            <button onclick="gameManager.castSpell('heal')">❤️ Heal (<span id="heal-cost">20</span>c)</button> 
+            <button onclick="gameManager.castSpell('summon')">🐉 Summon (<span id="summon-cost">50</span>c)</button>
+            <button onclick="gameManager.manualAttack()">⚔️ Manual Attack</button>
+            <div class="cooldown-indicator" style="margin: 10px 0">
+                <div id="fireball-cooldown" style="height: 5px; background: #ff4444; width: 0%;"></div>
+                <small>Cooldown</small>
+            </div>
+            <div class="resource-bar"><div class="resource-progress" style="width: 100%"></div></div>
+        </div>
+        
+        <div class="upgrade-section"> 
+            <h2>Heroic Upgrades</h2>
+            <button onclick="gameManager.buyUpgrade('partySize')">
+                Increase Party Size (Cost: <span id="partyCost">100</span>g)
+            </button>
+            <button onclick="gameManager.buyUpgrade('autoClicker')">
+                Auto Clicker (Lv<span id="auto-clicker-count">0</span>) (Cost: <span id="autoClickerCost">50</span>g)</span>
+            </button><br>
+            <p>Current Party: <span id="party-size">1</span>/6 Heroes</p>
+        </div>
+
+        <div class="upgrade-section">
+            <h2>Adventuring Party</h2>
+            <div id="heroes"></div>
+        </div>
+
+        <div class="upgrade-section">
+            <h2>Enemy Forces</h2>
+            <div id="enemies"></div>
+        </div>
+        
+        <div class="upgrade-section">
+            <h2>Active Quests</h2>
+            <div id="quests"></div>
+        </div>
+
+        <div class="upgrade-section">
+            <h2>Arcane Sanctum</h2>
+            <button onclick="gameManager.saveGame()">Save Game</button>
+            <button onclick="gameManager.loadGame()">Load Game</button>
+        </div>
+
+        <div id="prestige-section">
+            <h3>Dragon's Blessing (Prestige)</h3>
+            <p>Prestige Level: <span id="prestige-counter">0</span></p>
+            <button onclick="gameManager.prestige()">Ascend (Requires Level 20 Hero)</button>
+        </div>
+    </div>
+
+    <div id="notifications"></div>
+    <script src="game.js"></script>
+
+    <script>
+        // Add click effects to all buttons
+        document.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => btn.classList.add('shake')));
+        
+        // Cleanup visual effects
+        setInterval(() => {
+          document.querySelectorAll('.damage-number').forEach(elem => {
+            if(elem.style.opacity === '0' || !elem.isConnected) {
+              elem.remove();
+            } else {
+              elem.style.opacity = parseFloat(elem.style.opacity || 1) - 0.1;
+            }
+          });
+        }, 1000);
+
+        // Improved tooltips
+        document.querySelectorAll('.hero, .enemy').forEach(element => {
+          element.title = "Click for details (Coming Soon!)";
+        });
+    </script>
+</body>
+</html>
