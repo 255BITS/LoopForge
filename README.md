@@ -26,3 +26,5 @@ See how well AI agent loops work on creating software from scratch with a fun ga
 ## deepseek-r1
 ![screenshot](deepseek-r1/screenshot.png)
 
+## o3-mini
+![screenshot](o3-mini/screenshot.png)

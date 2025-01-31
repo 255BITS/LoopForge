@@ -1,0 +1,87 @@
+/* Fantasy Themed RPG Styling */
+
+body {
+    font-family: 'MedievalSharp', cursive;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none' viewBox='0 0 800 600'><rect width='800' height='600' fill='%23aabbcc'/></svg>") no-repeat center center fixed;
+    background-size: cover;
+    color: #fefefe;
+    text-shadow: 1px 1px #000;
+    margin: 0;
+    padding: 0;
+}
+
+#game-container {
+    max-width: 800px;
+    margin: 20px auto;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+header, footer {
+    text-align: center;
+    padding: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 4px;
+    background-color: #8B4513;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background-color: #A0522D;
+}
+
+#log-list, #battle-log-list {
+    max-height: 150px;
+    overflow-y: auto;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#quest-log, #battle-log, #backstory {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+#auto-status {
+    font-weight: bold;
+    color: #FFD700;
+}
+
+/* Style for the instructions modal moved from inline styles to external CSS */
+#instructions-modal {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -20%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+    z-index: 1000;
+    display: none;
+}
+
+/* New: Add styling for hero portrait, map, and minimap images to enhance visual appeal */
+#character img,
+#map img,
+#minimap img {
+    border: 3px solid #8B4513;
+    transition: transform 0.3s ease;
+    border-radius: 8px;
+}
+
+#character img:hover,
+#map img:hover,
+#minimap img:hover {
+    transform: scale(1.05);
+}

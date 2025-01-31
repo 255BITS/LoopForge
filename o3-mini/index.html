@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Fantasy RPG Incremental Adventure Game - Forge your legend in an immersive adventure!">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy RPG Incremental Adventure</title>
+    <script src="game.js" defer></script>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Adding a medieval themed font -->
+    <link href="https://fonts.googleapis.com/css?family=MedievalSharp" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Fantasy RPG Incremental Adventure: Forge Your Legend!</h1>
+        <h2>Embark on Your Epic Quest!</h2>
+        <nav>
+                <button id="btn-hint">Show Quest Hint</button>
+                <button id="btn-upgrade">Upgrade Hero</button>
+                <button id="btn-dungeon">Enter Dungeon</button>
+                <button id="btn-tavern">Visit Tavern</button>
+                <button id="btn-magic">Cast Spell</button>
+                <button id="btn-merch">Mystery Merchant</button>
+                <button id="btn-shop">Visit Shop</button>
+                <button id="btn-bard">Sing Bard</button>
+                <button id="btn-train">Train Skills</button>
+                <button id="btn-potion">Drink Potion</button>
+                <button id="btn-buy-potion">Buy Healing Potion</button>
+                <button id="btn-dragon">Fight Dragon</button>
+                <button id="btn-portal">Enter Portal</button>
+                <button id="btn-restart">Restart Game</button>
+                <button id="btn-instructions">Instructions</button>
+                <button id="btn-music">Toggle Music</button>
+                <button id="btn-save">Save Game</button>
+                <button id="btn-load">Load Game</button>
+                <button id="btn-blessing">Mystical Blessing</button>
+                <button id="btn-news">Recent News</button>
+                <button id="btn-arena">Enter Arena</button>
+        </nav>
+    </header>
+    <audio id="bg-music" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop autoplay style="display:none;"></audio>
+
+    <main id="game-container">
+        <section id="adventure">
+            <p class="story">You stand at the edge of an enchanted forest, where legends awaken and magic stirs. Will you answer the call?</p>
+            <div style="margin: 10px 0; text-align:center;">
+                <label for="hero-name">Enter Your Hero's Name: </label>
+                <input id="hero-name" type="text" placeholder="Unknown Hero">
+            </div>
+            <button id="start-quest">Embark on Quest</button>
+        </section>
+        <section id="stats">
+            <h2>Hero Stats</h2>
+            <ul>
+                <li>Name: <span id="hero-name-display">Unknown Hero</span></li>
+                <li>Level: <span id="hero-level">1</span></li>
+                <li>Experience: <span id="hero-exp">0</span></li>
+                <li>Gold: <span id="hero-gold">0</span></li>
+                <li>Strength: <span id="hero-str">5</span></li>
+                <li>Health: <span id="hero-health">100</span></li>
+                <li>Mana: <span id="hero-mana">100</span></li>
+            </ul>
+            <div id="exp-bar">
+                <progress id="exp-progress" max="20" value="0"></progress>
+                <span id="exp-percentage">0%</span>
+            </div>
+        </section>
+        <!-- New: Hero Portrait section to add character immersion -->
+        <section id="character">
+            <h2>Hero Portrait</h2>
+            <svg width="200" height="200" style="width:200px; border-radius:8px; display:block; margin: 0 auto;" xmlns="http://www.w3.org/2000/svg">
+              <rect width="100%" height="100%" fill="#cccccc"/>
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#000">Hero</text>
+            </svg>
+        </section>
+        <section id="backstory">
+            <h2>Backstory</h2>
+            <p>Your legend begins in humble origins; a simple villager who dared to dream of glory. Now, adventure beckons as fate calls you to greatness!</p>
+        </section>
+        <section id="lore">
+            <h2>Lore</h2>
+            <p>The ancient runes whisper secrets of forgotten legends, guiding your path with arcane wisdom.</p>
+        </section>
+        <section id="map">
+            <h2>Map</h2>
+            <svg viewBox="0 0 800 600" style="width:100%; border-radius:8px;" xmlns="http://www.w3.org/2000/svg">
+              <rect width="800" height="600" fill="#cccccc"/>
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#000">Fantasy Map</text>
+            </svg>
+        </section>
+        <section id="quest-log">
+            <h2>Quest Log</h2>
+            <ul id="log-list"></ul>
+        </section>
+        <section id="minimap">
+            <h2>Minimap</h2>
+            <svg viewBox="0 0 300 300" style="width:100%; border-radius:8px;" xmlns="http://www.w3.org/2000/svg">
+              <rect width="300" height="300" fill="#cccccc"/>
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#000">Minimap</text>
+            </svg>
+        </section>
+        <section id="battle-log">
+            <h2>Battle Log</h2>
+            <ul id="battle-log-list"></ul>
+        </section>
+        <section id="inventory">
+            <h2>Inventory</h2>
+            <ul id="inventory-list"></ul>
+            <button id="btn-reset-inventory">Reset Inventory</button>
+        </section>
+        <section id="achievements">
+            <h2>Achievements</h2>
+            <ul id="achievements-list"></ul>
+        </section>
+        <section id="news">
+            <h2>Legendary News</h2>
+            <ul id="news-list"></ul>
+        </section>
+        <section id="auto-progress">
+            <h2>Auto Gold</h2>
+            <button id="btn-auto">Toggle Auto Gold</button>
+            <p id="auto-status">AUTO OFF</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>Fantasy RPG Incremental Adventure - Crafted by The Guild of Coders</p>
+    </footer>
+
+    <!-- Instructions Modal -->
+    <div id="instructions-modal">
+        <h2>Fantasy RPG Adventure Instructions</h2>
+        <p>Welcome to the Fantasy RPG Incremental Adventure! Click the buttons to explore quests, battle fearsome foes, cast spells, and grow your hero. Manage your gold, health, and magic wisely as you forge your legend. New features include Auto Gold accumulation and improved training sessions to empower your journey. You can also toggle the epic background music using the "Toggle Music" button.</p>
+        <button id="close-instructions">Close</button>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+          // Music toggle event listener
+          document.getElementById('btn-music').addEventListener('click', () => {
+              const music = document.getElementById('bg-music');
+              if (music.paused) {
+                  music.play();
+              } else {
+                  music.pause();
+              }
+          });
+
+          // Initialize hero stats object
+          const hero = { name: "Unknown Hero", level: 1, exp: 0, gold: 0, str: 5, health: 100, mana: 100, inventory: [], achievements: [] };
+          // Declare autoGoldInterval early to avoid scope issues
+          let autoGoldInterval = null;
+
+          // Update hero stats in the UI
+          function updateStats() {
+              document.getElementById('hero-name-display').textContent = hero.name;
+              document.getElementById('hero-level').textContent = hero.level;
+              document.getElementById('hero-exp').textContent = hero.exp;
+              document.getElementById('hero-gold').textContent = hero.gold;
+              document.getElementById('hero-str').textContent = hero.str;
+              document.getElementById('hero-health').textContent = hero.health;
+              document.getElementById('hero-mana').textContent = hero.mana;
+              var maxExp = hero.level * 20;
+              var expPercentage = Math.floor((hero.exp / maxExp) * 100);
+              document.getElementById('exp-progress').max = maxExp;
+              document.getElementById('exp-progress').value = hero.exp;
+              document.getElementById('exp-percentage').textContent = expPercentage + '%';
+              checkGameOver();
+          }
+
+         // Function to update quest log
+         function updateLog(message) {
+             const logList = document.getElementById('log-list');
+             const logItem = document.createElement('li');
+             logItem.textContent = message;
+             logList.insertBefore(logItem, logList.firstChild);
+         }
+
+         // New: Function to update battle log for combat-related events
+         function updateBattleLog(message) {
+             const battleLogList = document.getElementById('battle-log-list');
+             const logItem = document.createElement('li');
+             logItem.textContent = message;
+             battleLogList.insertBefore(logItem, battleLogList.firstChild);
+         }
+ 
+         // Function to update inventory display
+         function updateInventory() {
+             const invList = document.getElementById('inventory-list');
+             invList.innerHTML = '';
+             if (hero.inventory.length === 0) {
+                 const li = document.createElement('li');
+                 li.textContent = "No items in inventory.";
+                 invList.appendChild(li);
+             } else {
+                 hero.inventory.forEach(item => {
+                     const li = document.createElement('li');
+                     li.textContent = item;
+                     invList.appendChild(li);
+                 });
+             }
+         }
+
+         // Function to update achievements display
+         function updateAchievements() {
+             const achList = document.getElementById('achievements-list');
+             achList.innerHTML = '';
+             hero.achievements.forEach(ach => {
+                 const li = document.createElement('li');
+                 li.textContent = ach;
+                 achList.appendChild(li);
+             });
+         }
+         
+         // Check if game is over: if hero's health falls to 0 or below, disable all actions.
+         function checkGameOver() {
+             if (hero.health <= 0) {
+                 updateStory("Your journey ends here. The darkness has overwhelmed you. GAME OVER!");
+                 document.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                 // Clear auto gold interval if active
+                 if (autoGoldInterval !== null) {
+                     clearInterval(autoGoldInterval);
+                     autoGoldInterval = null;
+                 }
+                 alert("Game Over! Refresh the page to start a new adventure.");
+             }
+         }
+ 
+         // Function to update the adventure story text
+         function updateStory(message) {
+             const storyElem = document.querySelector('#adventure .story');
+             storyElem.textContent = message;
+         }
+ 
+          // Function to simulate a quest 
+          document.getElementById('start-quest').addEventListener('click', () => {
+              // Bug fix: Ensure experience and gold always get updated correctly
+              const gainedExp = Math.floor(Math.random() * 10) + 1;
+              const gainedGold = Math.floor(Math.random() * 5) + 1;
+              hero.exp += gainedExp;
+              hero.gold += gainedGold;
+              
+              // Check for level-up condition: leveling up when exp reaches or exceeds level*20
+              while (hero.exp >= hero.level * 20) {
+                  hero.exp -= hero.level * 20;
+                  hero.level++;
+                  updateLog('Level Up! You are now level ' + hero.level + '!');
+                  // Check for level-based achievement rewards
+                  if (hero.level === 5 && !hero.achievements.includes("Seasoned Adventurer")) {
+                      hero.achievements.push("Seasoned Adventurer");
+                      updateAchievements();
+                  }
+                  if (hero.level === 10 && !hero.achievements.includes("Legendary Hero")) {
+                      hero.achievements.push("Legendary Hero");
+                      updateAchievements();
+                  }
+              }
+             updateLog('Quest completed! Gained ' + gainedExp + ' EXP and ' + gainedGold + ' Gold.');
+             // Award achievement for the first completed quest
+             if (!hero.achievements.includes("First Quest Completed!")) {
+                 hero.achievements.push("First Quest Completed!");
+                 updateAchievements();
+             }
+             updateStory('After a perilous trek through mystical woods, you return bearing relics and tales of victory!');
+             updateStats();
+          });
+ 
+          // Upgrade hero strength using gold
+          document.getElementById('btn-upgrade').addEventListener('click', () => {
+              if (hero.gold >= 10) {
+                  hero.gold -= 10;
+                  hero.str++;
+                  updateStats();
+                  updateLog('Your strength has increased to ' + hero.str + '!');
+              } else {
+                  alert('Not enough gold! Complete more quests to earn upgrades.');
+              }
+          });
+ 
+          // Provide quest hint functionality
+          document.getElementById('btn-hint').addEventListener('click', () => {
+              const hints = [
+                "Seek the hidden treasure in the old ruins.",
+                "A mysterious merchant roams the marketplace at dusk.",
+                "Beware the dragon's lair atop the fiery mountain!"
+              ];
+              const randomHint = hints[Math.floor(Math.random() * hints.length)];
+              alert("Quest Hint: " + randomHint);
+          });
+ 
+          // Simulate dungeon adventure event
+          document.getElementById('btn-dungeon').addEventListener('click', () => {
+             const outcome = Math.random();
+             if (outcome < 0.5) {
+                 const loss = Math.floor(Math.random() * 5) + 1;
+                 hero.gold = Math.max(0, hero.gold - loss);
+                 const msg = 'Dungeon mishap! You lost ' + loss + ' Gold in a fierce encounter.';
+                 updateLog(msg);
+                 updateBattleLog(msg);
+                 updateStory('Deep in the dungeon, traps and lurking beasts nearly overwhelmed you...');
+                 // Add a rare item from a dungeon misadventure
+                 hero.inventory.push("Ancient Coin");
+             } else {
+                 const expGain = Math.floor(Math.random() * 15) + 5;
+                 hero.exp += expGain;
+                 const msg = 'Dungeon triumph! You earned ' + expGain + ' EXP after vanquishing your foes.';
+                 updateLog(msg);
+                 updateBattleLog(msg);
+                 updateStory('In the heart of darkness, you emerged victorious and earned a trophy!');
+                 // Reward item for dungeon victory
+                 hero.inventory.push("Goblin Trophy");
+                 // Award achievement for dungeon success
+                 if (!hero.achievements.includes("Dungeon Conqueror")) {
+                     hero.achievements.push("Dungeon Conqueror");
+                     updateAchievements();
+                 }
+             }
+             updateStats();
+             updateInventory();
+          });
+ 
+          // Simulate tavern interaction event for a fun bonus
+          document.getElementById('btn-tavern').addEventListener('click', () => {
+              const bonusGold = Math.floor(Math.random() * 10) + 5;
+              hero.gold += bonusGold;
+              updateLog('Tavern Tales: You enjoyed a round of ale, earning ' + bonusGold + ' Gold!');
+              updateStory('The boisterous tavern fills you with courage and merriment.');
+              // Random bonus: find a mysterious ale bottle
+              if (Math.random() < 0.5) {
+                  hero.inventory.push("Mysterious Ale Bottle");
+                  updateLog('Bonus Item: You found a Mysterious Ale Bottle!');
+              }
+              updateStats();
+              updateInventory();
+          });
+ 
+          // Cast spell event: consume gold to heal
+          document.getElementById('btn-magic').addEventListener('click', () => {
+              if (hero.gold >= 5) {
+                  hero.gold -= 5;
+                  const healAmount = 20;
+                  hero.health = Math.min(100, hero.health + healAmount);
+                  updateLog('Mystic Arts: You cast a healing spell and restored ' + healAmount + ' Health at the cost of 5 Gold.');
+                  updateStory('Magic flows through you as ancient incantations mend your wounds.');
+                  updateStats();
+              } else {
+                  alert('Not enough gold to cast a healing spell!');
+              }
+          });
+ 
+          // Shop event: upgrade weapon for bonus strength
+          document.getElementById('btn-shop').addEventListener('click', () => {
+              if (hero.gold >= 20) {
+                  hero.gold -= 20;
+                  hero.str += 3;
+                  updateLog('Shop: You acquired the Sword of Valor! Strength increased by 3.');
+                  updateStory('The blacksmith forges a mighty blade as you upgrade your weapon.');
+                  updateStats();
+                  updateLog('Weapon upgraded! Your strength is now ' + hero.str + '.');
+              } else {
+                  alert('Not enough gold to purchase a weapon upgrade!');
+              }
+          });
+ 
+          // New: Mysterious Merchant event to add a fun twist and missing game aspect
+          document.getElementById('btn-merch').addEventListener('click', () => {
+              if (hero.gold >= 15) {
+                  hero.gold -= 15;
+                  hero.inventory.push("Mystic Amulet");
+                  updateLog("Mystery Market: The strange merchant sold you a Mystic Amulet for 15 Gold.");
+                  updateStory("An enigmatic figure appears—a mysterious merchant offering rare treasures.");
+                  updateStats();
+                  updateInventory();
+              } else {
+                  alert("Not enough Gold to trade with the mysterious merchant!");
+              }
+          });
+ 
+          // Dragon battle event: face a mighty beast for high risk and reward
+          document.getElementById('btn-dragon').addEventListener('click', () => {
+              const outcome = Math.random();
+              if (outcome < 0.5) {
+                  const damage = Math.floor(Math.random() * 30) + 10;
+                  hero.health = Math.max(0, hero.health - damage);
+                  const msg = 'Dragon Fight: The dragon scorched you for ' + damage + ' damage!';
+                  updateLog(msg);
+                  updateBattleLog(msg);
+                  updateStory('You ventured to slay the fearsome dragon but suffered scorching burns...');
+              } else {
+                  const expGain = Math.floor(Math.random() * 25) + 10;
+                  const goldGain = Math.floor(Math.random() * 20) + 10;
+                  hero.exp += expGain;
+                  hero.gold += goldGain;
+                  const msg = 'Dragon Fight: You defeated the dragon! Gained ' + expGain + ' EXP and ' + goldGain + ' Gold!';
+                  updateLog(msg);
+                  updateBattleLog(msg);
+                  updateStory('In an epic duel, you vanquished the dragon, securing a place in legend!');
+                  hero.inventory.push("Dragon Scale");
+                  if (!hero.achievements.includes("Dragon Slayer")) {
+                      hero.achievements.push("Dragon Slayer");
+                      updateAchievements();
+                  }
+              }
+              updateStats();
+              updateInventory();
+          });
+ 
+          // New: Portal event for mysterious fate
+          document.getElementById('btn-portal').addEventListener('click', () => {
+              const outcome = Math.random();
+              if (outcome < 0.5) {
+                  const damage = Math.floor(Math.random() * 15) + 5;
+                  hero.health = Math.max(0, hero.health - damage);
+                  const msg = 'Portal mishap! A wild vortex wounded you for ' + damage + ' damage.';
+                  updateLog(msg);
+                  updateBattleLog(msg);
+                  updateStory('The mystical portal unleashed chaotic forces upon you...');
+              } else {
+                  const bonusExp = Math.floor(Math.random() * 20) + 5;
+                  hero.exp += bonusExp;
+                  const msg = 'Portal blessing! You gained ' + bonusExp + ' EXP from a mysterious force.';
+                  updateLog(msg);
+                  updateBattleLog(msg);
+                  updateStory('The portal radiated an aura of ancient wisdom, empowering your quest!');
+              }
+              updateStats();
+          });
+ 
+          // Bard event: Lift your spirits with a rousing ballad!
+          document.getElementById('btn-bard').addEventListener('click', () => {
+              const outcome = Math.random();
+              if (outcome < 0.5) {
+                  hero.gold += 5;
+                  updateLog('Bardic Blessing: The bard sings a lively tune, earning you 5 Gold!');
+                  updateStory('A melodic strain fills the air, bolstering your spirit.');
+              } else {
+                  hero.str += 1;
+                  updateLog('Bardic Ballad: The bard\'s song increases your Strength by 1!');
+                  updateStory('The bard\'s melody pulses through your veins, empowering you.');
+              }
+              updateStats();
+          });
+ 
+          // New: Train Skills event to further empower the hero
+          document.getElementById('btn-train').addEventListener('click', () => {
+              if (hero.gold >= 15) {
+                  hero.gold -= 15;
+                  hero.str += 2;
+                  hero.mana = Math.min(100, hero.mana + 10);
+                  updateLog('Training Session: You honed your skills, increasing Strength by 2 and Mana by 10!');
+                  updateStory('Under the tutelage of a seasoned warrior, your combat prowess grows!');
+                  updateStats();
+              } else {
+                  updateLog('Not enough gold to train your skills!');
+              }
+          });
+ 
+          // New: Drink Potion event to consume a Healing Potion from inventory.
+          document.getElementById('btn-potion').addEventListener('click', () => {
+              const potionName = "Healing Potion";
+              const potionIndex = hero.inventory.indexOf(potionName);
+              if (potionIndex !== -1) {
+                  hero.inventory.splice(potionIndex, 1);
+                  hero.health = Math.min(100, hero.health + 30);
+                  updateLog("Potion Consumed: Restored 30 Health!");
+                  updateStory("You drink the Healing Potion, feeling reinvigorated by ancient magic!");
+                  updateStats();
+                  updateInventory();
+                  updateLog("Healing Potion consumed! Your health is now " + hero.health + ".");
+              } else {
+                  alert("You have no Healing Potions in your inventory!");
+              }
+          });
+ 
+          // New: Restart button to quickly restart the game
+          document.getElementById('btn-restart').addEventListener('click', () => {
+              location.reload();
+          });
+          
+          // New: Auto Gold toggle feature
+          document.getElementById('btn-auto').addEventListener('click', () => {
+              const statusElem = document.getElementById('auto-status');
+              if (autoGoldInterval === null) {
+                  autoGoldInterval = setInterval(() => {
+                      hero.gold += 1;
+                      updateLog('Auto Gold: You gained 1 Gold from your loyal subjects.');
+                      updateStats();
+                  }, 1000);
+                  statusElem.textContent = 'AUTO ON';
+              } else {
+                  clearInterval(autoGoldInterval);
+                  autoGoldInterval = null;
+                  statusElem.textContent = 'AUTO OFF';
+              }
+          });
+
+          // Instructions modal event listeners
+          document.getElementById('btn-instructions').addEventListener('click', () => {
+              document.getElementById('instructions-modal').style.display = 'block';
+          });
+          document.getElementById('close-instructions').addEventListener('click', () => {
+              document.getElementById('instructions-modal').style.display = 'none';
+          });
+ 
+          // Save and Load game event listeners to add persistence
+          document.getElementById('btn-save').addEventListener('click', () => {
+              localStorage.setItem('heroState', JSON.stringify(hero));
+              updateLog("Game Saved!");
+          });
+          
+          document.getElementById('btn-load').addEventListener('click', () => {
+              const saved = localStorage.getItem('heroState');
+              if (saved) {
+                  Object.assign(hero, JSON.parse(saved));
+                  updateStats();
+                  updateInventory();
+                  updateAchievements();
+                  updateLog("Game Loaded!");
+              } else {
+                  alert("No saved game found!");
+              }
+          });
+          
+          // New: Recent News event - update the Legendary News section with a random news item.
+          document.getElementById('btn-news').addEventListener('click', () => {
+              const newsMessages = [
+                  "A dragon was seen near the Whispering Woods!",
+                  "A mysterious benefactor gifted gold to wandering heroes!",
+                  "Rumors speak of hidden treasures in the Lost Catacombs!"
+              ];
+              const randomNews = newsMessages[Math.floor(Math.random() * newsMessages.length)];
+              const newsList = document.getElementById('news-list');
+              const li = document.createElement('li');
+              li.textContent = randomNews;
+              newsList.insertBefore(li, newsList.firstChild);
+              updateLog("News Updated: " + randomNews);
+          });
+
+          // New: Reset Inventory button event listener
+          document.getElementById('btn-reset-inventory').addEventListener('click', () => {
+              hero.inventory = [];
+              updateLog("Inventory cleared!");
+              updateInventory();
+          });
+ 
+          // New: Mystical Blessing event - spend 20 Mana to temporarily boost Strength by 2.
+          document.getElementById('btn-blessing').addEventListener('click', () => {
+             if (hero.mana >= 20) {
+                 hero.mana -= 20;
+                 hero.str += 2;
+                 updateLog("Mystical Blessing: The gods bestow temporary strength. Strength increased by 2!");
+                 updateStory("A radiant light envelops you, filling you with divine power.");
+                 updateStats();
+             } else {
+                 alert("Not enough Mana for a mystical blessing!");
+             }
+          });
+          
+          // New: Buy Healing Potion event - costs 10 Gold and adds a Healing Potion to inventory
+          document.getElementById('btn-buy-potion').addEventListener('click', () => {
+              const cost = 10;
+              if (hero.gold >= cost) {
+                  hero.gold -= cost;
+                  hero.inventory.push("Healing Potion");
+                  updateLog("Shop: You purchased a Healing Potion for " + cost + " Gold.");
+                  updateInventory();
+                  updateStats();
+              } else {
+                  alert("Not enough Gold to buy a Healing Potion!");
+              }
+          });
+ 
+          // New: Update hero name from input field
+          document.getElementById('hero-name').addEventListener('input', (e) => {
+              hero.name = e.target.value.trim() || "Unknown Hero";
+              document.getElementById('hero-name-display').textContent = hero.name;
+              updateLog("Your hero's name is now " + hero.name + "!");
+          });
+ 
+          // New: Arena battle event to further challenge your skills
+          document.getElementById('btn-arena').addEventListener('click', () => {
+              const outcome = Math.random();
+              if (outcome < 0.5) {
+                  const damage = Math.floor(Math.random() * 15) + 5;
+                  hero.health = Math.max(0, hero.health - damage);
+                  updateLog('Arena Defeat: You took ' + damage + ' damage in the arena!');
+                  updateBattleLog('Arena Defeat: Lost ' + damage + ' health.');
+                  updateStory('The arena was unforgiving; you were defeated by a skilled opponent.');
+              } else {
+                  const expGain = Math.floor(Math.random() * 10) + 5;
+                  hero.exp += expGain;
+                  updateLog('Arena Victory: You emerged triumphant, gaining ' + expGain + ' EXP!');
+                  updateBattleLog('Arena Victory: Gained ' + expGain + ' EXP.');
+                  updateStory('The crowd roars as you triumph in the arena battle!');
+              }
+              updateStats();
+          });
+ 
+          // Initial UI update after load
+          updateStats();
+          updateInventory();
+          updateAchievements();
+      });
+    </script>
+</body>
+</html>
