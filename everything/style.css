@@ -1,544 +1,62 @@
-/* Global gothic aesthetic styling */
-body {
-  background-color: #121212;
-  color: #e0e0e0;
-  font-family: 'Cinzel', serif;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-  overflow-y: hidden;
-}
-
-#game-container {
-  width: 90%;
-  max-width: 800px;
-  height: 95vh;
-  margin: 5px auto;
-  padding: 10px;
-  overflow: hidden;
-  text-align: center;
-  background-color: #1e1e1e;
-  background-image: linear-gradient(to bottom right, #1e1e1e 0%, #2d2d2d 100%);
-  border: 1px solid #444;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-}
-
-button {
-  background: #333;
-  border: none;
-  padding: 10px 20px;
-  margin: 5px;
-  font-family: 'Cinzel', serif;
-  color: #e0e0e0;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background 0.3s;
-}
-
-.stat-container {
-  background: #2a2a2a;
-  padding: 15px;
-  border-radius: 8px;
-  margin: 10px 0;
-  border: 1px solid #444;
-}
-
-.currency {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #2a2a2a;
-  padding: 8px 15px;
-  border-radius: 5px;
-}
-
-.nav-buttons {
-  margin: 15px 0;
-  display: flex;
-  gap: 5px;
-  justify-content: center;
-}
-
-.nav-btn.active {
-  background: #6a0dad;
-  box-shadow: 0 0 8px rgba(106,13,173,0.5);
-}
-
-.nav-btn:hover {
-  transform: scale(1.05);
-  transition: transform 0.2s ease;
-}
-
-#character-display {
-  display: flex;
-  justify-content: space-around;
-  margin: 20px 0;
-  font-size: 4em;
-  text-shadow: 0 0 10px rgba(255,255,255,0.2);
-}
-
-.action-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin: 15px 0;
-}
-
-.health-bar {
-  height: 20px;
-  background: #444;
-  box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
-  border-radius: 10px;
-  overflow: hidden;
-  margin: 5px 0;
-}
-
-.health-progress {
-  height: 100%;
-  background: #c00;
-  transition: width 0.3s ease;
-}
-
-button:hover {
-  background: #555;
-}
-button:disabled {
-  background: #2a2a2a !important;
-  color: #666 !important;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-/* Styling for the battle log to show combat messages */
-#battle-log {
-  margin-top: 15px;
-  padding: 10px;
-  background: #222;
-  border: 1px solid #444;
-  max-height: 120px;
-  overflow-y: auto;
-  text-align: left;
-  font-size: 14px;
-  border-radius: 5px;
-}
-#battle-log p {
-  margin: 4px 0;
-  padding: 2px 5px;
-  border-left: 3px solid #333;
-}
-#battle-log .loot-common { color: #fff; }
-#battle-log .loot-uncommon { color: #1eff00; }
-#battle-log .loot-rare { color: #0070dd; }
-#battle-log .loot-epic { color: #a335ee; }
-#battle-log .loot-legendary { color: #ff8000; }
-.game-over {
-  color: #ff4444;
-  text-shadow: 0 0 10px rgba(255,68,68,0.5);
-}
-
-.player-hit {
-  animation: playerHit 0.3s;
-}
-
-.enemy-hit {
-  animation: enemyHit 0.3s;
-}
-
-@keyframes playerHit {
-  50% { background-color: #400000; }
-}
-
-@keyframes enemyHit {
-  50% { transform: translateX(10px); }
-}
-
-@keyframes pulse {
-  50% { opacity: 0.5; }
-}
-
-/* New pulse effect for subtle background animation */
-.pulse {
-  animation: pulse 1s;
-}
-
-/* Styling for the XP progress bar */
-#xp-bar {
-  width: 100%;
-  background: #444;
-  border-radius: 5px;
-  overflow: hidden;
-  margin-top: 5px;
-}
-#xp-progress {
-  width: 0%;
-  height: 20px;
-  background: #6a0dad;
-}
-
-.loot-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 10px;
-  margin: 15px 0;
-}
-
-.loot-item {
-  padding: 8px;
-  border-radius: 5px;
-  transition: transform 0.2s;
-  cursor: pointer;
-  background: #333;
-}
-.loot-item:hover {
-  transform: translateY(-3px);
-}
-
-/* New styling for floating loot items with a gentle bobbing animation */
-.floating-loot {
-  animation: float 5s ease-in-out infinite;
-}
-
-.loot-common { border: 1px solid #666; }
-.loot-uncommon { border: 1px solid #1eff00; }
-.loot-rare { border: 1px solid #0070dd; }
-.loot-epic { border: 1px solid #a335ee; }
-.loot-legendary { border: 1px solid #ff8000; }
-
-button#toggle-music {
-  background: #444;
-  border: none;
-  padding: 10px 15px;
-  margin: 5px;
-  font-family: 'Cinzel', serif;
-  color: #e0e0e0;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background 0.3s;
-}
-
-button#toggle-music:hover {
-  background: #555;
-}
-
-button#upgrade-spell {
-  background: #444;
-  border: none;
-  padding: 10px 15px;
-  margin: 5px;
-  font-family: 'Cinzel', serif;
-  color: #e0e0e0;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background 0.3s;
-}
-button#upgrade-spell:hover {
-  background: #555;
-}
-
-audio#bg-music {
-  display: none;
-}
-
-/* Styling for the mana bar */
-.mana-bar {
-  height: 20px;
-  background: #444;
-  border-radius: 10px;
-  overflow: hidden;
-  margin: 5px 0;
-}
-.mana-progress {
-  height: 100%;
-  background: #1e90ff;
-  transition: width 0.3s ease;
-}
-
-.level-up {
-  animation: pulse 1s;
-}
-
-button#drink-potion {
-  background: #444;
-  border: none;
-  padding: 10px 15px;
-  margin: 5px;
-  font-family: 'Cinzel', serif;
-  color: #e0e0e0;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background 0.3s;
-}
-button#drink-potion:hover {
-  background: #555;
-}
-
-/* New styling for the Sell All Loot button in Inventory */
-button#sell-all {
-  background: #444;
-  border: none;
-  padding: 10px 15px;
-  margin: 5px;
-  font-family: 'Cinzel', serif;
-  color: #e0e0e0;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background 0.3s;
-}
-button#sell-all:hover {
-  background: #555;
-}
-
-/* New styling for transient loot messages to add a gothic pulse effect */
-.loot-message {
-  animation: pulse 0.5s;
-}
-
-/* Fade-in animation for titles and important UI elements */
-.fade-in {
-  animation: fadeIn 2s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* New animation for enemy fade-out effect */
-.fade-out {
-  animation: fadeOut 0.5s forwards;
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-/* New animation for floating background clouds */
-@keyframes float {
-  0% { transform: translateY(0); opacity: 0.8; }
-  50% { transform: translateY(-15px); opacity: 1; }
-  100% { transform: translateY(0); opacity: 0.8; }
-}
-
-/* New animation for glowing title text */
-#animated-title text {
-  animation: glow 2s infinite alternate;
-}
-
-@keyframes glow {
-  from { filter: drop-shadow(0 0 5px #ff4444); }
-  to { filter: drop-shadow(0 0 20px #ff4444); }
-}
-
-/* New styling for UI button click glow effect */
-.button-click {
-  animation: clickGlow 0.2s;
-}
-
-@keyframes clickGlow {
-  from { box-shadow: 0 0 8px #fff; }
-  to { box-shadow: none; }
-}
-
-/* New Explore Button Animation: Adds a pulsing effect to entice mystery */
-#explore {
-  animation: pulse 2s infinite;
-}
-
-/* New Secret Challenge Button Hover Effect: Emphasizes danger with a vibrant color and scale effect */
-#secret-challenge:hover {
-  color: #ff4444;
-  transform: scale(1.1);
-  transition: transform 0.2s ease;
-}
-
-.hover-effect {
-  transition: transform 0.3s ease;
-}
-
-#gothic-banner {
-  animation: fadeIn 3s ease-out, pulse 2s infinite alternate;
-}
-
-#game-container:hover {
-  transform: scale(1.01);
-}
-
-/* Styling for the Enchanted Realm button */
-#enchanted-realm {
-  background: #004d40;
-  border: none;
-  padding: 10px 20px;
-  margin: 5px;
-  font-family: 'Cinzel', serif;
-  color: #fff;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background 0.3s ease, transform 0.3s ease;
-}
-#enchanted-realm:hover {
-  background: #00695c;
-  transform: scale(1.05);
-}
-
-/* New Styling for the Shrine button */
-#shrine {
-  background: #8b4513;
-  border: none;
-  padding: 10px 20px;
-  margin: 5px;
-  font-family: 'Cinzel', serif;
-  color: #fff;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background 0.3s ease, transform 0.3s ease;
-}
-#shrine:hover {
-  background: #a0522d;
-  transform: scale(1.05);
-}
-
-/* Styling for animation overlay */
-#animation-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: auto; /* Allow clicks to dismiss the overlay */
-  background: repeating-radial-gradient(circle at center, #1e1e1e, #1e1e1e 10%, #2d2d2d 20%);
-  opacity: 0.1; /* Reduced transparency for a subtler effect */
-  /* Removed pulsating animation for clarity */
-}
-
-/* New styling for the overlay close button */
-#close-overlay {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #444;
-  border: none;
-  color: #fff;
-  font-size: 18px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  z-index: 11;
-  opacity: 0.85;
-}
-
-/* Styling for the Mystical Duel button */
-#mystical-duel {
-  background: #551a8b;
-  border: none;
-  padding: 10px 20px;
-  margin: 5px;
-  font-family: 'Cinzel', serif;
-  color: #fff;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: transform 0.3s ease, background 0.3s;
-}
-#mystical-duel:hover {
-  background: #6a0dad;
-  transform: scale(1.05);
-}
-
-/* New animation for magical sparkle effect */
-@keyframes sparkle {
-  0% { opacity: 1; transform: scale(1.0); }
-  50% { opacity: 0.5; transform: scale(1.1); }
-  100% { opacity: 1; transform: scale(1.0); }
-}
-
-/* Class to trigger magical sparkle animation */
-.magical-sparkle {
-  animation: sparkle 2s infinite ease-in-out;
-}
-
-/* New shake animation for critical hits */
-@keyframes shake {
-  0% { transform: translate(0, 0); }
-  25% { transform: translate(2px, -2px); }
-  50% { transform: translate(-2px, 2px); }
-  75% { transform: translate(2px, 2px); }
-  100% { transform: translate(0, 0); }
-}
-.shake {
-  animation: shake 0.5s;
-}
-
-/* New styling for lore messages */
-.lore {
-  color: #bbb;
-  font-style: italic;
-}
-.potion-drink {
-  animation: potionDrink 1s ease-in-out;
-}
-
-@keyframes potionDrink {
-  0% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.1); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
-/* New styling for dynamic weather overlay */
-#weather-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 100%);
-  animation: fog 30s infinite linear;
-  z-index: 1;
-}
-
-@keyframes fog {
-  0% { opacity: 0.4; }
-  50% { opacity: 0.8; }
-  100% { opacity: 0.4; }
-}
-
-/* New styling for the Interactive Tutorial overlay */
-#tutorial-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.8);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Cinzel', serif;
-  font-size: 24px;
-  z-index: 10;
-  opacity: 0;
-  transition: opacity 0.5s;
-}
-
-.show-tutorial {
-  opacity: 1;
-}
-
-/* Styling for the Boss Encounter Button */
-#boss-encounter {
-  background: #800000;
-  border: none;
-  padding: 10px 20px;
-  margin: 5px;
-  font-family: 'Cinzel', serif;
-  color: #fff;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background 0.3s ease, transform 0.3s ease;
-}
-#boss-encounter:hover {
-  background: #a52a2a;
-  transform: scale(1.05);
-}
+/* Global Gothic Aesthetic – condensed */
+body {background:#121212;color:#e0e0e0;font-family:'Cinzel',serif;margin:0;padding:0;overflow:hidden;}
+#game-container {width:90%;max-width:800px;height:95vh;margin:5px auto;padding:10px;overflow:hidden;text-align:center;background:#1e1e1e;background-image:linear-gradient(to bottom right,#1e1e1e 0%,#2d2d2d 100%);border:1px solid #444;border-radius:10px;box-shadow:0 0 15px rgba(0,0,0,0.5);}
+button {background:#333;border:none;padding:10px 20px;margin:5px;font-family:'Cinzel',serif;color:#e0e0e0;cursor:pointer;border-radius:5px;transition:background 0.3s;}
+button:hover {background:#555;transform:scale(1.05);transition:transform 0.2s ease;}
+button:disabled {background:#2a2a2a!important;color:#666!important;cursor:not-allowed;opacity:0.7;}
+.stat-container {background:#2a2a2a;padding:15px;border-radius:8px;margin:10px 0;border:1px solid #444;}
+.currency {position:absolute;top:10px;right:10px;background:#2a2a2a;padding:8px 15px;border-radius:5px;}
+.nav-buttons {margin:15px 0;display:flex;gap:5px;justify-content:center;}
+.nav-btn.active {background:#6a0dad;box-shadow:0 0 8px rgba(106,13,173,0.5);}
+.nav-btn:hover {transform:scale(1.05);transition:transform 0.2s ease;}
+#character-display {display:flex;justify-content:space-around;margin:20px 0;font-size:4em;text-shadow:0 0 10px rgba(255,255,255,0.2);}
+.action-buttons {display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0;}
+.health-bar,.mana-bar {height:20px;background:#444;box-shadow:inset 0 2px 5px rgba(0,0,0,0.3);border-radius:10px;overflow:hidden;margin:5px 0;}
+.health-progress {height:100%;background:#c00;transition:width 0.3s ease;}
+.mana-progress {height:100%;background:#1e90ff;transition:width 0.3s ease;}
+#battle-log {margin-top:15px;padding:10px;background:#222;border:1px solid #444;max-height:120px;overflow-y:auto;text-align:left;font-size:14px;border-radius:5px;}
+#battle-log p {margin:4px 0;padding:2px 5px;border-left:3px solid #333;}
+.loot-grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin:15px 0;}
+.loot-item {padding:8px;border-radius:5px;transition:transform 0.2s;cursor:pointer;background:#333;}
+.loot-item:hover {transform:translateY(-3px);}
+.floating-loot {animation:float 5s ease-in-out infinite;}
+.loot-common {border:1px solid #666;} .loot-uncommon {border:1px solid #1eff00;} .loot-rare {border:1px solid #0070dd;} .loot-epic {border:1px solid #a335ee;} .loot-legendary {border:1px solid #ff8000;}
+button#toggle-music,button#upgrade-spell,button#drink-potion {background:#444;border:none;padding:10px 15px;margin:5px;font-family:'Cinzel',serif;color:#e0e0e0;cursor:pointer;border-radius:5px;transition:background 0.3s;}
+button#toggle-music:hover,button#upgrade-spell:hover,button#drink-potion:hover {background:#555;}
+audio#bg-music {display:none;}
+.level-up,.pulse,.loot-message {animation:pulse 1s;}
+.fade-in {animation:fadeIn 2s ease-in;} @keyframes fadeIn {from{opacity:0;}to{opacity:1;}}
+.fade-out {animation:fadeOut 0.5s forwards;} @keyframes fadeOut {from{opacity:1;}to{opacity:0;}}
+@keyframes playerHit {50% {background-color:#400000;}}
+@keyframes enemyHit {50% {transform:translateX(10px);}}
+@keyframes pulse {50% {opacity:0.5;}}
+@keyframes float {0% {transform:translateY(0);opacity:0.8;}50% {transform:translateY(-15px);opacity:1;}100% {transform:translateY(0);opacity:0.8;}}
+#animated-title text {animation:glow 2s infinite alternate;} @keyframes glow {from {filter:drop-shadow(0 0 5px #ff4444);} to {filter:drop-shadow(0 0 20px #ff4444);}}
+.button-click {animation:clickGlow 0.2s;} @keyframes clickGlow {from{box-shadow:0 0 8px #fff;}to{box-shadow:none;}}
+#explore {animation:pulse 2s infinite;}
+#secret-challenge:hover {color:#ff4444;transform:scale(1.1);transition:transform 0.2s ease;}
+.hover-effect {transition:transform 0.3s ease;}
+#gothic-banner {animation:fadeIn 3s ease-out, pulse 2s infinite alternate;}
+#game-container:hover {transform:scale(1.01);}
+ /* Enchanted Realm & Shrine buttons */
+#enchanted-realm {background:#004d40;border:none;padding:10px 20px;margin:5px;font-family:'Cinzel',serif;color:#fff;cursor:pointer;border-radius:5px;transition:background 0.3s ease,transform 0.3s ease;}
+#enchanted-realm:hover {background:#00695c;transform:scale(1.05);}
+#shrine {background:#8b4513;border:none;padding:10px 20px;margin:5px;font-family:'Cinzel',serif;color:#fff;cursor:pointer;border-radius:5px;transition:background 0.3s ease,transform 0.3s ease;}
+#shrine:hover {background:#a0522d;transform:scale(1.05);}
+ /* Overlays & Boss button */
+#animation-overlay {position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:auto;background:repeating-radial-gradient(circle at center,#1e1e1e,#1e1e1e 10%,#2d2d2d 20%);opacity:0.1;}
+#close-overlay {position:absolute;top:10px;right:10px;background:#444;border:none;color:#fff;font-size:18px;padding:5px 10px;border-radius:5px;cursor:pointer;z-index:11;opacity:0.85;}
+#mystical-duel {background:#551a8b;border:none;padding:10px 20px;margin:5px;font-family:'Cinzel',serif;color:#fff;cursor:pointer;border-radius:5px;transition:transform 0.3s ease,background 0.3s;}
+#mystical-duel:hover {background:#6a0dad;transform:scale(1.05);}
+@keyframes sparkle {0% {opacity:1;transform:scale(1);}50% {opacity:0.5;transform:scale(1.1);}100% {opacity:1;transform:scale(1);}}
+.magical-sparkle {animation:sparkle 2s infinite ease-in-out;}
+@keyframes shake {0% {transform:translate(0,0);}25% {transform:translate(2px,-2px);}50% {transform:translate(-2px,2px);}75% {transform:translate(2px,2px);}100% {transform:translate(0,0);}}
+.shake {animation:shake 0.5s;}
+.lore {color:#bbb;font-style:italic;}
+.potion-drink {animation:potionDrink 1s ease-in-out;} @keyframes potionDrink {0% {opacity:1;transform:scale(1);}50% {opacity:0.5;transform:scale(1.1);}100% {opacity:1;transform:scale(1);}}
+#weather-overlay {position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,0.6) 0%,rgba(0,0,0,0.1) 100%);animation:fog 30s infinite linear;z-index:1;}
+@keyframes fog {0% {opacity:0.4;}50% {opacity:0.8;}100% {opacity:0.4;}}
+#tutorial-overlay {position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:24px;z-index:10;opacity:0;transition:opacity 0.5s;}
+.show-tutorial {opacity:1;}
+#boss-encounter {background:#800000;border:none;padding:10px 20px;margin:5px;font-family:'Cinzel',serif;color:#fff;cursor:pointer;border-radius:5px;transition:background 0.3s ease,transform 0.3s ease;}
+#boss-encounter:hover {background:#a52a2a;transform:scale(1.05);}
