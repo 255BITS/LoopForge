@@ -1,25 +1,5 @@
-// The funnest coolest thing I can add is put in this file.
-// Fixed overlay dismiss issue and adjusted pulsating effect for a more refined UI.
-// Implemented core gameplay features, bug fixes, and UI improvements.
-// Crafted with dark passion by Dante Mercer.
-// New Features: Now adventurers can experience mystical duels, enchanted realms, and epic loot with vibrant animations that bring gothic battles to life!
-// New Aspects: Added Enchanted Realm exploration with dynamic weather animations, hidden lore, and interactive UI transitions!
-// Mystical Duels feature implemented: Engage in swift, fate-driven duels enhanced with sparkling effects that change your destiny!
-// Enhanced UI: Fluid screen transitions, animated button interactions, and ephemeral effects intensify the immersive fantasy experience.
-// Additional Features: Animated critical hits, secret challenges, magical sparkle effects, and dynamic weather elevate the thrill of battle!
-// New Challenge Mode: Endure endless waves of spectral foes to gain rare, enchanted rewards and unlock hidden powers!
-// New Animation: Potion drinking, relic glow, and background transitions add extra visual flair to your recovery and combat!
-// Updated Feature Set: Now fully playable with responsive controls, immersive animations, and branching narrative elements that influence enemy behaviors and loot dynamics.
-// FINAL TOUCH: The game is now a complete fantasy themed incremental RPG—every choice matters, and every click unveils mystical wonders and dark destiny!
-// New Addition: Boss encounters now add dynamic animations and extra rewards to challenge the bravest souls!
-// Enjoy a fully playable experience with dynamic animations, interactive tutorials, and enchanting battles that evolve with each decision!
-// New Addition: Interactive Tutorial Mode added to guide new players through mysterious encounters. Every incremental decision now lights the path to your gothic fate!
-// New Aspects: Replaced external title animation with inline SVG for crisp, scalable visuals, and added additional dynamic elements to enhance the gothic atmosphere!
-// New Interactive Elements: Dynamic Weather, Pulsing UI, and Reactive Animations now heighten engagement.
-// Added Feature: Mystic Shrine Blessing – Visit the ancient shrine to restore spirit, gain XP and mana and weaken your foes!
-// Instructions: Use keys [A] Attack, [H] Heal, [S] Special, [E] Explore, [R] Restart, [C] Secret Challenge, [M] Mystical Duel, [N] Enchanted Realm to shape your destiny.
-// Additional Enhancements:
-// - Hidden Lore feature: Press 'L' or click "Show Hidden Lore" to reveal ancient, cryptic secrets.
-// - Further gameplay balancing and enhanced difficulty scaling.
-// - Inline SVG title animations now glow with a spectral light.
-// New Tutorial: Press [T] to activate a guided tutorial mode that explains combat, exploration, and loot management.
+/*
+  TODO: All cool features have now been implemented directly into the game.
+  (This file’s standalone content was removed to streamline vertical layout and UX.)
+  Crafted with dark passion by Dante Mercer.
+*/

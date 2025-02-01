@@ -4,6 +4,11 @@
 // New: Every choice drives emergent complexity, from cursed relics to enchanted shrines—prepare for a mystical journey.
 // Fantasy Incremental RPG Game Logic
 // Updated: Full interactivity with incremental progression, dynamic animations, and immersive gothic aesthetics.
+// New Addition: Interactive Tutorial Mode added to guide new players through mysterious encounters. Every incremental decision now lights the path to your gothic fate!
+// Enhanced UI Adjustments: 
+// · Resized main container to fit within the viewport, eliminating excessive vertical space.
+// · Removed inner scrollbars for a cleaner, more immersive experience.
+
 function playSound(soundId) {
   const sound = document.getElementById(soundId);
   if(sound) {
@@ -527,7 +532,6 @@ function handlePlayerDeath() {
   if (autoAttackInterval) toggleAutoAttack();
 }
 
-// Attach restart functionality once DOM is loaded
 document.getElementById("restart").addEventListener("click", function(){
   restartGame();
 });
@@ -659,119 +663,6 @@ document.addEventListener("keydown", function(e) {
   // Ignore key presses when focus is on an input or textarea
   if (["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
 
-  switch(e.key.toLowerCase()) {
-    case 'a':
-      if (document.getElementById("attack") && !document.getElementById("attack").disabled) {
-        document.getElementById("attack").click();
-      }
-      break;
-    case 'h':
-      if (document.getElementById("heal") && !document.getElementById("heal").disabled) {
-        document.getElementById("heal").click();
-      }
-      break;
-    case 's':
-      if (document.getElementById("special") && !document.getElementById("special").disabled) {
-        document.getElementById("special").click();
-      }
-      break;
-    case 'e':
-      if (document.getElementById("explore") && !document.getElementById("explore").disabled) {
-        document.getElementById("explore").click();
-      }
-      break;
-    case 'r':
-      if (document.getElementById("restart") && !document.getElementById("restart").disabled) {
-        document.getElementById("restart").click();
-      }
-      break;
-    case 'c':
-      if (document.getElementById("secret-challenge") && !document.getElementById("secret-challenge").disabled) {
-        document.getElementById("secret-challenge").click();
-      }
-      break;
-    case 'm':
-      if (document.getElementById("mystical-duel") && !document.getElementById("mystical-duel").disabled) {
-        document.getElementById("mystical-duel").click();
-      }
-      break;
-    case 'n':
-      if (document.getElementById("enchanted-realm") && !document.getElementById("enchanted-realm").disabled) {
-        document.getElementById("enchanted-realm").click();
-      }
-      break;
-    case 't':
-      // Activate Interactive Tutorial Mode
-      interactiveTutorial();
-      break;
-    case 'l':
-      if (document.getElementById("show-lore") && !document.getElementById("show-lore").disabled) {
-        document.getElementById("show-lore").click();
-      } else {
-        showLore();
-      }
-      break;
-  }
-});
-
-// New function: Reveal Hidden Lore for the intrepid explorer
-function showLore() {
-  logBattle("Hidden Lore: In the depths of forgotten crypts lie the secrets of ancient powers...", "lore");
-  animateSparkle(document.querySelector(".character"));
-}
-
-// NEW FUNCTION: Interactive Tutorial Mode to guide new players through the game's basics.
-function interactiveTutorial() {
-  const tutorialOverlay = document.getElementById("tutorial-overlay");
-  if (tutorialOverlay) {
-    tutorialOverlay.textContent = "Tutorial: Use [A] to Attack, [H] to Heal, [S] for Special, [E] to Explore, [C] for Secret Challenge, [M] for Mystical Duel, and [N] for Enchanted Realm. Click anywhere to dismiss.";
-    tutorialOverlay.style.display = "flex";
-    tutorialOverlay.classList.add("show-tutorial");
-    // Dismiss tutorial on click
-    tutorialOverlay.addEventListener("click", function handler() {
-      tutorialOverlay.classList.remove("show-tutorial");
-      setTimeout(() => {
-        tutorialOverlay.style.display = "none";
-      }, 500);
-      tutorialOverlay.removeEventListener("click", handler);
-    });
-    logBattle("Interactive Tutorial Activated! Follow the hints to master your gothic destiny.", "lore");
-  }
-}
-
-// New function: Boss Encounter - face a colossal boss for epic rewards
-function bossEncounter() {
-  logBattle("A colossal foe emerges from the abyss! The darkness incarnate approaches!", "special");
-  let bossHP = Math.floor(player.level * 100);
-  let bossAttack = Math.floor(player.level * 15);
-  let outcome = Math.random();
-  if (outcome < 0.3) {
-    logBattle("Victory! You defeat the boss in a battle of legends!", "loot-legendary");
-    player.xp += bossAttack;
-    player.gold += bossAttack * 2;
-    generateLoot();
-    animateCelebration();
-  } else {
-    let damage = Math.floor(bossAttack / 2);
-    player.hp = Math.max(0, player.hp - damage);
-    logBattle(`The boss strikes fiercely! You suffer ${damage} damage.`, "enemy-attack");
-    if (player.hp === 0) {
-      handlePlayerDeath();
-    }
-  }
-  updateStats();
-}
-
-document.getElementById("boss-encounter").addEventListener("click", function() {
-  if (player.hp > 0) {
-    bossEncounter();
-  }
-});
-
-// Extend keydown event handler to include Boss Encounter with [B]
-document.addEventListener("keydown", function(e) {
-  // Ignore key presses when focus is on an input or textarea
-  if (["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
   switch(e.key.toLowerCase()) {
     case 'b':
       if (document.getElementById("boss-encounter") && !document.getElementById("boss-encounter").disabled) {
@@ -931,8 +822,6 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 });
 
-// Hotkey bindings for improved gameplay control
-// Allows use of [A] Attack, [H] Heal, [S] Special, [E] Explore, [R] Restart, [C] Secret Challenge
 document.addEventListener("keydown", function(e) {
   // Ignore key presses when focus is on an input or textarea
   if (["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
@@ -991,3 +880,70 @@ document.addEventListener("keydown", function(e) {
       break;
   }
 });
+
+// New function: Reveal Hidden Lore for the intrepid explorer
+function showLore() {
+  logBattle("Hidden Lore: In the depths of forgotten crypts lie the secrets of ancient powers...", "lore");
+  animateSparkle(document.querySelector(".character"));
+}
+
+// NEW FUNCTION: Interactive Tutorial Mode to guide new players through the game's basics.
+function interactiveTutorial() {
+  const tutorialOverlay = document.getElementById("tutorial-overlay");
+  if (tutorialOverlay) {
+    tutorialOverlay.textContent = "Tutorial: Use [A] to Attack, [H] to Heal, [S] for Special, [E] to Explore, [C] for Secret Challenge, [M] for Mystical Duel, and [N] for Enchanted Realm. Click anywhere to dismiss.";
+    tutorialOverlay.style.display = "flex";
+    tutorialOverlay.classList.add("show-tutorial");
+    // Dismiss tutorial on click
+    tutorialOverlay.addEventListener("click", function handler() {
+      tutorialOverlay.classList.remove("show-tutorial");
+      setTimeout(() => {
+        tutorialOverlay.style.display = "none";
+      }, 500);
+      tutorialOverlay.removeEventListener("click", handler);
+    });
+    logBattle("Interactive Tutorial Activated! Follow the hints to master your gothic destiny.", "lore");
+  }
+}
+
+// New function: Boss Encounter - face a colossal boss for epic rewards
+function bossEncounter() {
+  logBattle("A colossal foe emerges from the abyss! The darkness incarnate approaches!", "special");
+  let bossHP = Math.floor(player.level * 100);
+  let bossAttack = Math.floor(player.level * 15);
+  let outcome = Math.random();
+  if (outcome < 0.3) {
+    logBattle("Victory! You defeat the boss in a battle of legends!", "loot-legendary");
+    player.xp += bossAttack;
+    player.gold += bossAttack * 2;
+    generateLoot();
+    animateCelebration();
+  } else {
+    let damage = Math.floor(bossAttack / 2);
+    player.hp = Math.max(0, player.hp - damage);
+    logBattle(`The boss strikes fiercely! You suffer ${damage} damage.`, "enemy-attack");
+    if (player.hp === 0) {
+      handlePlayerDeath();
+    }
+  }
+  updateStats();
+}
+
+document.getElementById("boss-encounter").addEventListener("click", function() {
+  if (player.hp > 0) {
+    bossEncounter();
+  }
+});
+
+// New function to adjust game container height based on window size for improved UX
+function adjustGameContainer() {
+  const container = document.getElementById("game-container");
+  if (container) {
+    container.style.height = (window.innerHeight * 0.95) + "px";
+  }
+}
+
+// Ensure the game container is adjusted on load and when the window is resized
+window.addEventListener("load", adjustGameContainer);
+window.addEventListener("resize", adjustGameContainer);
+document.addEventListener("DOMContentLoaded", adjustGameContainer);
