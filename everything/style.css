@@ -152,6 +152,11 @@ button:disabled {
   50% { opacity: 0.5; }
 }
 
+/* New pulse effect for subtle background animation */
+.pulse {
+  animation: pulse 1s;
+}
+
 /* Styling for the XP progress bar */
 #xp-bar {
   width: 100%;
@@ -183,6 +188,12 @@ button:disabled {
 .loot-item:hover {
   transform: translateY(-3px);
 }
+
+/* New styling for floating loot items with a gentle bobbing animation */
+.floating-loot {
+  animation: float 5s ease-in-out infinite;
+}
+
 .loot-common { border: 1px solid #666; }
 .loot-uncommon { border: 1px solid #1eff00; }
 .loot-rare { border: 1px solid #0070dd; }
@@ -276,4 +287,253 @@ button#sell-all:hover {
 /* New styling for transient loot messages to add a gothic pulse effect */
 .loot-message {
   animation: pulse 0.5s;
+}
+
+/* Fade-in animation for titles and important UI elements */
+.fade-in {
+  animation: fadeIn 2s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* New animation for enemy fade-out effect */
+.fade-out {
+  animation: fadeOut 0.5s forwards;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* New animation for floating background clouds */
+@keyframes float {
+  0% { transform: translateY(0); opacity: 0.8; }
+  50% { transform: translateY(-15px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 0.8; }
+}
+
+/* New animation for glowing title text */
+#animated-title text {
+  animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+  from { filter: drop-shadow(0 0 5px #ff4444); }
+  to { filter: drop-shadow(0 0 20px #ff4444); }
+}
+
+/* New styling for UI button click glow effect */
+.button-click {
+  animation: clickGlow 0.2s;
+}
+
+@keyframes clickGlow {
+  from { box-shadow: 0 0 8px #fff; }
+  to { box-shadow: none; }
+}
+
+/* New Explore Button Animation: Adds a pulsing effect to entice mystery */
+#explore {
+  animation: pulse 2s infinite;
+}
+
+/* New Secret Challenge Button Hover Effect: Emphasizes danger with a vibrant color and scale effect */
+#secret-challenge:hover {
+  color: #ff4444;
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+.hover-effect {
+  transition: transform 0.3s ease;
+}
+
+#gothic-banner {
+  animation: fadeIn 3s ease-out, pulse 2s infinite alternate;
+}
+
+#game-container:hover {
+  transform: scale(1.01);
+}
+
+/* Styling for the Enchanted Realm button */
+#enchanted-realm {
+  background: #004d40;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  font-family: 'Cinzel', serif;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+#enchanted-realm:hover {
+  background: #00695c;
+  transform: scale(1.05);
+}
+
+/* New Styling for the Shrine button */
+#shrine {
+  background: #8b4513;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  font-family: 'Cinzel', serif;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+#shrine:hover {
+  background: #a0522d;
+  transform: scale(1.05);
+}
+
+/* Styling for animation overlay */
+#animation-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto; /* Allow clicks to dismiss the overlay */
+  background: repeating-radial-gradient(circle at center, #1e1e1e, #1e1e1e 10%, #2d2d2d 20%);
+  opacity: 0.1; /* Reduced transparency for a subtler effect */
+  /* Removed pulsating animation for clarity */
+}
+
+/* New styling for the overlay close button */
+#close-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #444;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 11;
+  opacity: 0.85;
+}
+
+/* Styling for the Mystical Duel button */
+#mystical-duel {
+  background: #551a8b;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  font-family: 'Cinzel', serif;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: transform 0.3s ease, background 0.3s;
+}
+#mystical-duel:hover {
+  background: #6a0dad;
+  transform: scale(1.05);
+}
+
+/* New animation for magical sparkle effect */
+@keyframes sparkle {
+  0% { opacity: 1; transform: scale(1.0); }
+  50% { opacity: 0.5; transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1.0); }
+}
+
+/* Class to trigger magical sparkle animation */
+.magical-sparkle {
+  animation: sparkle 2s infinite ease-in-out;
+}
+
+/* New shake animation for critical hits */
+@keyframes shake {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(2px, -2px); }
+  50% { transform: translate(-2px, 2px); }
+  75% { transform: translate(2px, 2px); }
+  100% { transform: translate(0, 0); }
+}
+.shake {
+  animation: shake 0.5s;
+}
+
+/* New styling for lore messages */
+.lore {
+  color: #bbb;
+  font-style: italic;
+}
+.potion-drink {
+  animation: potionDrink 1s ease-in-out;
+}
+
+@keyframes potionDrink {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* New styling for dynamic weather overlay */
+#weather-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 100%);
+  animation: fog 30s infinite linear;
+  z-index: 1;
+}
+
+@keyframes fog {
+  0% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.4; }
+}
+
+/* New styling for the Interactive Tutorial overlay */
+#tutorial-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-size: 24px;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.show-tutorial {
+  opacity: 1;
+}
+
+/* Styling for the Boss Encounter Button */
+#boss-encounter {
+  background: #800000;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  font-family: 'Cinzel', serif;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+#boss-encounter:hover {
+  background: #a52a2a;
+  transform: scale(1.05);
 }

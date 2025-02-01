@@ -19,9 +19,25 @@
   Leave this notice to honor the creative spark within.
   -->
   <div id="game-container" role="main">
-    <h1>Fantasy Incremental RPG</h1>
+    <div id="animated-title" style="margin-bottom: 10px;">
+      <svg width="100%" height="200" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="800" height="200" fill="none" />
+        <title>Fantasy RPG Title with Mystical Animation</title>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Cinzel" font-size="48" fill="#6a0dad">
+          Fantasy RPG
+          <animate attributeName="fill" values="#6a0dad;#ff4444;#6a0dad" dur="3s" repeatCount="indefinite" />
+        </text>
+      </svg>
+    </div>
+    <h1 class="fade-in">Fantasy Incremental RPG</h1>
     <p id="gothic-banner" style="font-family: 'Cinzel', serif; color: #aaa; font-size: 1em; margin-top: -10px;">Delve into dark dungeons and mystical realms!</p>
     <p style="font-family: 'Cinzel', serif; color: #ccc; font-size: 0.9em;">Crafted with dark passion by Dante Mercer.</p>
+    <div id="animation-overlay">
+      <button id="close-overlay" title="Dismiss overlay">X</button>
+    </div>
+    <div id="weather-overlay"></div>
+    <div id="tutorial-overlay" style="display: none;"></div>
+    <div id="sparkle-overlay" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; background: radial-gradient(ellipse at center, rgba(255,255,255,0.1), transparent 70%); animation: sparkle 4s ease-in-out infinite;"></div>
     <div id="top-bar">
       <div class="currency">
         <span id="gold">🪙 0</span>
@@ -47,8 +63,20 @@
       <p id="instructions">Forge your legend in a realm of mysterious magic and perilous quests! Unleash powerful attacks, summon healing forces, and master arcane spells. Every decision shapes your destiny and unveils hidden treasures!</p>
       <p id="explore-tip" style="font-family: 'Cinzel', serif; color: #bbb; font-size: 0.85em;">Tip: Click "Explore" to unveil mysterious encounters hidden in the shadows!</p>
       <p id="controls" style="font-family: 'Cinzel', serif; color: #bbb; font-size: 0.85em;">
-        Hotkeys: [A] Attack, [H] Heal, [S] Special, [E] Explore, [R] Restart, [C] Secret Challenge
+        Hotkeys: [A] Attack, [H] Heal, [S] Special, [E] Explore, [R] Restart, [C] Secret Challenge, [M] Mystical Duel, [N] Enchanted Realm, [T] Tutorial, [L] Lore, [B] Boss Encounter
       </p>
+      <!-- New Shrine Banner with inline SVG for a mystical flourish -->
+      <div id="shrine-banner" style="margin: 10px 0;">
+        <svg width="100%" height="50" viewBox="0 0 800 50" xmlns="http://www.w3.org/2000/svg">
+          <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Cinzel" font-size="24" fill="#a0522d">
+            Mystic Shrine
+            <animate attributeName="fill" values="#a0522d;#ffdead;#a0522d" dur="4s" repeatCount="indefinite" />
+          </text>
+        </svg>
+      </div>
+      <div id="tutorial-message" class="fade-in" style="font-family: 'Cinzel', serif; color: #ddd; font-size: 0.9em; margin-bottom: 10px;">
+        Hint: Start by clicking "Explore" to uncover hidden realms and mysterious encounters!
+      </div>
       <p id="atmosphere" style="font-family: 'Cinzel', serif; color: #bbb; font-size: 0.85em;">May fate and gothic wonder guide your every step.</p>
   
       <div class="stat-container">
@@ -85,14 +113,26 @@
         <button id="buy-potion">Buy Potion (50 Gold)</button>
         <button id="explore">🧭 Explore</button>
         <button id="shrine">Visit Shrine</button>
+        <button id="enchanted-realm">Enchanted Realm</button>
+        <button id="special">💥 Special Attack</button>
+        <button id="tutorial">📖 Tutorial</button>
+        <button id="boss-encounter" title="Face the colossal boss for epic rewards">
+        <svg width="24" height="24" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 5px;">
+          <circle cx="12" cy="12" r="10" stroke="#ff4444" stroke-width="2" fill="none">
+            <animate attributeName="r" from="8" to="10" dur="1s" repeatCount="indefinite" />
+          </circle>
+        </svg>
+        ⚡ Boss Encounter
+      </button>
       </div>
       <button id="heal">Heal</button>
-      <button id="special">💥 Special Attack</button>
       
       <!-- Battle Log for ongoing combat messages -->
       <div id="battle-log"></div>
       <!-- Secret Challenge Button -->
       <button id="secret-challenge">Secret Challenge</button>
+      <button id="mystical-duel">Mystical Duel</button>
+      <button id="show-lore" onclick="showLore()">Show Hidden Lore</button>
       <button id="restart">Restart Game</button>
     </div>
   
@@ -112,6 +152,13 @@
   </div>
   <script src="game.js"></script>
   <audio id="bg-music" src="music.mp3" loop></audio>
+  <script>
+    // Bind the new tutorial button if it exists.
+    const tutorialBtn = document.getElementById("tutorial");
+    if (tutorialBtn && typeof interactiveTutorial === "function") {
+      tutorialBtn.addEventListener("click", interactiveTutorial);
+    }
+  </script>
   <audio id="attack-sfx" src="attack.mp3"></audio>
   <audio id="enemy-sfx" src="enemy.mp3"></audio>
   <audio id="heal-sfx" src="heal.mp3"></audio>
