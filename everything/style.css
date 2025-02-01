@@ -1,0 +1,279 @@
+/* Global gothic aesthetic styling */
+body {
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: 'Cinzel', serif;
+  margin: 0;
+  padding: 0;
+}
+
+#game-container {
+  width: 800px;
+  margin: 20px auto;
+  text-align: center;
+  padding: 20px;
+  background-color: #1e1e1e;
+  background-image: linear-gradient(to bottom right, #1e1e1e 0%, #2d2d2d 100%);
+  border: 1px solid #444;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+button {
+  background: #333;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  font-family: 'Cinzel', serif;
+  color: #e0e0e0;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+
+.stat-container {
+  background: #2a2a2a;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 10px 0;
+  border: 1px solid #444;
+}
+
+.currency {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #2a2a2a;
+  padding: 8px 15px;
+  border-radius: 5px;
+}
+
+.nav-buttons {
+  margin: 15px 0;
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+.nav-btn.active {
+  background: #6a0dad;
+  box-shadow: 0 0 8px rgba(106,13,173,0.5);
+}
+
+.nav-btn:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+#character-display {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
+  font-size: 4em;
+  text-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.health-bar {
+  height: 20px;
+  background: #444;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 5px 0;
+}
+
+.health-progress {
+  height: 100%;
+  background: #c00;
+  transition: width 0.3s ease;
+}
+
+button:hover {
+  background: #555;
+}
+button:disabled {
+  background: #2a2a2a !important;
+  color: #666 !important;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Styling for the battle log to show combat messages */
+#battle-log {
+  margin-top: 15px;
+  padding: 10px;
+  background: #222;
+  border: 1px solid #444;
+  height: 150px;
+  overflow-y: auto;
+  text-align: left;
+  font-size: 14px;
+  border-radius: 5px;
+}
+#battle-log p {
+  margin: 4px 0;
+  padding: 2px 5px;
+  border-left: 3px solid #333;
+}
+#battle-log .loot-common { color: #fff; }
+#battle-log .loot-uncommon { color: #1eff00; }
+#battle-log .loot-rare { color: #0070dd; }
+#battle-log .loot-epic { color: #a335ee; }
+#battle-log .loot-legendary { color: #ff8000; }
+.game-over {
+  color: #ff4444;
+  text-shadow: 0 0 10px rgba(255,68,68,0.5);
+}
+
+.player-hit {
+  animation: playerHit 0.3s;
+}
+
+.enemy-hit {
+  animation: enemyHit 0.3s;
+}
+
+@keyframes playerHit {
+  50% { background-color: #400000; }
+}
+
+@keyframes enemyHit {
+  50% { transform: translateX(10px); }
+}
+
+@keyframes pulse {
+  50% { opacity: 0.5; }
+}
+
+/* Styling for the XP progress bar */
+#xp-bar {
+  width: 100%;
+  background: #444;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+#xp-progress {
+  width: 0%;
+  height: 20px;
+  background: #6a0dad;
+}
+
+.loot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.loot-item {
+  padding: 8px;
+  border-radius: 5px;
+  transition: transform 0.2s;
+  cursor: pointer;
+  background: #333;
+}
+.loot-item:hover {
+  transform: translateY(-3px);
+}
+.loot-common { border: 1px solid #666; }
+.loot-uncommon { border: 1px solid #1eff00; }
+.loot-rare { border: 1px solid #0070dd; }
+.loot-epic { border: 1px solid #a335ee; }
+.loot-legendary { border: 1px solid #ff8000; }
+
+button#toggle-music {
+  background: #444;
+  border: none;
+  padding: 10px 15px;
+  margin: 5px;
+  font-family: 'Cinzel', serif;
+  color: #e0e0e0;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+
+button#toggle-music:hover {
+  background: #555;
+}
+
+button#upgrade-spell {
+  background: #444;
+  border: none;
+  padding: 10px 15px;
+  margin: 5px;
+  font-family: 'Cinzel', serif;
+  color: #e0e0e0;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+button#upgrade-spell:hover {
+  background: #555;
+}
+
+audio#bg-music {
+  display: none;
+}
+
+/* Styling for the mana bar */
+.mana-bar {
+  height: 20px;
+  background: #444;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 5px 0;
+}
+.mana-progress {
+  height: 100%;
+  background: #1e90ff;
+  transition: width 0.3s ease;
+}
+
+.level-up {
+  animation: pulse 1s;
+}
+
+button#drink-potion {
+  background: #444;
+  border: none;
+  padding: 10px 15px;
+  margin: 5px;
+  font-family: 'Cinzel', serif;
+  color: #e0e0e0;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+button#drink-potion:hover {
+  background: #555;
+}
+
+/* New styling for the Sell All Loot button in Inventory */
+button#sell-all {
+  background: #444;
+  border: none;
+  padding: 10px 15px;
+  margin: 5px;
+  font-family: 'Cinzel', serif;
+  color: #e0e0e0;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+button#sell-all:hover {
+  background: #555;
+}
+
+/* New styling for transient loot messages to add a gothic pulse effect */
+.loot-message {
+  animation: pulse 0.5s;
+}

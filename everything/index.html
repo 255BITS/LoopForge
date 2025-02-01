@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fantasy Incremental RPG</title>
+  <meta name="description" content="A dark, gothic incremental RPG where every choice unveils your mystic destiny.">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!--
+  Welcome to the Fantasy Incremental RPG!
+
+  This file is now the nexus of dark adventures and mystical choices.
+  Every decision you make contributes to an evolving, gothic journey of combat, exploration, and enchanting loot.
+  Crafted with passion by Dante Mercer.
+
+  Leave this notice to honor the creative spark within.
+  -->
+  <div id="game-container" role="main">
+    <h1>Fantasy Incremental RPG</h1>
+    <p id="gothic-banner" style="font-family: 'Cinzel', serif; color: #aaa; font-size: 1em; margin-top: -10px;">Delve into dark dungeons and mystical realms!</p>
+    <p style="font-family: 'Cinzel', serif; color: #ccc; font-size: 0.9em;">Crafted with dark passion by Dante Mercer.</p>
+    <div id="top-bar">
+      <div class="currency">
+        <span id="gold">🪙 0</span>
+        <span id="mana">🔮 100/100</span>
+        <span id="potions">🧪 1</span>
+      </div>
+      <div class="nav-buttons" role="navigation">
+        <button class="nav-btn active" data-screen="combat">⚔️ Combat</button>
+        <button class="nav-btn" data-screen="inventory">🎒 Inventory</button>
+        <button class="nav-btn" data-screen="skills">📜 Skills</button>
+      </div>
+      <button id="toggle-music">Toggle Music</button>
+    </div>
+  
+    <div id="combat-screen">
+      <div id="character-display">
+        <div class="character">🧙♂️</div>
+        <div class="enemy">👹</div>
+      </div>
+      
+      <h2 class="subtitle">Embark on your gothic adventure</h2>
+      <p id="welcome-message">Welcome, brave soul, to an epic odyssey where gothic horrors and mystical fortunes await. Your journey begins now!</p>
+      <p id="instructions">Forge your legend in a realm of mysterious magic and perilous quests! Unleash powerful attacks, summon healing forces, and master arcane spells. Every decision shapes your destiny and unveils hidden treasures!</p>
+      <p id="explore-tip" style="font-family: 'Cinzel', serif; color: #bbb; font-size: 0.85em;">Tip: Click "Explore" to unveil mysterious encounters hidden in the shadows!</p>
+      <p id="controls" style="font-family: 'Cinzel', serif; color: #bbb; font-size: 0.85em;">
+        Hotkeys: [A] Attack, [H] Heal, [S] Special, [E] Explore, [R] Restart, [C] Secret Challenge
+      </p>
+      <p id="atmosphere" style="font-family: 'Cinzel', serif; color: #bbb; font-size: 0.85em;">May fate and gothic wonder guide your every step.</p>
+  
+      <div class="stat-container">
+        <h3>Player</h3>
+        <div class="health-bar">
+          <div id="player-hp" class="health-progress"></div>
+        </div>
+        <div id="player-text" class="stat-text"></div>
+      </div>
+      <div class="stat-container">
+        <h3>Mana</h3>
+        <div class="mana-bar">
+          <div id="mana-progress" class="mana-progress"></div>
+        </div>
+      </div>
+      <div class="stat-container">
+        <h3>Enemy</h3>
+        <div class="health-bar">
+          <div id="enemy-hp" class="health-progress"></div>
+        </div>
+        <div id="enemy-text" class="stat-text"></div>
+      </div>
+      <div id="xp-container">
+        <div id="xp-label">Level 1 - 0/20 XP</div>
+        <div id="xp-bar">
+          <div id="xp-progress"></div>
+        </div>
+      </div>
+  
+      <div class="action-buttons">
+        <button id="attack">⚔️ Attack Enemy</button>
+        <button id="auto-attack">🤖 Auto Attack (OFF)</button>
+        <button id="drink-potion">Drink Potion</button>
+        <button id="buy-potion">Buy Potion (50 Gold)</button>
+        <button id="explore">🧭 Explore</button>
+        <button id="shrine">Visit Shrine</button>
+      </div>
+      <button id="heal">Heal</button>
+      <button id="special">💥 Special Attack</button>
+      
+      <!-- Battle Log for ongoing combat messages -->
+      <div id="battle-log"></div>
+      <!-- Secret Challenge Button -->
+      <button id="secret-challenge">Secret Challenge</button>
+      <button id="restart">Restart Game</button>
+    </div>
+  
+    <div id="inventory-screen" style="display: none;">
+      <h2>Inventory</h2>
+      <div id="loot" class="loot-grid">No loot yet...</div>
+      <!-- Sell All Loot button will be appended here via JavaScript if loot is available -->
+    </div>
+  
+    <div id="skills-screen" style="display: none;">
+      <h2>Skills</h2>
+      <p>Improve your arcane mastery by upgrading spells and unlocking mystical powers!</p>
+      <p>Enhance your combat prowess by upgrading your weapon—each upgrade boosts your attack power.</p>
+      <button id="upgrade-spell">Upgrade Spell (50 Gold)</button>
+      <button id="upgrade-attack">Upgrade Attack (100 Gold)</button>
+    </div>
+  </div>
+  <script src="game.js"></script>
+  <audio id="bg-music" src="music.mp3" loop></audio>
+  <audio id="attack-sfx" src="attack.mp3"></audio>
+  <audio id="enemy-sfx" src="enemy.mp3"></audio>
+  <audio id="heal-sfx" src="heal.mp3"></audio>
+  <audio id="loot-sfx" src="loot.mp3"></audio>
+  <footer class="footer">Crafted with dark passion by Dante Mercer</footer>
+</body>
+</html>

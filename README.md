@@ -28,3 +28,9 @@ See how well AI agent loops work on creating software from scratch with a fun ga
 
 ## o3-mini
 ![screenshot](o3-mini/screenshot.png)
+
+## everything
+
+Rules here are slightly different. Any technique or model may be used. All edits must be made by gptdiff.
+
+Everything is meant to sample how far this technique can go.
