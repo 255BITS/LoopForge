@@ -1,0 +1,481 @@
+
+
+<!DOCTYPE html>
+<html lang="en" class="dark-theme">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <title>Fantasy Quest</title>
+    <style>
+        body {
+            font-family: 'MedievalSharp', cursive, 'Press Start 2P', monospace;
+            background: linear-gradient(45deg, #2c1810, #3d2b20, #4a3426);
+            background-image: url('https://example.com/dark-forest-bg.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 250px 1fr 250px;
+            gap: 20px;
+            padding: 20px;
+            background-image: url('https://example.com/dark-forest-bg.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            color: #fff;
+            font-family: 'MedievalSharp', cursive;
+        }
+        .container > * {
+            background-color: #3d2b20;
+            padding: 20px;
+            border-radius: 15px;
+        }
+        #gameTitle h1, #gameTitle h2 {
+            font-family: 'Press Start 2P', cursive;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+        }
+        .player-stats {
+            grid-column: 1;
+            background-image: url('https://example.com/ancient-scroll-bg.png');
+            background-size: cover;
+            padding: 25px;
+            border-radius: 15px;
+        }
+        .stat-item {
+            margin: 10px 0;
+            font-size: 1.2em;
+            color: #e6e6fa;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .action-button {
+            background-color: #4a3426;
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+            margin: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            border: 2px solid #4a3426;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        }
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background-image: url('https://example.com/ancient-scroll-bg.png');
+            background-size: cover;
+        }
+        .shop-item {
+            background-color: #4a3426;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-size: 1.1em;
+            color: #e6e6fa;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .shop-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+        .quest-log {
+            background-color: #3d2b20;
+            padding: 20px;
+            border-radius: 10px;
+            height: 150px;
+            overflow-y: auto;
+            margin-top: 20px;
+            max-height: 300px;
+            background-image: url('https://example.com/ancient-scroll-bg.png');
+            background-size: cover;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .shop {
+            grid-column: 3;
+            background-image: url('https://example.com/ancient-scroll-bg.png');
+            background-size: cover;
+        }
+        .combat-ui {
+            background-color: #2c1810;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            background-image: url('https://example.com/dark-cave-bg.png');
+            background-size: cover;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            border: 2px solid #4a3426;
+            animation: modalSlideIn 0.5s ease;
+        }
+        @keyframes modalSlideIn {
+            from { transform: translate(-50%, -50%) translateY(-20px); opacity: 0; }
+            to { transform: translate(-50%, -50%); opacity: 1; }
+        }
+        .equipment-slot {
+            margin: 10px 0;
+            padding: 15px;
+            background-color: #3d2b20;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .equipment-slot:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        }
+    </style>
+    <script src="https://unpkg.com/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/soundjs/1.0.2/soundjs.min.js"></script>
+</head>
+<body>
+    <div id="characterCreation" class="modal" style="display: none;">
+        <h2>Create Your Character</h2>
+        <input type="text" id="playerNameInput" placeholder="Enter your name">
+        <div style="display: grid; gap: 10px;">
+            <select id="classSelect">
+                <option value="Warrior">Warrior</option>
+                <option value="Mage">Mage</option>
+                <option value="Rogue">Rogue</option>
+                <option value="Paladin">Paladin</option>
+                <option value="Monk">Monk</option>
+            </select>
+            <select id="appearanceSelect">
+                <option value="default">Default</option>
+                <option value="elf">Elf</option>
+                <option value="dwarf">Dwarf</option>
+                <option value="halfling">Halfling</option>
+            </select>
+            <button class="action-button" onclick="createCharacter()">Create Character</button>
+        </div>
+    </div>
+    <div class="container">
+        <div id="gameTitle">
+            <h1 style="color: #ffd700;">Fantasy Quest</h1>
+            <div id="statusBar" class="stat-item"></div>
+        </div>
+        <div class="player-stats">
+            <h2>Warrior Stats</h2>
+            <div class="stat-item">
+                <strong>Class:</strong> <span id="player-class">Warrior</span>
+            </div>
+            <div class="stat-item">
+                <strong>Attack:</strong> <span id="player-attack">10</span>
+            </div>
+            <div class="stat-item">
+                <strong>Name:</strong> <span id="player-name">Adventurer</span>
+            </div>
+            <div class="stat-item">
+                <strong>Level:</strong> <span id="level">1</span>
+            </div>
+            <div class="stat-item">
+                <strong>Exp:</strong> <span id="exp">0/100</span>
+            </div>
+            <div class="stat-item">
+                <strong>Gold:</strong> <span id="gold">0</span>
+            </div>
+            <div class="stat-item">
+                <strong>HP:</strong> <span id="hp">10</span>
+            </div>
+            <div class="stat-item">
+                <strong>Inventory:</strong> <span id="inventory"></span>
+            </div>
+            <div class="stat-item">
+                <strong>Status:</strong> <span id="status">Ready for Adventure</span>
+            </div>
+        </div>
+        <div class="quest-log">
+            <h2>Adventure Log</h2>
+            <div id="questLog"></div>
+        </div>
+        <div class="shop">
+            <h2>Merchant's Wares</h2>
+            <div class="shop-grid">
+                <button class="action-button" onclick="buyPotion()">Buy Potion (5 gold)</button>
+                <button class="action-button" onclick="buySword()">Buy Sword (10 gold)</button>
+                <button class="action-button" onclick="buyArmor()">Buy Armor (15 gold)</button>
+            </div>
+            <div class="shop-grid">
+                <button class="action-button" onclick="manageEquipment()">Manage Equipment</button>
+                <button class="action-button" onclick="checkQuests()">Check Quests</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        createjs.Sound.registerSound({id:"sword", src:"/sounds/sword-swing.mp3"});
+        createjs.Sound.registerSound({id:"heal", src:"/sounds/heal.mp3"});
+        let player = {
+            name: 'Adventurer',
+            level: 1,
+            maxInventory: 10,
+            exp: 0,
+            expToNextLevel: 100,
+            gold: 0,
+            hp: 10,
+            maxHp: 10,
+            inventory: [],
+            currentQuest: null,
+            equipped: {
+                weapon: null,
+                armor: null
+            },
+            class: null,
+            appearance: 'default',
+            background: 'default'
+        };
+        
+        function updatePlayerStats() {
+            document.getElementById('player-name').textContent = player.name;
+            document.getElementById('level').textContent = player.level;
+            document.getElementById('exp').textContent = `${player.exp}/${player.expToNextLevel}`;
+            document.getElementById('gold').textContent = `💰${player.gold}`;
+            document.getElementById('hp').textContent = player.hp;
+            document.getElementById('inventory').textContent = player.inventory.join(', ') || 'Empty';
+            document.getElementById('status').textContent = player.currentQuest ? `On Quest: ${player.currentQuest}` : 'Ready for Adventure';
+        }
+        function createCharacter() {
+            const playerName = document.getElementById('playerNameInput').value;
+            const playerClass = document.getElementById('classSelect').value;
+            const appearance = document.getElementById('appearanceSelect').value;
+            
+            if (!playerName || !playerClass) {
+                showNotification("Please enter a name and select a class!");
+                return;
+            }
+            
+            player.name = playerName;
+            player.class = playerClass;
+            player.appearance = appearance;
+            document.getElementById('characterCreation').style.display = 'none';
+            updatePlayerStats();
+            showNotification(`Character created! Welcome, ${player.name} the ${player.class}!`);
+            
+            // Add starting equipment based on class
+            switch(player.class) {
+                case 'Warrior': player.inventory.push('Wooden Sword'); break;
+                case 'Mage': player.inventory.push('Staff'); break;
+                case 'Rogue': player.inventory.push('Dagger'); break;
+                case 'Paladin': player.inventory.push('Longsword'); break;
+                case 'Monk': player.inventory.push('Quarterstaff'); break;
+            }
+        }
+        function updatePlayerName() {
+            player.name = document.getElementById('playerNameInput').value;
+            document.getElementById('playerNameInput').value = '';
+            showNotification(`Welcome, ${player.name}!`);
+            updatePlayerStats();
+        }
+        function startQuest() {
+            if (!player.class || !player.name) {
+                showNotification("Choose your class and name first!");
+                return;
+            }
+            if (player.currentQuest) {
+                showNotification("You are already on a quest!");
+                return;
+            }
+            const enemy = generateEnemy();
+            player.currentQuest = `Defeat ${enemy.name}`;
+            updatePlayerStats();
+            setTimeout(() => {
+                combat(enemy);
+            }, 1000);
+            showNotification(`${player.name} started a quest to defeat ${enemy.name}!`);
+        }
+        function buyPotion() {
+            if (player.gold >= 5) {
+                player.gold -= 5;
+                player.hp = Math.min(player.hp + 5, player.maxHp);
+                createjs.Sound.play("heal");
+                showNotification("You bought a health potion and drank it!");
+                updatePlayerStats();
+            } else {
+                showNotification("Not enough gold to buy potion!");
+            }
+        }
+        function buySword() {
+            if (player.gold >= 10) {
+                player.gold -= 10;
+                player.inventory.push('Sword');
+                showNotification("You bought a sword!");
+                updatePlayerStats();
+            } else {
+                showNotification("Not enough gold to buy sword!");
+            }
+        }
+        function buyArmor() {
+            if (player.gold >= 15) {
+                player.gold -= 15;
+                player.inventory.push('Armor');
+                showNotification("You bought armor!");
+                updatePlayerStats();
+            } else {
+                showNotification("Not enough gold to buy armor!");
+            }
+        }
+        function combat(enemy) {
+            document.getElementById('combatUi').style.display = 'block';
+            document.getElementById('questLog').style.display = 'none';
+            showNotification(`A ${enemy.name} appears!`);
+            updateEnemyStats(enemy);
+        }
+        function attackEnemy() {
+            const enemy = {
+                name: 'Goblin',
+                minDamage: 1,
+                maxDamage: 3,
+                gold: 2,
+                exp: 5,
+                hp: 10,
+            };
+            const baseAttack = 5;
+            const classBonus = {
+                Warrior: 4,
+                Mage: 2,
+                Rogue: 3,
+                Paladin: 5,
+                Monk: 4,
+            }[player.class] || 0;
+            const playerDamage = baseAttack + classBonus + (player.equipped.weapon ? 2 : 0);
+            const enemyDamage = Math.floor(Math.random() * enemy.maxDamage) + enemy.minDamage;
+            player.hp -= enemyDamage;
+            if (player.hp < 0) player.hp = 0;
+            createjs.Sound.play("sword");
+            showNotification(`You attacked the ${enemy.name} for ${playerDamage} damage!`);
+            showNotification(`The ${enemy.name} attacked you for ${enemyDamage} damage!`);
+            if (player.hp <= 0) {
+                gameOver();
+                return;
+            }
+            if (playerDamage >= enemy.maxDamage) {
+                showNotification("Critical hit! You dealt massive damage!");
+            }
+            updatePlayerStats();
+            updateQuestLog(`Battle: ${enemy.name} - You: ${playerDamage} damage, Enemy: ${enemyDamage} damage`);
+        }
+        function showEquipment() {
+            const equipmentSlots = document.getElementById('equipmentSlots');
+            equipmentSlots.innerHTML = `
+                <div class="equipment-slot" style="text-align: center;">
+                    <strong>Weapon:</strong> ${player.equipped.weapon || 'None'}
+                </div>
+                <div class="equipment-slot">
+                    <strong>Armor:</strong> ${player.equipped.armor || 'None'}
+                </div>
+                <div class="equipment-slot">
+                    <strong>Inventory:</strong> ${player.inventory.join(', ') || 'Empty'
+                </div>`;
+        }
+        function checkQuests() {
+            if (!player.currentQuest) {
+                showNotification("No active quest. Ready for a new adventure!");
+                return;
+            }
+            
+            showNotification(`Current Quest: ${player.currentQuest}`);
+            showNotification("Enemies nearby: " + generateEnemiesNearby().join(', '));
+            showNotification("Gold: ${player.gold} | Exp: ${player.exp}/${player.expToNextLevel}`);
+        }
+        function initializeGame() {
+            showCharacterCreation();
+        }
+        function showCharacterCreation() {
+            document.getElementById('characterCreation').style.display = 'flex';
+        }
+        function selectClass() {
+            const classSelect = document.getElementById('classSelect');
+            player.class = classSelect.value;
+            document.getElementById('classSelected').textContent = 
+                `Class: ${player.class}`;
+            classSelect.disabled = true;
+            showNotification(`You have chosen the ${player.class} class!`);
+            updatePlayerStats();
+            
+            // Initialize class-specific stats
+            switch(player.class) {
+                case 'Warrior': player.baseAttack = 5; break;
+                case 'Mage': player.magicPower = 4; break;
+                case 'Rogue': player.dexterity = 3; break;
+                case 'Paladin': player.baseAttack = 4; break;
+                case 'Monk': player.dexterity = 3; break;
+            }
+        }
+        function updatePlayerAppearance() {
+            const appearance = document.getElementById('appearanceSelect').value;
+            player.appearance = appearance;
+            updatePlayerStats();
+        }
+        function updateQuestLog(message) {
+            const log = document.getElementById('questLog');
+            const entry = document.createElement('div');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            if (log.children.length >= 10) {
+                log.removeChild(log.firstChild);
+            }
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+        function showNotification(message) {
+            Swal.fire({
+                title: 'Game Notification',
+                text: message,
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        }
+        function gameOver() {
+            createjs.Sound.play("game-over");
+            showNotification("You were defeated! Game Over!");
+            resetGame();
+        }
+        function resetGame() {
+            player = {
+                name: 'Adventurer',
+                level: 1,
+                exp: 0,
+                expToNextLevel: 100,
+                gold: 0,
+                hp: 10,
+                maxHp: 10,
+                inventory: [],
+                currentQuest: null,
+                equipped: {
+                    weapon: null,
+                    armor: null
+                },
+                class: null,
+                appearance: 'default',
+                background: 'default'
+            };
+            updatePlayerStats();
+            showNotification("Game reset. Start your adventure anew!");
+        }
+    </script>
+</body>
+</html>
