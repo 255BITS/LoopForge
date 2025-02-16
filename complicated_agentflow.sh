@@ -62,6 +62,19 @@ while true; do
         if [ -f "test_feature_${FEATURE_ID}.py" ]; then
             # Validate test structure
             if ! run_pytest test_feature_${FEATURE_ID}.py; then
+
+                # Check for missing module errors and prompt for pip install
+                if echo "$TEST_OUTPUT" | grep -q "No module named"; then
+                    MISSING_MODULE=$(echo "$TEST_OUTPUT" | grep "No module named" | sed -E "s/.*(No module named '([^']+)').*/\2/")
+                    log_error "Missing Module Detected: $MISSING_MODULE"
+                    echo -e "\n${BOLD}${CYAN}Attempting to install missing module: ${MISSING_MODULE}${NC}"
+                    echo -e "Please run the following command to manually install:\n"
+                    echo -e "${BOLD}pip3 install ${MISSING_MODULE}${NC}"
+                    echo -e "\nPress enter to continue once you have resolved the missing module issue."
+                    read -p ""
+                    continue
+                fi
+
                 log_error "Invalid Test Syntax - Regenerating"
                 rm test_feature_${FEATURE_ID}.py
                 continue
