@@ -36,7 +36,8 @@ run_pytest() {
 
 # Initialize the development cycle
 log_status "Starting New Development Cycle"
-echo "NEW PROJECT - create an index.html" > next_feature.txt
+INSTRUCTIONS="The goal is to create an index.html incremental rpg that can be played in the browser."
+echo "NEW PROJECT" > next_feature.txt
 
 while true; do
     FEATURE_ID=$(date +%s)
@@ -45,7 +46,7 @@ while true; do
     # Feature Planning Phase
     while [ -f "next_feature.txt" ]; do
         log_status "Planning Feature ${FEATURE_ID}"
-        gptdiff "We are writing an incremental action rpg. analyze game state and write specific requirements for next feature into requirements_${FEATURE_ID}.txt" --apply --prepend https://getaiceo.com/agent/e9798c8b-ecb5-477f-b8bf-029adba9781e/export_url
+        gptdiff "${INSTRUCTIONS}. analyze game state and write specific requirements for next feature into requirements_${FEATURE_ID}.txt" --apply --prepend https://getaiceo.com/agent/e9798c8b-ecb5-477f-b8bf-029adba9781e/export_url
         if [ -f "requirements_${FEATURE_ID}.txt" ]; then
             log_success "Requirements Generated"
             rm next_feature.txt
@@ -56,7 +57,7 @@ while true; do
     # Test Creation Phase
     while [ -f "requirements_${FEATURE_ID}.txt" ]; do
         log_status "Creating Tests for Feature ${FEATURE_ID}"
-        gptdiff "We are writing an incremental action rpg. Create pytest tests for the requirements in requirements_${FEATURE_ID}.txt in test_feature_${FEATURE_ID}.py. Tests must include assertions and cover both success and failure cases" --apply --model o3-mini
+        gptdiff "${INSTRUCTIONS}. Create pytest tests for the requirements in requirements_${FEATURE_ID}.txt in test_feature_${FEATURE_ID}.py. Tests must include assertions and cover both success and failure cases" --apply --model o3-mini
         
         if [ -f "test_feature_${FEATURE_ID}.py" ]; then
             # Validate test structure
@@ -103,11 +104,11 @@ while true; do
         log_status "Current Test Failures:"
         echo -e "${YELLOW}${TEST_OUTPUT}${NC}"
         
-        gptdiff "We are writing an incremental action rpg. Implement the feature for index.html to match the requirements and pass the tests in test_feature_${FEATURE_ID}.py. Here are the current test failures: ${TEST_OUTPUT}" --apply --model o3-mini
+        gptdiff "${INSTRUCTIONS}. Implement the feature for game.py to match the requirements and pass the tests in test_feature_${FEATURE_ID}.py. Here are the current test failures: ${TEST_OUTPUT}" --apply --model o3-mini
         sleep 2
     done
     log_status "Improving UI"
-    gptdiff "We are writing an incremental action rpg. Make the functionality thats there look good. Do not add new functionality." --apply --prepend https://getaiceo.com/agent/e9798c8b-ecb5-477f-b8bf-029adba9781e/export_url
+    gptdiff "${INSTRUCTIONS}. Make the functionality thats there look good. Do not add new functionality." --apply --prepend https://getaiceo.com/agent/e9798c8b-ecb5-477f-b8bf-029adba9781e/export_url
 
     # Log completion
     log_success "Feature ${FEATURE_ID} Completed Successfully"
