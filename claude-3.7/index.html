@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Quest: The Incremental Adventure</title>
+    <style>
+        :root {
+            --primary: #4B3F72;
+            --secondary: #1F2041;
+            --accent: #FFC857;
+            --background: #F9F5FF;
+            --text: #1F2041;
+            --success: #00A878;
+            --danger: #D7263D;
+            --warning: #F46036;
+            --info: #2E86AB;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+        }
+        
+        h1, h2, h3 {
+            color: var(--primary);
+        }
+        
+        .game-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        
+        .stats-panel {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .progress-bar {
+            height: 15px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .health-fill {
+            background-color: var(--danger);
+        }
+        
+        .mana-fill {
+            background-color: var(--info);
+        }
+        
+        .exp-fill {
+            background-color: var(--accent);
+        }
+        
+        .main-content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+        
+        .tab-button {
+            padding: 10px 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--text);
+            opacity: 0.7;
+            transition: all 0.3s;
+        }
+        
+        .tab-button:hover {
+            opacity: 1;
+        }
+        
+        .tab-button.active {
+            opacity: 1;
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .upgrade, .adventure, .skill {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .upgrade:hover, .adventure:hover, .skill:hover {
+            transform: translateY(-2px);
+        }
+        
+        .upgrade-header, .adventure-header, .skill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .upgrade-level, .skill-level {
+            font-size: 0.8em;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .upgrade-footer, .adventure-stats, .skill-stats {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .stat {
+            font-size: 0.9em;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-weight: bold;
+            color: var(--secondary);
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--secondary);
+        }
+        
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .quest {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .quest.completed {
+            background-color: #f0f7f0;
+            border-left: 3px solid var(--success);
+        }
+        
+        .quest-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .quest-status {
+            font-size: 0.8em;
+            padding: 2px 6px;
+            border-radius: 3px;
+            background-color: #eee;
+        }
+        
+        .quest.completed .quest-status {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .quest-progress {
+            margin-top: 8px;
+            font-size: 0.9em;
+            color: var(--primary);
+        }
+        
+        .disabled {
+            opacity: 0.7;
+        }
+        
+        .locked {
+            background-color: #f0f0f0;
+            border: 1px dashed #ccc;
+        }
+        
+        .notifications {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            z-index: 1000;
+        }
+        
+        .notification {
+            background-color: white;
+            border-left: 4px solid var(--primary);
+            margin-bottom: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            animation: fadeIn 0.3s;
+            transition: opacity 0.5s;
+        }
+        
+        .notification.success { border-left-color: var(--success); }
+        .notification.warning { border-left-color: var(--warning); }
+        .notification.failure { border-left-color: var(--danger); }
+        .notification.combat { border-left-color: var(--primary); }
+        .notification.damage { border-left-color: var(--danger); }
+        .notification.heal { border-left-color: var(--success); }
+        .notification.mana { border-left-color: var(--info); }
+        .notification.levelup { border-left-color: var(--accent); background-color: #fffbf1; }
+        .notification.quest { border-left-color: #ff9800; background-color: #fff8e1; }
+        .notification.item { border-left-color: #9c27b0; }
+        .notification.skill { border-left-color: #3f51b5; }
+        .notification.unlock { border-left-color: #4CAF50; background-color: #f1fff3; }
+        
+        .notification.fade-out {
+            opacity: 0;
+        }
+        
+        #enemyContainer {
+            background-color: #fff5f5;
+            border: 1px solid #ffcdd2;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .combat-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .game-log {
+            height: 200px;
+            overflow-y: auto;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 3px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .log-time {
+            color: #888;
+            font-size: 0.8em;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .action-area {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .gold-click {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            cursor: pointer;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        
+        .gold-click:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .potion-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        
+        .save-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .save-button {
+            background-color: var(--info);
+        }
+        
+        .load-button {
+            background-color: var(--primary);
+        }
+        
+        .reset-button {
+            background-color: var(--danger);
+        }
+        
+        /* New CSS for dungeons */
+        .dungeon {
+            background-color: #f0f0f8;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .dungeon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .dungeon-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        /* New CSS for achievements */
+        .achievements-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .achievement {
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            opacity: 0.7;
+        }
+        
+        .achievement.earned {
+            background-color: #f0f7e6;
+            border-left: 4px solid var(--success);
+            opacity: 1;
+        }
+        
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Fantasy Quest: The Incremental Adventure</h1>
+    </header>
+    
+    <div class="game-container">
+        <div class="stats-panel">
+            <h2>Adventurer Stats</h2>
+            <div class="stat-group">
+                <p><strong>Gold:</strong> <span id="gold">0</span></p>
+                <p><strong>Click Power:</strong> <span id="clickPower">1</span></p>
+                <p><strong>Auto Gold:</strong> <span id="autoGoldRate">0</span>/sec</p>
+            </div>
+            
+            <div class="stat-group">
+                <p><strong>Level:</strong> <span id="playerLevel">1</span></p>
+                <p><strong>Experience:</strong> <span id="experience">0</span>/<span id="experienceNeeded">100</span></p>
+                <div class="progress-bar">
+                    <div id="expPercentage" class="progress-fill exp-fill" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="stat-group">
+                <p><strong>Health:</strong> <span id="health">100</span>/<span id="maxHealth">100</span></p>
+                <div class="progress-bar">
+                    <div id="healthBar" class="progress-fill health-fill" style="width: 100%"></div>
+                </div>
+                
+                <p><strong>Mana:</strong> <span id="mana">50</span>/<span id="maxMana">50</span></p>
+                <div class="progress-bar">
+                    <div id="manaBar" class="progress-fill mana-fill" style="width: 100%"></div>
+                </div>
+            </div>
+            
+            <div class="stat-group">
+                <p><strong>Attack Power:</strong> <span id="attackPower">1</span></p>
+                <p><strong>Defense:</strong> <span id="defense">0</span></p>
+            </div>
+            
+            <div class="stat-group">
+                <p><strong>Healing Potions:</strong> <span id="healingPotions">0</span></p>
+                <p><strong>Mana Potions:</strong> <span id="manaPotions">0</span></p>
+                
+                <div class="potion-buttons">
+                    <button id="useHealingPotionButton">Use Health</button>
+                    <button id="useManaPotionButton">Use Mana</button>
+                </div>
+            </div>
+            
+            <div class="save-buttons">
+                <button id="saveButton" class="save-button">Save Game</button>
+                <button id="loadButton" class="load-button">Load Game</button>
+                <button id="resetButton" class="reset-button">Reset</button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="action-area">
+                <div id="goldClick" class="gold-click" onclick="game.gold += game.clickPower; updateUI();">
+                    +<span id="clickPowerDisplay">1</span>
+                </div>
+                <p>Click the gold coin to mine!</p>
+            </div>
+            
+            <div id="enemyContainer">
+                <h3>Combat: <span id="enemyName"></span></h3>
+                <p>HP: <span id="enemyCurrentHP"></span>/<span id="enemyMaxHP"></span></p>
+                <div class="progress-bar">
+                    <div id="enemyHealth" class="progress-fill health-fill" style="width: 100%"></div>
+                </div>
+                <p>Attack: <span id="enemyAttack"></span></p>
+                
+                <div class="combat-buttons">
+                    <button id="attackButton">Attack</button>
+                    <button id="findEnemyButton">Find Enemy</button>
+                </div>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab-button active" data-tab="upgradesTab">Upgrades</button>
+                <button class="tab-button" data-tab="adventuresTab">Adventures</button>
+                <button class="tab-button" data-tab="questsTab">Quests</button>
+                <button class="tab-button" data-tab="skillsTab">Skills</button>
+                <button class="tab-button" data-tab="dungeonsTab">Dungeons</button>
+                <button class="tab-button" data-tab="logTab">Game Log</button>
+                <button class="tab-button" data-tab="achievementsTab">Achievements</button>
+            </div>
+            
+            <div id="upgradesTab" class="tab-content active">
+                <h2>Upgrades</h2>
+                <div id="upgradesContainer"></div>
+            </div>
+            
+            <div id="adventuresTab" class="tab-content">
+                <h2>Adventures</h2>
+                <div id="adventuresContainer"></div>
+            </div>
+            
+            <div id="questsTab" class="tab-content">
+                <h2>Quests</h2>
+                <div id="questsContainer"></div>
+            </div>
+            
+            <div id="skillsTab" class="tab-content">
+                <h2>Skills</h2>
+                <div id="skillsContainer"></div>
+            </div>
+            
+            <div id="dungeonsTab" class="tab-content">
+                <h2>Dungeons</h2>
+                <p>Explore dangerous dungeons for valuable rewards!</p>
+                <div id="dungeonsContainer"></div>
+            </div>
+            
+            <div id="logTab" class="tab-content">
+                <h2>Game Log</h2>
+                <div id="gameLog" class="game-log"></div>
+            </div>
+            
+            <div id="achievementsTab" class="tab-content">
+                <h2>Achievements</h2>
+                <p>Complete special challenges to earn permanent bonuses!</p>
+                <div id="achievementsContainer" class="achievements-container">
+                    <!-- Achievements will be rendered here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notifications" class="notifications"></div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
+<script>
+    // Add this function to render achievements
+    function renderAchievements() {
+        const container = document.getElementById('achievementsContainer');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        game.achievements.forEach(achievement => {
+            const achievementElement = document.createElement('div');
+            achievementElement.className = achievement.earned ? 'achievement earned' : 'achievement';
+            
+            let progressText = achievement.counter !== undefined ? 
+                `<p class="progress">${achievement.counter}/${achievement.targetValue}</p>` : '';
+            
+            achievementElement.innerHTML = `
+                <h3>${achievement.name}</h3>
+                <p>${achievement.description}</p>
+                ${progressText}
+                <p class="reward">Reward: ${achievement.rewardValue} ${achievement.rewardType.replace('Bonus', '')}</p>
+            `;
+            
+            container.appendChild(achievementElement);
+        });
+    }
+    
+    // Add to window.onload to initialize achievements
+    window.addEventListener('load', function() {
+        renderAchievements();
+        setInterval(renderAchievements, 5000); // Update every 5 seconds
+    });
+</script>
