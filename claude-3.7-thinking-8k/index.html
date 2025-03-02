@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Quest - Incremental RPG</title>
+    <style>
+        body {
+            font-family: 'MedievalSharp', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #222;
+            color: #eee;
+            margin: 0;
+            padding: 0;
+            background-image: url('https://i.imgur.com/JwOj0nS.jpg');
+            background-size: cover; 
+            background-attachment: fixed;
+            line-height: 1.5;
+        }
+        @font-face {
+            font-family: 'MedievalSharp';
+            src: url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+        h1 {
+            color: #ffc234;
+            text-shadow: 0 0 10px #7d4e24, 0 0 20px #000;
+            font-size: 2.5em;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+        .resource-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #7d4e24;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .resource {
+            text-align: center;
+        }
+        /* Styling improvements */
+        .resource-value {
+            font-weight: bold;
+            color: #ff9900;
+        }
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+        }
+        .panel {
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 20px;
+            border: 1px solid #444;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+        .panel:hover {
+            box-shadow: 0 0 20px rgba(123, 78, 36, 0.5);
+            border-color: #7d4e24;
+        }
+        .panel h2 {
+            margin-top: 0; 
+            color: #ffc234;
+            border-bottom: 2px solid #7d4e24;
+            padding-bottom: 5px;
+            font-size: 1.5em;
+            text-shadow: 1px 1px 3px #000;
+        }
+        button {
+            background-color: #7d4e24;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            font-family: 'MedievalSharp', cursive;
+        }
+        button:hover {
+            background-color: #a16531;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+        button.active {
+            background-color: #ff9900;
+        }
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #333;
+            height: 20px;
+            border-radius: 10px;
+            margin: 5px 0;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #ff9900;
+            width: 0%;
+            transition: width 0.3s;
+            background-image: linear-gradient(to right, #ff9900, #ffc234);
+            box-shadow: 0 0 10px rgba(255,153,0,0.5);
+        }
+        .enemy-health .progress-fill {
+            background-color: #cc0000; 
+            background-image: linear-gradient(to right, #cc0000, #ff6666);
+            box-shadow: 0 0 10px rgba(204,0,0,0.5);
+        }
+        /* Add animations for combat effects */
+        @keyframes damage-float {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-40px); opacity: 0; }
+        }
+        
+        .floating-text {
+            position: absolute;
+            animation: damage-float 1.5s forwards;
+            pointer-events: none;
+        }
+        .monster-image {
+            width: 160px;
+            height: 160px;
+            margin: 10px auto;
+            display: block;
+            border-radius: 50%;
+            border: 3px solid #7d4e24;
+            box-shadow: 0 0 15px rgba(0,0,0,0.7);
+            transition: all 0.3s ease;
+            animation: monster-pulse 2s infinite alternate;
+        }
+        
+        /* Add defeated overlay for enemy */
+        #enemy-defeated-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            border-radius: 50%;
+        }
+        
+        /* XP bar styling */
+        .experience-bar {
+            width: 100%;
+            background-color: #333;
+            height: 8px;
+            border-radius: 4px;
+            margin: 0;
+            overflow: hidden;
+        }
+        
+        .experience-fill {
+            height: 100%;
+            background-color: #00ccff;
+            background-image: linear-gradient(to right, #00ccff, #66ffff);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .pulse-animation {
+            animation: pulse 1s infinite alternate;
+        }
+        @keyframes monster-pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 15px rgba(0,0,0,0.7);
+            }
+            100% {
+                transform: scale(1.05);
+                box-shadow: 0 0 20px rgba(255,153,0,0.5);
+            }
+        }
+        
+        /* Tooltip styling */
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0,0,0,0.9);
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #7d4e24;
+            max-width: 250px;
+            font-size: 0.9em;
+            z-index: 1000;
+            display: none;
+            pointer-events: none;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        /* Add level up effect */
+        #level-up-effect {
+            display: none;
+        }
+        #level-up-effect.active {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,204,0,0.3) 0%, rgba(0,0,0,0) 70%);
+            z-index: 100;
+            pointer-events: none;
+            animation: level-up-flash 2s forwards;
+        }
+        
+        @keyframes level-up-flash {
+            0% { opacity: 0; }
+            20% { opacity: 0.8; }
+            100% { opacity: 0; }
+        }
+        
+        /* Equipment effect */
+        #equip-effect {
+            display: none;
+        }
+        #equip-effect.active {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(123,78,36,0.5) 0%, rgba(0,0,0,0) 70%);
+            z-index: 90;
+            pointer-events: none;
+            animation: equip-flash 1s forwards;
+        }
+        
+        @keyframes equip-flash {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        /* Tab styling */
+        .tab-buttons {
+            width: 100%;
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .tab-button {
+            flex: 1;
+            background-color: #333;
+            border: 1px solid #444;
+        }
+        .tab-button.active {
+            background-color: #7d4e24;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .shop-item, .equipment-item, .quest-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .shop-item:hover, .equipment-item:hover, .quest-item:hover {
+            background-color: rgba(125, 78, 36, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .equipment-slot {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px dashed #555;
+            border-radius: 5px;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        .battle-log {
+            height: 180px;
+            overflow-y: auto;
+            border: 1px solid #444;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.95em;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        .log-entry { 
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #444;
+        }
+        .player-action {
+            color: #6699ff;
+        }
+        .enemy-action {
+            color: #ff6666;
+        }
+        .reward {
+            color: #ffcc00;
+        }
+        .boss {
+            color: #ff3300;
+            font-weight: bold;
+        }
+        .critical {
+            color: #ff3399;
+            font-weight: bold;
+        }
+        .error { 
+            color: #ff6666;
+            font-style: italic;
+        }
+        .encounter {
+            color: #66ccff;
+        }
+        .game-hints {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, .5);
+            border-radius: 5px;
+            border: 1px solid #444;
+            opacity: 0.9;
+            transform: translateY(5px);
+            transition: all 0.3s ease;
+        }
+        .inventory-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            margin: 5px 0;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        .inventory-item button {
+            padding: 3px 8px;
+            margin: 0;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            padding: 10px;
+            border-top: 1px solid #444;
+            color: #bbb;
+            font-style: italic;
+        }
+        
+        /* Area effects */
+        .area-description {
+            margin-bottom: 10px;
+            font-style: italic;
+            color: #aaa;
+        }
+        
+        /* Active area indicator */
+        .active-area {
+            border-color: #ff9900;
+            box-shadow: 0 0 10px rgba(255, 153, 0, 0.3);
+        }
+        
+        /* Class selection styles */
+        .class-option {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .class-option:hover {
+            background-color: rgba(123,78,36,0.2);
+            transform: translateY(-2px);
+        }
+        .class-option.selected {
+            border-color: #ff9900;
+            background-color: rgba(255,153,0,0.1);
+        }
+        
+        /* Character portraits */
+        .character-portrait {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid #7d4e24;
+            margin: 0 auto 10px;
+            display: block;
+        }
+        
+        /* Crafting styles */
+        .crafting-item {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: rgba(0,0,0,0.3);
+        }
+        .crafting-item:hover {
+            background-color: rgba(123,78,36,0.2);
+        }
+        .crafting-requirements {
+            font-size: 0.9em;
+            color: #aaa;
+        }
+        .can-craft {
+            color: #00cc00;
+        }
+        .cannot-craft {
+            color: #cc0000;
+        }
+        
+        /* Combat effects */
+        .floating-text {
+            position: absolute;
+            font-weight: bold;
+            pointer-events: none;
+        }
+        /* New animations */
+        @keyframes levelup-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .level-up {
+            animation: levelup-pulse 0.5s ease-in-out;
+            color: gold;
+            text-shadow: 0 0 10px gold;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Special effects containers -->
+        <div id="level-up-effect"></div>
+        <div id="equip-effect"></div>
+        
+        <!-- Tooltip container will be created by JS -->
+        
+        <!-- Notification container -->
+        <div id="notification-container"></div>
+        
+        <!-- Combat text container -->
+        <div id="combat-text-container"></div>
+        
+        <!-- Player and enemy defeated overlays -->
+        <div id="player-defeated-overlay" style="display: none;"></div>
+        
+        <header>
+            <h1>🏆 Fantasy Quest 🏆</h1>
+            <p>Embark on an epic journey, slay monsters, collect treasures, and become legendary!</p>
+        </header>
+        
+        <div class="resource-bar">
+            <div class="resource">
+                <div>💰 Gold</div>
+                <div class="resource-value" id="gold">0</div>
+            </div>
+            <div class="resource">
+                <div>✨ Mana</div>
+                <div class="resource-value" id="mana">10/10</div>
+            </div>
+            <div class="resource">
+                <div>⭐ Experience</div>
+                <div class="resource-value" id="experience">0/100</div>
+            </div>
+            <div class="resource">
+                <div>🏅 Level</div>
+                <div class="resource-value" id="level">1</div>
+            </div>
+            <div class="buttons">
+                <button id="save-game">💾 Save Game</button>
+                <button id="reset-game">🔄 Reset</button>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <!-- Left Panel: Character Stats -->
+            <div class="panel" id="character-panel">
+                <h2>⚔️ Your Hero</h2>
+                <div class="stat">
+                    <span>❤️ Health:</span>
+                    <span id="health">50/50</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="health-bar" style="width: 100%;"></div>
+                </div>
+                <div class="stat">
+                    <span>✨ Experience:</span>
+                </div>
+                <div class="experience-bar"><div class="experience-fill" id="experience-bar"></div></div>
+                
+                <div class="stat">
+                    <span>⚔️ Attack:</span>
+                    <span id="attack">5</span>
+                </div>
+                <div class="stat">
+                    <span>🛡️ Defense:</span>
+                    <span id="defense">2</span>
+                </div>
+                <div class="stat">
+                    <span>✨ Magic:</span>
+                    <span id="magic">3</span>
+                </div>
+                <div class="stat">
+                    <span>⚡ Critical Chance:</span>
+                    <span id="crit-chance">5%</span>
+                </div>
+                
+                <h3>Inventory</h3>
+                <div class="potion-container">
+                    <img src="https://i.imgur.com/3hLcXA6.png" class="potion-icon" alt="Health Potion">
+                    <div class="potion-info">Health Potions: <span id="health-potion-count">0</span></div>
+                    <button id="use-health-potion" disabled>Use</button>
+                </div>
+                <div class="potion-container">
+                    <img src="https://i.imgur.com/tCIdkLH.png" class="potion-icon" alt="Mana Potion">
+                    <div class="potion-info">Mana Potions: <span id="mana-potion-count">0</span></div>
+                    <button id="use-mana-potion" disabled>Use</button>
+                </div>
+                
+                <h3>✨ Magic Skills</h3>
+                <button id="heal-skill" disabled>💚 Heal (5 Mana)</button>
+                <button id="fireball-skill" disabled>🔥 Fireball (8 Mana)</button>
+                
+                <h3>Equipment</h3>
+                <div class="equipment-slot" id="weapon-slot">
+                    🗡️ Weapon: Wooden Sword (+1 Atk)
+                </div>
+                <div class="equipment-slot" id="armor-slot">
+                    🛡️ Armor: Cloth Robes (+1 Def)
+                </div>
+                <div class="equipment-slot" id="accessory-slot">
+                    💍 Accessory: None
+                </div>
+            </div>
+            
+            <!-- Middle Panel: Battle Area -->
+            <div class="panel" id="battle-panel">
+                <h2>⚔️ Battle Arena</h2>
+                <div id="enemy-container">
+                    <h3 id="enemy-name">Slime</h3>
+                    <div style="position: relative; display: inline-block;">
+                        <img src="https://i.imgur.com/NM9Qz6W.png" class="monster-image" id="enemy-image">
+                        <div id="enemy-defeated-overlay">
+                            <span style="color: #ff3333; font-size: 24px; font-weight: bold;">
+                                DEFEATED
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <span>Health:</span>
+                        <span id="enemy-health">20/20</span>
+                    </div>
+                    <div class="progress-bar enemy-health">
+                        <div class="progress-fill" id="enemy-health-bar" style="width: 100%;"></div>
+                    </div>
+                    <div class="stat">
+                        <span>Level:</span>
+                        <span id="enemy-level">1</span>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin: 15px 0;">
+                    <button id="attack-button">⚔️ Attack</button>
+                    <button id="auto-battle" class="toggle-button">Auto Battle: OFF</button>
+                </div>
+                
+                <div class="battle-log" id="battle-log">
+                    <div class="log-entry">Welcome to Fantasy Quest! Click Attack to start your adventure.</div>
+                </div>
+                <div class="battle-status">Enemy drops have a chance to yield potions or rare items!</div>
+            </div>
+            
+            <!-- Right Panel: Shop, Quests, Areas -->
+            <div class="panel" id="progression-panel">
+                <div class="tab-buttons">
+                    <button class="tab-button active" data-tab="shop">Shop</button> 
+                    <button class="tab-button" data-tab="quests">Quests</button>
+                    <button class="tab-button" data-tab="areas">Areas</button>
+                </div>
+                
+                <div class="tab-content active" id="shop-tab">
+                    <h2>Shop</h2>
+                    <div class="shop-item" data-tooltip="A sturdy iron sword that increases your attack power by 7">
+                        <h3>Iron Sword</h3>
+                        <p>+5 Attack</p>
+                        <button id="buy-iron-sword">💰 Buy (50 gold)</button>
+                    </div>
+                    
+                    <div class="shop-item">
+                        <h3>Leather Armor</h3>
+                        <p>+5 Defense</p>
+                        <button id="buy-leather-armor">💰 Buy (50 gold)</button>
+                    </div>
+                    
+                    <div class="shop-item">
+                        <h3>Health Potion</h3>
+                        <p>Recover 20 Health (consumable)</p>
+                        <button id="buy-health-potion">💰 Buy (10 gold)</button>
+                    </div>
+                    
+                    <div class="shop-item">
+                        <h3>Mana Potion</h3>
+                        <p>Recover 15 Mana (consumable)</p>
+                        <button id="buy-mana-potion">💰 Buy (15 gold)</button>
+                    </div>
+                    
+                    <div class="shop-item">
+                        <h3>Silver Ring</h3>
+                        <p>+3 Magic (accessory)</p>
+                        <button id="buy-silver-ring">💰 Buy (100 gold)</button>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="quests-tab">
+                    <h2>📜 Quests</h2>
+                    <p>Complete quests to earn gold, experience, and special rewards!</p>
+                    
+                    <div class="quest-item">
+                        <h3>Active Quests</h3>
+                    </div>
+                    
+                    <div class="quest-item" data-quest="slimeExtermination">
+                        <h3>Slime Extermination</h3>
+                        <p>Defeat 10 slimes</p>
+                        <div class="stat">
+                            <span>Progress:</span>
+                            <span id="slime-quest-progress">0/10</span>
+                        </div>
+                        <div class="stat">
+                            <span>Reward:</span>
+                            <span>50 Gold, 100 XP</span>
+                        </div>
+                    </div>
+                    
+                    <div class="quest-item" data-quest="goblinRaid">
+                        <h3>Goblin Camp Raid</h3>
+                        <p>Defeat the Goblin Chief</p>
+                        <div class="stat">
+                            <span>Progress:</span>
+                            <span id="goblin-quest-progress">0/1</span>
+                        </div>
+                        <div class="stat">
+                            <span>Requirement:</span>
+                            <span>Level 3</span>
+                        </div>
+                        <div class="stat">
+                            <span>Reward:</span>
+                            <span>100 Gold, 200 XP, Magic Ring</span>
+                        </div>
+                    </div>
+                    
+                    <div class="quest-item" data-quest="treasureHunter">
+                        <h3>Treasure Hunter</h3>
+                        <p>Collect 200 gold from defeated enemies</p>
+                        <div class="stat">
+                            <span>Progress:</span>
+                            <span id="treasure-quest-progress">0/200</span>
+                        </div>
+                        <div class="stat">
+                            <span>Requirement:</span>
+                            <span>None</span>
+                        </div>
+                        <div class="stat">
+                            <span>Reward:</span>
+                            <span>100 Gold, 150 XP, Treasure Hunter's Amulet</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat">
+                        <span>🏆 Monsters Defeated:</span>
+                        <span id="monsters-defeated">0</span>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="areas-tab">
+                    <h2>Adventure Areas</h2>
+                    <div class="shop-item" id="forest-area">
+                        <h3>Forest of Beginnings</h3>
+                        <div class="area-description">A serene forest perfect for beginners. Watch out for the slimes!</div>
+                        <p>Monsters: Slimes, Wolves</p>
+                        <div class="stat">
+                            <span>Level Range:</span>
+                            <span>1-5</span>
+                        </div>
+                        <button id="travel-forest" class="area-travel-btn" disabled>Currently Here</button>
+                    </div>
+                    <div class="shop-item" id="caves-area">
+                        <h3>Goblin Caves</h3>
+                        <div class="area-description">Dark caves infested with goblins. Beware of the Goblin Chief!</div>
+                        <p>Monsters: Goblins, Bats</p>
+                        <div class="stat">
+                            <span>Level Range:</span>
+                            <span>3-8</span>
+                        </div>
+                        <div class="stat">
+                            <span>Required Level:</span>
+                            <span>Level 3</span>
+                        </div>
+                        <button id="travel-caves" class="area-travel-btn">Travel Here</button>
+                    </div>
+                    <div class="shop-item" id="graveyard-area">
+                        <h3>Haunted Graveyard</h3>
+                        <div class="area-description">A spooky graveyard filled with undead. Enter if you dare!</div>
+                        <p>Monsters: Skeletons, Ghosts</p>
+                        <div class="stat">
+                            <span>Level Range:</span>
+                            <span>5-10</span>
+                        </div>
+                        <div class="stat">
+                            <span>Required Level:</span>
+                            <span>Level 5</span>
+                        </div>
+                        <button id="travel-graveyard" class="area-travel-btn">Travel Here</button>
+                    </div>
+                    
+                    <!-- Arena mode button will appear after reaching level 6 -->
+                    <div class="shop-item" id="arena-area" style="display: none;">
+                        <h3>🏆 Arena Challenge</h3>
+                        <div class="area-description">Test your skills against waves of enemies for special rewards!</div>
+                        <div class="stat">
+                            <span>Difficulty:</span>
+                            <span>Based on your level</span>
+                        </div>
+                        <div class="stat">
+                            <span>Requirement:</span>
+                            <span>Level 6</span>
+                        </div>
+                        <button id="start-arena">Enter the Arena</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-hints">
+            <h3>Game Tips</h3>
+            <ul>
+                <li>Defeat enemies to earn gold and experience</li>
+                <li>Use skills wisely - they cost mana but can be very effective</li>
+                <li>Mana regenerates slowly over time (0.2 per second)</li>
+                <li>Enemies have a chance to drop potions when defeated</li>
+                <li>Your critical hit chance gives you a chance to deal extra damage</li>
+                <li>Complete quests for bonus rewards</li>
+                <li>Travel to new areas when you reach the required level</li>
+                <li>Buy better equipment to become stronger</li>
+                <li>Don't forget to use potions in tough battles</li>
+                <li>Save your game regularly to avoid losing progress</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>Hint: Defeat enemies to gain XP and gold. Buy better equipment to face stronger foes!</p>
+            <p>Save your game regularly to keep your progress!</p>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script>
+        // Setup tab switching
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons and tabs
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                    
+                    // Add active class to clicked button and corresponding tab
+                    button.classList.add('active');
+                    const tabId = `${button.dataset.tab}-tab`;
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Add tooltip handling for elements that display tooltips
+            document.querySelectorAll('[data-tooltip]').forEach(element => {
+                // (Tooltip handlers will be added in game.js)
+            });
+        });
+    </script>
+</body>
+</html>
