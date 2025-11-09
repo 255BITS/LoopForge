@@ -1,0 +1,14 @@
+Choose a unique name and replace this:
+> Eldoria's Ascension
+
+These assets exist and are useful. Add any that you need.
+assets/enemy-<powerlevel>.mp4
+a simple monster is enemy-0.mp4
+
+power levels go to 10.
+
+Additional assets:
+assets/spell-icon.png (for spell button)
+assets/sword-icon.png (for attack button)
+assets/gold-icon.png (for gold display)
+assets/background.jpg (for game background)
