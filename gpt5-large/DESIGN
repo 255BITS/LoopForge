@@ -1,0 +1,81 @@
+Runebloom: Idle Realms
+======================
+
+High-level pitch
+----------------
+Runebloom: Idle Realms is a fantasy-themed incremental RPG you can play in the browser.
+Click to strike, hire allies for idle DPS, beat bosses every 10 waves to earn **Aspect Shards**,
+and invest those shards into elemental Attunements (Fire/Frost/Shadow) for permanent power.
+Everything happens in a single-page UI (`index.html`) with autosave, tooltips, and responsive layout.
+
+Core loops
+----------
+1) **Fight loop**: Attack the current enemy (or let idle DPS work). Earn gold & XP on kill.
+2) **Progress loop**: Clear 10 waves → fight a boss. Killing a boss grants 1 Aspect Shard.
+3) **Growth loop**: Spend gold on upgrades (click damage, idle DPS, crit…). Spend shards on permanent
+   Attunements (Fire = click, Frost = idle, Shadow = crit scaling). Repeat.
+
+Game feel
+---------
+* Click feels punchy (damage floaters + crit glow).
+* Enemies animate using the provided videos. Zone difficulty maps to video `enemy-<powerlevel>.mp4`.
+* Numbers scale smoothly with readable abbreviations (K, M, B…).
+
+Balance sketch
+--------------
+* **Enemy HP**: `25 * 1.2^(stage-1)` (bosses ×4 HP). Stage = (zone-1)*10 + wave.
+* **Rewards**: Gold ≈ `5 * 1.15^stage`, XP ≈ `3 * 1.12^stage`, with small randomness.
+* **Upgrades**: Exponential pricing (1.15–1.35 multipliers). Early items are cheap and impactful.
+* **Attunements**: Each allocated shard boosts:
+  - Fire: +5% click damage (multiplicative)
+  - Frost: +5% idle DPS (multiplicative)
+  - Shadow: +5% critical *multiplier* per shard (starts at ×2 base)
+
+UI
+--
+* **Header**: Title + compact save indicator.
+* **Left panel**: Player stats (Level, XP bar, Health [abstract], Gold, Damage profile).
+* **Center**: Enemy video with HP bar overlay, Attack button, floating damage numbers.
+* **Right/Tabs**:
+  - *Upgrades*: Buyable items with cost scaling & live effects.
+  - *Attunements*: Allocate/unallocate shards across Fire/Frost/Shadow (free respec).
+  - *Settings*: Autosave toggle, mute video, reset save.
+
+Data & saving
+-------------
+* LocalStorage key: `runebloom.save.v1`
+* Autosaves every ~5s and on page hide/unload.
+* Robust loading: guards against malformed saves; defaults are merged forward.
+
+Assets (given)
+--------------
+* `assets/enemy-<powerlevel>.mp4` where `<powerlevel>` ∈ [0..10]
+  - a simple monster is `enemy-0.mp4`
+  - videos are looped + muted for background animation
+
+Mapping to difficulty
+---------------------
+* Zone index → `powerlevel = clamp(0..10, zone-1)`
+* Zones beyond 11 reuse `enemy-10.mp4`
+
+Nice-to-haves (later)
+---------------------
+* More upgrade tiers, relics/augments, timed bosses, daily bounties.
+* Offline progress estimator, cloud save.
+* Accessibility: reduced motion mode for damage floaters.
+
+Testing notes / bug priorities
+------------------------------
+* Prevent NaN/Infinity by clamping and validating on load & math ops.
+* Ensure multiple event listeners aren’t duplicated across rerenders.
+* Cap dt in the main loop to avoid large time skips.
+* Video error fallback to `enemy-0.mp4`.
+* Never allow negative HP / gold / XP; floor tiny residuals to 0.
+* Debounce autosave; wrap JSON parse/stringify in try/catch.
+
+Changelog (this pass)
+---------------------
+* Replaced placeholder name with **Runebloom: Idle Realms**.
+* Implemented playable UI (`index.html`), styles (`styles.css`), and logic (`game.js`).
+* Integrated enemy video assets by power level with safe fallback.
+* Added upgrades, bosses, aspects (elemental attunements), autosave, and reset.

@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Runebloom: Idle Realms</title>
+    <link rel="stylesheet" href="styles.css" />
+    <meta name="color-scheme" content="dark light">
+  </head>
+  <body>
+    <noscript>
+      <div class="noscript">This game needs JavaScript enabled.</div>
+    </noscript>
+
+    <header class="topbar">
+      <h1>Runebloom: Idle Realms</h1>
+      <div class="save-indicator" id="save-indicator" title="Autosave status">●</div>
+    </header>
+
+    <main class="layout">
+      <!-- LEFT: PLAYER PANEL -->
+      <section class="panel left">
+        <div class="card">
+          <h2>Hero</h2>
+          <div class="stat-grid">
+            <div>Level</div><div id="stat-level">1</div>
+            <div>XP</div>
+            <div class="bar">
+              <div id="xp-bar" class="bar-fill"></div>
+            </div>
+            <div>Gold</div><div id="stat-gold">0</div>
+            <div>Zone/Wave</div><div id="stat-stage">1-1</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Damage Profile</h2>
+          <div class="stat-grid">
+            <div>Click</div><div id="stat-click">1</div>
+            <div>Idle DPS</div><div id="stat-dps">0</div>
+            <div>Crit</div><div id="stat-crit">0% ×2.0</div>
+            <div>Global Mult</div><div id="stat-mult">×1.0</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CENTER: ENEMY / BATTLEFIELD -->
+      <section class="panel center">
+        <div class="enemy-area" id="enemy-area">
+          <video id="enemy-video" class="enemy-video" autoplay muted loop playsinline></video>
+          <div class="enemy-overlay">
+            <div class="enemy-title">
+              <span id="enemy-name">Wandering Slime</span>
+              <span class="badge" id="enemy-badge">Lv.1</span>
+            </div>
+            <div class="bar hp">
+              <div id="hp-bar" class="bar-fill"></div>
+            </div>
+            <div class="hp-numbers"><span id="hp-text">10 / 10</span></div>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="attack-btn" class="btn primary" title="Space to strike">Strike</button>
+        </div>
+      </section>
+
+      <!-- RIGHT: TABS -->
+      <section class="panel right">
+        <div class="tabs">
+          <div class="tab-headers">
+            <button class="tab-header active" data-tab="upgrades">Upgrades</button>
+            <button class="tab-header" data-tab="aspects">Attunements</button>
+            <button class="tab-header" data-tab="settings">Settings</button>
+          </div>
+
+          <div class="tab-body active" id="tab-upgrades">
+            <div id="shop-list" class="shop-list"></div>
+          </div>
+
+          <div class="tab-body" id="tab-aspects">
+            <div class="card compact">
+              <div class="stat-grid">
+                <div>Unspent Shards</div><div id="aspects-unspent">0</div>
+              </div>
+            </div>
+            <div class="attunements">
+              <div class="attune">
+                <h3>🔥 Fire</h3>
+                <p>+5% click damage per shard.</p>
+                <div class="attune-row">
+                  <button class="btn" data-alloc="fire" data-delta="1">+1</button>
+                  <button class="btn" data-alloc="fire" data-delta="-1">-1</button>
+                  <div class="spacer"></div>
+                  <div>Allocated: <span id="alloc-fire">0</span></div>
+                </div>
+              </div>
+              <div class="attune">
+                <h3>❄️ Frost</h3>
+                <p>+5% idle DPS per shard.</p>
+                <div class="attune-row">
+                  <button class="btn" data-alloc="frost" data-delta="1">+1</button>
+                  <button class="btn" data-alloc="frost" data-delta="-1">-1</button>
+                  <div class="spacer"></div>
+                  <div>Allocated: <span id="alloc-frost">0</span></div>
+                </div>
+              </div>
+              <div class="attune">
+                <h3>🜂 Shadow</h3>
+                <p>+5% crit <em>multiplier</em> per shard.</p>
+                <div class="attune-row">
+                  <button class="btn" data-alloc="shadow" data-delta="1">+1</button>
+                  <button class="btn" data-alloc="shadow" data-delta="-1">-1</button>
+                  <div class="spacer"></div>
+                  <div>Allocated: <span id="alloc-shadow">0</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="actions">
+              <button id="respec-btn" class="btn warn">Respec (free)</button>
+            </div>
+          </div>
+
+          <div class="tab-body" id="tab-settings">
+            <div class="card compact">
+              <div class="setting">
+                <label><input type="checkbox" id="autosave-toggle" checked> Autosave</label>
+              </div>
+              <div class="setting">
+                <label><input type="checkbox" id="mute-toggle" checked> Mute enemy video</label>
+              </div>
+              <div class="setting">
+                <label><input type="checkbox" id="floaters-toggle" checked> Show damage floaters</label>
+              </div>
+            </div>
+            <div class="actions">
+              <button id="save-btn" class="btn">Save Now</button>
+              <button id="load-btn" class="btn">Load</button>
+              <button id="reset-btn" class="btn danger">Full Reset</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <small>Made with ❤️ for the browser. Your progress saves locally.</small>
+    </footer>
+
+    <template id="shop-item-template">
+      <div class="shop-item">
+        <div class="shop-main">
+          <div class="shop-title">
+            <span class="emoji">🗡️</span>
+            <strong class="name">Upgrade</strong>
+          </div>
+          <div class="desc">Description</div>
+        </div>
+        <div class="shop-buy">
+          <div class="cost" title="Cost">0</div>
+          <button class="btn buy">Buy</button>
+          <div class="owned">x0</div>
+        </div>
+      </div>
+    </template>
+
+    <script src="game.js"></script>
+  </body>
+  </html>
