@@ -8,9 +8,10 @@
 </head>
 <body>
     <div class="container">
+        <div id="cursor-outline"></div>
         <div class="header">
             <h1>JS Physics Sandbox</h1>
-            <p>Sand falls, Water flows, Fire emits Smoke, Water boils to Steam.</p>
+            <p>Simulates 25 materials. <strong>Hint:</strong> Middle-click to pick a material. Steam condenses at the ceiling. Paint 'Source', then paint a material onto it to configure.</p>
             <div class="controls">
                 <button id="btn-eraser" onclick="setTool('eraser')">Eraser</button>
                 <button id="btn-sand" class="active" onclick="setTool('sand')">Sand</button>
@@ -35,15 +36,14 @@
                 <button id="btn-thunder" onclick="setTool('thunder')">Thunder</button>
                 <button id="btn-void" onclick="setTool('void')">Void</button>
                 <button id="btn-nuke" onclick="setTool('nuke')">Nuke</button>
-                <button id="btn-nuke" onclick="setTool('nuke')">Nuke</button>
             </div>
         </div>
         <div class="controls">
             <button onclick="resetGrid()" style="border-color: #d64541; background: #421C1C;">Clear</button>
             <button id="btn-pause" onclick="togglePause()" style="min-width: 60px">Pause</button>
             <div style="width: 20px"></div>
-            <label for="brushSize" style="font-size: 0.9em; color: #aaa; align-self: center;">Brush Size:</label>
-            <input type="range" id="brushSize" min="1" max="15" value="5" oninput="brushSize = parseInt(this.value)">
+            <label for="brushSize" style="font-size: 0.9em; color: #aaa; align-self: center;">Brush Size: <span id="brushVal">5</span></label>
+            <input type="range" id="brushSize" min="1" max="15" value="5" oninput="updateBrush(this.value)">
         </div>
         <div id="infoText" class="info-text">Sand: Inert particulate matter.</div>
         <!-- Canvas content size is low-res (150x150) but displayed at 600x600 -->

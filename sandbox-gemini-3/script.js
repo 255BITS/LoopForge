@@ -1,5 +1,6 @@
 const canvas = document.getElementById('sandCanvas');
 const ctx = canvas.getContext('2d');
+const cursorOutline = document.getElementById('cursor-outline');
 
 // Configuration
 const width = 150; // Low internal resolution for performance
@@ -35,27 +36,84 @@ const NUKE = 25;
 
 // State
 let types = new Uint8Array(width * height).fill(0);
+let processed = new Uint8Array(width * height).fill(0); // Prevent double-moving in one frame
 let grid = new Float32Array(width * height).fill(0); // Stores Hue logic
 let isMouseDown = false;
+let mouseButton = 0; // 0: Left, 2: Right
 let isPaused = false;
 let mouseX = 0;
 let mouseY = 0;
+let lastMouseX = 0;
+let lastMouseY = 0;
 let hue = 0;
 let currentTool = SAND;
 let brushSize = 5;
+let frameCount = 0;
 const imgData = ctx.createImageData(width, height);
 
+function updateCursor() {
+    cursorOutline.style.width = cursorOutline.style.height = (brushSize * (600/width)) + 'px';
+}
+
 // Inputs
-canvas.addEventListener('mousedown', () => isMouseDown = true);
+canvas.addEventListener('mousedown', (e) => {
+    isMouseDown = true;
+    mouseButton = e.button;
+    if (e.button === 1) pickMaterial(e);
+    updateMouseCoords(e);
+    lastMouseX = mouseX;
+    lastMouseY = mouseY;
+});
+canvas.addEventListener('contextmenu', e => e.preventDefault()); // Disable context menu for right-click erase
+canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    let newSize = brushSize + (e.deltaY < 0 ? 1 : -1);
+    newSize = Math.max(1, Math.min(15, newSize));
+    updateBrush(newSize);
+    document.getElementById('brushSize').value = newSize;
+}, { passive: false });
 canvas.addEventListener('mouseup', () => isMouseDown = false);
 canvas.addEventListener('mouseout', () => isMouseDown = false);
 canvas.addEventListener('mousemove', (e) => {
+    updateMouseCoords(e);
+    // Update cursor visually immediately
+    cursorOutline.style.display = 'block';
+    // Use transform for better performance (gpu composition)
+    cursorOutline.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+});
+
+function updateMouseCoords(e) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = width / rect.width;
     const scaleY = height / rect.height;
     mouseX = Math.floor((e.clientX - rect.left) * scaleX);
     mouseY = Math.floor((e.clientY - rect.top) * scaleY);
-});
+}
+
+function pickMaterial(e) {
+    e.preventDefault();
+    updateMouseCoords(e);
+    const idx = mouseX + mouseY * width;
+    if (idx >= 0 && idx < types.length) {
+        let t = types[idx];
+        if (t === EMPTY) return;
+        
+        // Intelligent Pick: If picking a Source, pick what it spawns
+        if (t === SOURCE) {
+             const spawned = grid[idx];
+             if (spawned !== 0) t = spawned;
+        }
+        
+        // Reverse lookup for UI (simple map)
+        const typeMap = {
+            1: 'sand', 2: 'water', 3: 'stone', 4: 'acid', 5: 'wood', 6: 'fire', 
+            7: 'gunpowder', 10: 'lava', 11: 'oil', 12: 'plant', 13: 'ice', 
+            14: 'methane', 15: 'virus', 16: 'fuse', 17: 'c4', 19: 'source', 
+            20: 'wall', 21: 'plasma', 22: 'glass', 23: 'thunder', 24: 'void', 25: 'nuke'
+        };
+        if (typeMap[t]) setTool(typeMap[t]);
+    }
+}
 
 // Keyboard Shortcuts
 document.addEventListener('keydown', (e) => {
@@ -92,7 +150,7 @@ const descriptions = {
     'wall': 'Wall: Indestructible barrier.',
     'plasma': 'Plasma: Extremely hot ionized matter. Melts everything.',
     'glass': 'Glass: Melted sand. Static transparent solid.',
-    'source': 'Source: Generates elements. Touch an element to configure.',
+    'source': 'Source: Generates elements. Paint onto it with another element to configure.',
     'thunder': 'Thunder: Erratic electricity. Turns sand to glass, explodes stuff.',
     'void': 'Void: Absorbs and annihilates matter.',
     'nuke': 'Nuke: Radioactive gas. Mutates plants, sours water, vitrifies sand.',
@@ -135,9 +193,22 @@ function setTool(toolName) {
     else if (toolName === 'nuke') currentTool = NUKE;
 }
 
+function updateBrush(val) {
+    brushSize = parseInt(val);
+    document.getElementById('brushVal').innerText = brushSize;
+    updateCursor();
+}
+
 function resetGrid() {
     grid.fill(0);
+    processed.fill(0);
     types.fill(EMPTY);
+    // Visual flash to indicate clear
+    ctx.fillStyle = '#222';
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+    setTimeout(() => {
+         // allow next draw to clear
+    }, 50);
 }
 
 function getInitialData(type) {
@@ -154,24 +225,64 @@ function getInitialData(type) {
     if (type === C4) return Math.random() * 20;
     if (type === WALL) return 50 + Math.random() * 20;
     if (type === PLASMA) return 50 + Math.random() * 100;
-    if (type === SAND || type === ACID) return hue;
+    if (type === ACID) return hue;
+    if (type === SAND) return Math.random() * 50; // Natural variation
     if (type === THUNDER) return 255;
     if (type === NUKE) return 200 + Math.random() * 100;
     return 0;
 }
 
+// 0: Gas/Empty, 1: Liquid_Light, 2: Liquid_Heavy, 3: Solid, 4: Immovable
+function getDensity(t) {
+    if (t === ICE) return 1; // Ice floats on water
+    if (t === WALL || t === WOOD || t === PLANT || t === STONE || t === FUSE || t === SOURCE) return 4;
+    if (t === SAND || t === GUNPOWDER || t === C4 || t === EMBER || t === VIRUS || t === THUNDER || t === GLASS) return 3;
+    if (t === WATER || t === ACID || t === LAVA) return 2;
+    if (t === OIL) return 1;
+    return 0; // Gas or Empty
+}
+
+// Helper to determine if something is a liquid for spreading
+function isLiquid(t) {
+    return t === WATER || t === ACID || t === LAVA || t === OIL;
+}
+
 function updatePhysics() {
+    frameCount++;
+    processed.fill(0); // Reset processed status
+
     // Iterate from bottom to top to avoid double-moving particles in one frame
+    const isLeft = frameCount % 2 === 0; // Alternate horizontal scan to prevent liquid bias
     for (let y = height - 1; y >= 0; y--) {
-        for (let x = 0; x < width; x++) {
+        for (let i = 0; i < width; i++) {
+            const x = isLeft ? i : (width - 1 - i);
             const idx = x + y * width;
+            if (processed[idx]) continue; // Skip if already moved this frame
             const type = types[idx];
 
             // Gas Logic (Steam, Smoke, Methane)
             if (type === STEAM || type === SMOKE || type === METHANE || type === NUKE) {
+                // Randomize flow direction per particle for more natural diffusion
+                const flowDir = Math.random() < 0.5 ? 1 : -1;
+                // Ceiling Logic: Condensation and Dissipation
+                if (y === 0) {
+                    if (type === STEAM) { 
+                        // Water cycle: Form "clouds" by hanging at the top, then rain randomly
+                        if (Math.random() < 0.02) { types[idx] = WATER; grid[idx] = 0; } 
+                    }
+                    else if (type === NUKE) { types[idx] = ACID; grid[idx] = 0; } // Radioactive rain
+                    else { types[idx] = EMPTY; grid[idx] = 0; } // Vent other gases into atmosphere
+                    continue;
+                }
+
                 // Methane Ignition check (highly flammable gas)
                 if (type === METHANE) {
-                    const neighbors = [idx-1, idx+1, idx-width, idx+width];
+                    // Boundary-safe neighbor check
+                    const neighbors = [];
+                    if (x > 0) neighbors.push(idx - 1);
+                    if (x < width - 1) neighbors.push(idx + 1);
+                    neighbors.push(idx - width, idx + width);
+                    
                     for (let n of neighbors) {
                         if (n >= 0 && n < types.length) {
                             if (types[n] === FIRE || types[n] === LAVA || types[n] === EMBER) {
@@ -186,7 +297,10 @@ function updatePhysics() {
                 }
 
                 if (type === NUKE) {
-                    const neighbors = [idx-1, idx+1, idx-width, idx+width];
+                    const neighbors = [idx-width, idx+width];
+                    if (x > 0) neighbors.push(idx - 1);
+                    if (x < width - 1) neighbors.push(idx + 1);
+                    
                     const nIdx = neighbors[Math.floor(Math.random() * neighbors.length)];
                     if (nIdx >= 0 && nIdx < types.length) {
                         const t = types[nIdx];
@@ -218,20 +332,24 @@ function updatePhysics() {
                 // Rise (with throttling to prevent instant teleportation in bottom-up loop)
                 if (Math.random() < 0.3) {
                     const above = idx - width;
-                    const dir = Math.random() < 0.5 ? -1 : 1;
+                    const dir = flowDir;
                     const aboveSide = above + dir;
 
                     // Try move up
-                    if (y > 0 && types[above] === EMPTY) {
+                    // Logic Update: Gases shouldn't just disappear at ceiling, check boundary
+                    if (y > 0 && types[above] === EMPTY && above >= 0) {
                         types[above] = type;
                         grid[above] = grid[idx];
+                        processed[above] = 1;
                         types[idx] = EMPTY;
                         grid[idx] = 0;
+                        
                     } 
                     // Try move up-diagonal (dispersion)
-                    else if (y > 0 && aboveSide >= 0 && aboveSide < types.length && types[aboveSide] === EMPTY) {
+                    else if (y > 0 && aboveSide >= 0 && aboveSide < types.length && types[aboveSide] === EMPTY && above >= 0) {
                         types[aboveSide] = type;
                         grid[aboveSide] = grid[idx];
+                        processed[aboveSide] = 1;
                         types[idx] = EMPTY;
                         grid[idx] = 0;
                     }
@@ -241,6 +359,7 @@ function updatePhysics() {
                          if (side >= 0 && side < types.length && types[side] === EMPTY) {
                             types[side] = type;
                             grid[side] = grid[idx];
+                            processed[side] = 1;
                             types[idx] = EMPTY;
                             grid[idx] = 0;
                          }
@@ -250,7 +369,9 @@ function updatePhysics() {
             else if (type === SOURCE) {
                 // Source Logic
                 let spawnType = grid[idx];
-                const neighbors = [idx-1, idx+1, idx-width, idx+width];
+                const neighbors = [idx-width, idx+width];
+                if (x > 0) neighbors.push(idx - 1);
+                if (x < width - 1) neighbors.push(idx + 1);
 
                 if (spawnType === 0) {
                     // Unconfigured: Absorb type from neighbor
@@ -261,22 +382,53 @@ function updatePhysics() {
                         }
                     }
                 } else {
-                    // Configured: Spawn type
-                    // Only spawn in one random empty direction per frame to control flow
-                    const target = neighbors[Math.floor(Math.random()*neighbors.length)];
-                    if (target >= 0 && target < types.length && types[target] === EMPTY) {
-                        types[target] = spawnType;
-                        grid[target] = getInitialData(spawnType);
+                    // Configured: High pressure spawn (check all neighbors)
+                    for (let target of neighbors) {
+                        if (target >= 0 && target < types.length && types[target] === EMPTY) {
+                            types[target] = spawnType;
+                            grid[target] = getInitialData(spawnType);
+                        }
                     }
                 }
             }
             else if (type === VOID) {
-                // Void Logic: Eat neighbors
+                // Void Logic: Gravity well + Eat neighbors
                 const neighbors = [idx-1, idx+1, idx-width, idx+width];
                 for (let n of neighbors) {
+                    // Void shouldn't eat walls or itself
                     if (n >= 0 && n < types.length && types[n] !== EMPTY && types[n] !== VOID && types[n] !== WALL) {
+                         // Visual flair: sparkles when eating
+                        if (Math.random() < 0.1) {
+                            grid[idx] = 255; // Flash the void
+                        }
                         types[n] = EMPTY;
                         grid[n] = 0;
+                    }
+                }
+                // Gravity Pull (sucks nearby particles in)
+                if (Math.random() < 0.05) {
+                    const range = 3;
+                    for (let dy = -range; dy <= range; dy++) {
+                        for (let dx = -range; dx <= range; dx++) {
+                            const dist = Math.sqrt(dx*dx + dy*dy);
+                            if (dist <= 1 || dist > range) continue;
+                            const tx = x + dx;
+                            const ty = y + dy;
+                            if (tx>=0 && tx<width && ty>=0 && ty<height) {
+                                const tidx = tx + ty*width;
+                                if (types[tidx] !== EMPTY && types[tidx] !== WALL && types[tidx] !== VOID) {
+                                    // Swap closer to void (simple inverse move)
+                                    const pullX = x + Math.round(dx/2);
+                                    const pullY = y + Math.round(dy/2);
+                                    const pullIdx = pullX + pullY * width;
+                                    if (types[pullIdx] === EMPTY) {
+                                        types[pullIdx] = types[tidx];
+                                        grid[pullIdx] = grid[tidx];
+                                        types[tidx] = EMPTY;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -285,10 +437,20 @@ function updatePhysics() {
                 grid[idx] -= 10 + Math.random() * 10; // Decays fast
                 
                 // Check for interaction before moving
-                const nearby = [idx-1, idx+1, idx-width, idx+width, idx+width+1, idx+width-1, idx-width+1, idx-width-1];
-                for (let n of nearby) {
+                const nearby = [idx-1, idx+1, idx+width, idx+width+1, idx+width-1];
+                let attractionX = 0;
+                let attractionY = 1; // Naturally biased down
+
+                for (let n of nearby) { // Check contact
                     if (n >= 0 && n < types.length) {
                         const t = types[n];
+                        // Attraction physics (search ahead)
+                         if (isLiquid(t) || t === GUNPOWDER || t === C4 || t === SOURCE) {
+                             if (n === idx-1) attractionX = -1;
+                             if (n === idx+1) attractionX = 1;
+                         }
+
+                        // Damage physics
                         if (t === SAND) { types[n] = GLASS; grid[n] = 0; } // Fulgurite
                         else if (t === WATER) { types[n] = STEAM; grid[n] = 255; } // Flash boil
                         else if (t === GUNPOWDER || t === C4 || t === METHANE) { 
@@ -299,19 +461,30 @@ function updatePhysics() {
                     }
                 }
 
-                if (grid[idx] <= 0) {
+                // Thunder hits bottom or runs out of energy
+                if (grid[idx] <= 0 || y >= height - 2) {
                     types[idx] = EMPTY;
+                    // Impact flash
+                    if (y >= height - 5) {
+                         for(let n of nearby) if (n>=0 && n<types.length && types[n]===EMPTY) { types[n]=SMOKE; grid[n]=50; }
+                    }
                     continue;
                 }
 
                 // Move wildly
-                const maxJumps = 2;
+                const maxJumps = 3;
                 for(let j=0; j<maxJumps; j++) {
-                    const moveOffset = (Math.floor(Math.random()*3)-1) + (Math.floor(Math.random()*3)-1) * width;
-                    const dest = idx + moveOffset;
-                    if (dest >= 0 && dest < types.length && types[dest] === EMPTY) {
+                    // Bias movement towards conductive materials or down
+                    const dx = (Math.random() < 0.3) ? attractionX : (Math.floor(Math.random()*3)-1);
+                    const dy = (Math.random() < 0.3) ? attractionY : (Math.floor(Math.random()*3)-1);
+                    const destX = x + dx;
+                    const destY = y + dy;
+                    const dest = destX + destY * width;
+                    
+                    if (destX >= 0 && destX < width && destY >= 0 && destY < height && types[dest] === EMPTY) {
                         types[dest] = THUNDER;
                         grid[dest] = grid[idx];
+                        processed[dest] = 1;
                         types[idx] = EMPTY;
                         grid[idx] = 0;
                         break; // Move once per frame effectively, but checks range
@@ -327,7 +500,10 @@ function updatePhysics() {
                     continue;
                 }
                 // Ignite neighbors
-                const neighbors = [idx-1, idx+1, idx-width, idx+width];
+                const neighbors = [idx-width, idx+width];
+                if (x > 0) neighbors.push(idx - 1);
+                if (x < width - 1) neighbors.push(idx + 1);
+                
                 for (let n of neighbors) {
                     if (n >= 0 && n < types.length) {
                         if (types[n] === FUSE) {
@@ -350,7 +526,7 @@ function updatePhysics() {
                 // Chance to emit smoke
                 if (Math.random() < 0.05) {
                     const above = idx - width;
-                    if (above >= 0 && types[above] === EMPTY) {
+                    if (above >= 0 && (types[above] === EMPTY || types[above] === FIRE)) {
                         types[above] = SMOKE;
                         grid[above] = 100 + Math.random() * 100;
                     }
@@ -373,7 +549,7 @@ function updatePhysics() {
                                 grid[dest] = 150 + Math.random() * 50; // Explosive spread
                             } else if (types[dest] === WOOD && Math.random() < 0.05) {
                                 types[dest] = FIRE;
-                                grid[dest] = 100 + Math.random() * 50; // Ignite new fire
+                                grid[dest] = 200 + Math.random() * 50; // Ignite new fire (rarely)
                             }
                             if (types[dest] === OIL) {
                                 types[dest] = FIRE;
@@ -382,12 +558,14 @@ function updatePhysics() {
                             if (types[dest] === C4) {
                                 types[dest] = FIRE;
                                 grid[dest] = 100;
-                                // Big explosion radius
-                                for(let ex = -3; ex <= 3; ex++) {
-                                    for(let ey = -3; ey <= 3; ey++) {
-                                        if (ex*ex + ey*ey <= 12) {
+                                types[dest] = PLASMA; // Hot center
+                                // Big Circular Explosion
+                                const radius = 6;
+                                for(let ex = -radius; ex <= radius; ex++) {
+                                    for(let ey = -radius; ey <= radius; ey++) {
+                                        if (ex*ex + ey*ey <= radius*radius) {
                                             const blastIdx = dest + ex + ey * width;
-                                            if (blastIdx >= 0 && blastIdx < types.length && types[blastIdx] !== STONE && types[blastIdx] !== WALL) {
+                                            if (blastIdx >= 0 && blastIdx < types.length && types[blastIdx] !== WALL) {
                                                 types[blastIdx] = FIRE;
                                                 grid[blastIdx] = 120;
                                             }
@@ -402,13 +580,16 @@ function updatePhysics() {
                             if (types[dest] === GUNPOWDER) {
                                 types[dest] = FIRE;
                                 grid[dest] = 100 + Math.random() * 50; // Explode
-                                // Simple explosion radius
-                                for(let ex = -1; ex <= 1; ex++) {
-                                    for(let ey = -1; ey <= 1; ey++) {
-                                        const blastIdx = dest + ex + ey * width;
-                                        if (blastIdx >= 0 && blastIdx < types.length && types[blastIdx] === EMPTY) {
-                                            types[blastIdx] = FIRE;
-                                            grid[blastIdx] = 100;
+                                // Small Circular Explosion
+                                const radius = 3;
+                                for(let ex = -radius; ex <= radius; ex++) {
+                                    for(let ey = -radius; ey <= radius; ey++) {
+                                        if (ex*ex + ey*ey <= radius*radius) {
+                                            const blastIdx = dest + ex + ey * width;
+                                            if (blastIdx >= 0 && blastIdx < types.length && types[blastIdx] !== WALL && types[blastIdx] !== STONE) {
+                                                types[blastIdx] = FIRE;
+                                                grid[blastIdx] = 100;
+                                            }
                                         }
                                     }
                                 }
@@ -419,19 +600,33 @@ function updatePhysics() {
                         }
                     }
 
+                    // Charring effect: Turn touching wood into Ember (better visuals)
+                    if (types[above] === WOOD) {
+                         types[above] = EMBER;
+                         grid[above] = 250; // Glowing hot charcoal
+                    } else if (Math.random() < 0.5) {
+                        // Check sides for wood to char
+                        const sides = [idx-1, idx+1];
+                        for (let s of sides) {
+                            if (s >=0 && types[s] === WOOD) { types[s] = EMBER; grid[s] = 250; }
+                        }
+                    }
+
                     // Move movement
-                    const dest = above + (Math.random() < 0.5 ? 0 : (Math.random() < 0.5 ? -1 : 1));
+                    const dest = above + (Math.random() < 0.2 ? 0 : (Math.random() < 0.5 ? -1 : 1));
                     if (dest >= 0 && types[dest] === EMPTY) {
                          // To prevent infinite rising in one frame in a bottom-up loop,
                          // we swap but we know the loop goes UP y, so we won't process 'dest' again this frame.
                          types[dest] = FIRE;
                          grid[dest] = grid[idx];
+                         processed[dest] = 1;
                          types[idx] = EMPTY;
                          grid[idx] = 0;
                     } else if (types[dest] === WATER) {
                         // Turn into Steam
                         types[dest] = STEAM;
                         grid[dest] = 200 + Math.random() * 50; // Steam life
+                        processed[dest] = 1;
                         types[idx] = EMPTY; // Fire Extinguished
                         grid[idx] = 0;
                     }
@@ -479,6 +674,7 @@ function updatePhysics() {
                 for (let d of dests) {
                     if (d >= 0 && d < types.length && types[d] === EMPTY) {
                         types[d] = PLASMA; grid[d] = grid[idx];
+                        processed[d] = 1;
                         types[idx] = EMPTY; grid[idx] = 0;
                         moved = true; break;
                     }
@@ -488,15 +684,28 @@ function updatePhysics() {
                 // Acid Reaction: Dissolve Stone, Sand, and even Wood if we had it
                 if (type === ACID) {
                     let reacted = false;
-                    const neighbors = [idx + width, idx - 1, idx + 1, idx - width];
+                    const neighbors = [idx + width, idx - width];
+                    if (x > 0) neighbors.push(idx - 1);
+                    if (x < width - 1) neighbors.push(idx + 1);
+
                     for (let nIdx of neighbors) {
                         if (nIdx >= 0 && nIdx < types.length) {
                             const t = types[nIdx];
-                            if (t === STONE || t === SAND || t === WOOD || t === PLANT || t === GUNPOWDER || t === C4 || t === FUSE || t === VIRUS) {
+                            const resistant = (t === GLASS || t === WALL || t === ACID || t === SOURCE);
+                            
+                            if (!resistant && types[nIdx] !== EMPTY) {
                                 if (t === STONE) {
                                     grid[nIdx] -= 10; // Damage stone (darkens it)
                                     if (grid[nIdx] < 20) { types[nIdx] = EMPTY; grid[nIdx] = 0; }
                                 } else {
+                                    // Visual Effect: Chemical Smoke when dissolving
+                                    if (types[nIdx] !== WATER && Math.random() < 0.3) {
+                                        const above = nIdx - width;
+                                        if (above >= 0 && types[above] === EMPTY) {
+                                            types[above] = (Math.random() < 0.5) ? SMOKE : METHANE; // Toxic fumes
+                                            grid[above] = 60; 
+                                        }
+                                    }
                                     types[nIdx] = EMPTY; grid[nIdx] = 0; // Instant dissolve
                                 }
                                 if (Math.random() < 0.1) { types[idx] = EMPTY; grid[idx] = 0; reacted = true; break; }
@@ -508,7 +717,10 @@ function updatePhysics() {
 
                 // Virus Infection Logic
                 if (type === VIRUS) {
-                    const neighbors = [idx - 1, idx + 1, idx - width, idx + width];
+                    const neighbors = [idx-width, idx+width];
+                    if (x > 0) neighbors.push(idx - 1);
+                    if (x < width - 1) neighbors.push(idx + 1);
+
                     for (let nIdx of neighbors) {
                         if (nIdx >= 0 && nIdx < types.length) {
                             const nType = types[nIdx];
@@ -526,8 +738,20 @@ function updatePhysics() {
 
                 // Lava Logic: Hot interactions
                 if (type === LAVA) {
+                    // Generate steam if near water
+                    const above = idx - width;
+                    if (above >= 0 && types[above] === EMPTY && Math.random() < 0.05) {
+                         // Only if neighbors are water
+                         const neighbors = [idx-1, idx+1, idx+width];
+                         for(let n of neighbors) { 
+                             if(n>=0 && types[n]===WATER) { types[above] = STEAM; grid[above] = 200; break; }
+                         }
+                    }
                     // Check neighbors for interactions
-                    const neighborOffsets = [-width, width, -1, 1];
+                    const neighborOffsets = [-width, width];
+                    if (x > 0) neighborOffsets.push(-1);
+                    if (x < width - 1) neighborOffsets.push(1);
+
                     for (let offset of neighborOffsets) {
                         const neighborIndex = idx + offset;
                         if (neighborIndex >= 0 && neighborIndex < types.length) {
@@ -551,81 +775,89 @@ function updatePhysics() {
                     // If lava turned to stone in the loop above, skip movement
                     if (types[idx] === STONE) continue;
                 }
-
-
+                
+                
+                // -- Unified Density Movement Logic --
                 const below = idx + width;
                 const belowLeft = below - 1;
                 const belowRight = below + 1;
                 const left = idx - 1;
                 const right = idx + 1;
 
-                // Get particle states below
-                // Randomize left/right preference to prevent stacking bias
-                const dir = Math.random() < 0.5 ? 1 : -1;
-                
-                // Check boundaries and types
-                const isBelowEmpty = y < height - 1 && types[below] === EMPTY;
-                const isBelowWater = y < height - 1 && types[below] === WATER;
-                const isBelowOil = y < height - 1 && types[below] === OIL;
-                const canGoBelow = isBelowEmpty || ((type === SAND || type === ACID || type === GUNPOWDER) && isBelowWater) ||
-                                     ((type === SAND || type === ACID || type === GUNPOWDER || type === WATER || type === VIRUS) && isBelowOil);
+                const myDensity = getDensity(type);
 
-                if (canGoBelow) {
-                    // Move down or swap sand/water
-                    const targetType = types[below];
-                    const targetHue = grid[below];
+                // 1. Try Move Down
+                // We can move down if the target is empty OR if the target has lower density (and isn't immovable)
+                let moved = false;
+                if (y < height - 1) {
+                    const tBelow = types[below];
+                    const densityBelow = getDensity(tBelow);
                     
-                    types[below] = type;
-                    grid[below] = grid[idx];
-                    
-                    types[idx] = targetType;
-                    grid[idx] = targetHue;
-                } else {
-                    // Diagonal movement (Sand & Water)
-                    let moved = false;
+                    if (tBelow === EMPTY || (densityBelow < myDensity && tBelow !== WALL && tBelow !== GLASS)) {
+                        // Move down or swap sand/water
+                        const targetType = types[below];
+                        const targetHue = grid[below];
+                        
+                        types[below] = type;
+                        grid[below] = grid[idx];
+                        
+                        processed[below] = 1; // Mark destination as processed
+                        processed[idx] = 1;   // Mark source as processed (though it's now empty/swapped)
+                        
+                        types[idx] = targetType;
+                        grid[idx] = targetHue;
+                        moved = true;
+                    }
+                }
+                
+                // 2. Try Diagonal (if didn't move down)
+                if (!moved && y < height - 1) {
                     const checkLeft = x > 0;
                     const checkRight = x < width - 1;
                     
                     // Simple random shuffle for diagonals
                     const candidates = [];
-                    if (checkLeft) candidates.push(belowLeft);
-                    if (checkRight) candidates.push(belowRight);
+                    if (checkLeft) candidates.push({i: belowLeft, safe: true});
+                    if (checkRight) candidates.push({i: belowRight, safe: true});
                     if (checkLeft && checkRight && Math.random() < 0.5) candidates.reverse();
                     
-                    for (let target of candidates) {
-                        if (types[target] === EMPTY || 
-                            ((type === SAND || type === ACID || type === GUNPOWDER || type === VIRUS) && types[target] === WATER) ||
-                            ((type === SAND || type === ACID || type === GUNPOWDER || type === WATER || type === VIRUS) && types[target] === OIL)) {
-                            const tType = types[target];
+                    for (let op of candidates) {
+                        const target = op.i;
+                        const tType = types[target];
+                        const densityTarget = getDensity(tType);
+
+                        if (tType === EMPTY || (densityTarget < myDensity && tType !== WALL && tType !== GLASS)) {
                             const tHue = grid[target];
                             types[target] = type;
                             grid[target] = grid[idx];
+                            processed[target] = 1;
+                            
                             types[idx] = tType;
                             grid[idx] = tHue;
                             moved = true;
                             break;
                         }
                     }
+                }
 
-                    // Horizontal movement (Water only)
-                    if (!moved && (type === WATER || type === ACID || type === LAVA || type === OIL)) {
-                        const sides = [];
-                        if (x > 0) sides.push(left);
-                        if (x < width - 1) sides.push(right);
-                        if (sides.length > 1 && Math.random() < 0.5) sides.reverse();
+                // 3. Horizontal movement (Liquids)
+                if (!moved && isLiquid(type)) {
+                    const sides = [];
+                    if (x > 0) sides.push(left);
+                    if (x < width - 1) sides.push(right);
+                    if (sides.length > 1 && Math.random() < 0.5) sides.reverse();
 
-                        for (let target of sides) {
-                            if (types[target] === EMPTY) {
-                                types[target] = type;
-                                // Lava viscosity: Only move 10% of the time horizontally
-                                if (type === LAVA && Math.random() > 0.1) {
-                                    break; 
-                                }
-                                grid[target] = grid[idx];
-                                types[idx] = EMPTY;
-                                grid[idx] = 0;
-                                break;
-                            }
+                    for (let target of sides) {
+                        if (types[target] === EMPTY) {
+                            types[target] = type;
+                            // Lava viscosity: Only move 10% of the time horizontally
+                            if (type === LAVA && Math.random() > 0.1) break; 
+                            
+                            grid[target] = grid[idx];
+                            processed[target] = 1;
+                            types[idx] = EMPTY;
+                            grid[idx] = 0;
+                            break;
                         }
                     }
                 }
@@ -638,30 +870,68 @@ function spawnSand() {
     if (isMouseDown) {
         const extent = Math.floor(brushSize / 2);
         
-        for (let i = -extent; i <= extent; i++) {
-            for (let j = -extent; j <= extent; j++) {
-                if (i*i + j*j > extent*extent) continue; // Circular brush
-                if (Math.random() > 0.1) { // Density
-                    const c = mouseX + i;
-                    const r = mouseY + j;
-                    
-                    if (c >= 0 && c < width && r >= 0 && r < height) {
-                        const idx = c + r * width;
-                        // Overwrite unless stone is there (optional rule) or if eraser
-                        if ((types[idx] !== STONE && types[idx] !== WALL && types[idx] !== GLASS) || currentTool === EMPTY || currentTool === ACID) {
-                            if (currentTool === EMPTY) {
-                                types[idx] = EMPTY;
-                                grid[idx] = 0;
-                            } else if (types[idx] === EMPTY || (currentTool !== SAND && currentTool !== WATER && currentTool !== ACID && currentTool !== OIL)) {
-                                types[idx] = currentTool;
-                                grid[idx] = getInitialData(currentTool);
-                            }
+        // Interpolate mouse movement to fill gaps
+        const dx = mouseX - lastMouseX;
+        const dy = mouseY - lastMouseY;
+        const distance = Math.sqrt(dx*dx + dy*dy);
+        const steps = Math.max(1, Math.round(distance));
+
+        for (let s = 0; s < steps; s++) {
+            const t = steps === 1 ? 1 : s / steps;
+            // Add slight jitter for organic feel
+            const jitterX = (Math.random() - 0.5) * 0.5;
+            const jitterY = (Math.random() - 0.5) * 0.5;
+            const lerpX = Math.round(lastMouseX + dx * t);
+            const lerpY = Math.round(lastMouseY + dy * t);
+            paintStroke(lerpX, lerpY, extent);
+        }
+        // Right click acts as Eraser (Empty)
+        const effectiveTool = (mouseButton === 2) ? EMPTY : currentTool;
+        
+        // Ensure the final point is drawn (handles click without move)
+        if (steps > 0) paintStroke(mouseX, mouseY, extent, effectiveTool);
+        
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
+        hue = (hue + 1) % 360;
+    } else {
+        // Reset last positions to current to prevent jumping on next click
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
+    }
+}
+
+function paintStroke(cx, cy, extent, toolVal = currentTool) {
+    for (let i = -extent; i <= extent; i++) {
+        for (let j = -extent; j <= extent; j++) {
+            if (i*i + j*j > extent*extent) continue; // Circular brush
+            if (Math.random() > 0.1) { // Density
+                const c = cx + i;
+                const r = cy + j;
+                
+                if (c >= 0 && c < width && r >= 0 && r < height) {
+                    const idx = c + r * width;
+
+                    // Feature: Configure Source by painting into it
+                    if (types[idx] === SOURCE && toolVal !== EMPTY && toolVal !== SOURCE) {
+                        grid[idx] = toolVal;
+                        continue;
+                    }
+
+                    // Normal Painting
+                    if ((types[idx] !== WALL) || toolVal === EMPTY || toolVal === WALL) {
+                        if (toolVal === EMPTY) {
+                            types[idx] = EMPTY;
+                            grid[idx] = 0;
+                        } 
+                        else if (types[idx] === EMPTY || types[idx] !== toolVal) {
+                            types[idx] = toolVal;
+                            grid[idx] = getInitialData(toolVal);
                         }
                     }
                 }
             }
         }
-        hue = (hue + 1) % 360;
     }
 }
 
@@ -669,23 +939,24 @@ function draw() {
     // Render using ImageData for high performance
     const data = imgData.data;
     data.fill(0); // Clear buffer (black)
+    let hasThunder = false;
 
     for (let i = 0; i < grid.length; i++) {
         let type = types[i];
-        if (type === SOURCE && grid[i] !== 0) type = grid[i]; // Render source as its product
+        // Removal of bug: Don't overwrite 'type' for Source, handle it explicitly below to display correctly.
+        
         if (type !== EMPTY) {
             const idx = i * 4;
+            if (type === THUNDER) hasThunder = true;
+            let alpha = 255;
             let r = 0, g = 0, b = 0;
             
             if (type === SAND) {
-                // HSL to RGB conversion simplified or approximation
-                // For speed in demo, we'll do a simple tint based on hue
-                const h = grid[i];
-                // Creating a rainbow effect manually for performance
-                // Simple cycle colors
-                r = Math.max(0, Math.min(255, Math.abs((h % 360) - 180) * 3 - 100));
-                g = Math.max(0, Math.min(255, 255 - Math.abs((h % 360) - 120) * 3));
-                b = Math.max(0, Math.min(255, 255 - Math.abs((h % 360) - 240) * 3));
+                // Natural Sand Color (Tan/Gold variations)
+                const val = grid[i]; 
+                r = 230 - val; 
+                g = 196 - val; 
+                b = 120 - (val * 0.5);
             } else if (type === WATER) {
                 r = 30; g = 144; b = 255;
             } else if (type === STONE) {
@@ -697,18 +968,18 @@ function draw() {
                 const shade = grid[i]; // varied brown
                 r = 139 + shade; g = 69 + shade; b = 19 + shade;
             } else if (type === FIRE) {
+                // Heat Gradient: White -> Yellow -> Red
                 const life = grid[i];
                 r = 255;
-                g = Math.min(255, life * 2); 
-                b = 0;
+                g = life > 200 ? 255 : (life > 100 ? life : 0);
+                b = life > 220 ? life : 0;
             } else if (type === GUNPOWDER) {
                 const val = 60 + grid[i];
                 r = val; g = val; b = val;
             } else if (type === STEAM) {
                 const val = grid[i]; // fade out
                 r = 230; g = 230; b = 255;
-                // Alpha fade based on life could be simulated by darkening
-                if (val < 50) { r*=0.5; g*=0.5; b*=0.5; }
+                alpha = Math.max(0, Math.min(255, val)); // Real alpha
             } else if (type === SMOKE) {
                 const val = 50 + (grid[i] / 4);
                 r = val; g = val; b = val;
@@ -718,6 +989,7 @@ function draw() {
                 r = grid[i]; // stored red value
                 g = (r - 200) * 1.5; // derivation for orange/yellow
                 b = 0;
+                if (r > 240) { g += 50; b += 20; } // Bright glow spots
             } else if (type === PLANT) {
                 r = 34; 
                 g = 139 + grid[i]; 
@@ -748,13 +1020,29 @@ function draw() {
                  r = 200 + (grid[i]%55); g = 0; b = 255; // Purple pulse
                  if (Math.random() < 0.2) { r=255; g=255; b=255; } // Flicker
             } else if (type === GLASS) {
-                 r = 100; g = 200; b = 220; // Simple Blueish Cyan
+                 r = 200; g = 240; b = 255; // Bright glass
+                 alpha = 100; // More transparent
                  // Add simple "shine" pattern
                  if ((i/width + i%width) % 20 < 2) { r=200; g=255; b=255; }
             } else if (type === SOURCE) {
-                // Unconfigured Source
-                r = 255; g = 0; b = 255; 
-                if (Math.random() < 0.5) { r=255; g=255; b=255; }
+                const product = grid[i];
+                
+                if (product === 0) {
+                     const intensity = 128 + Math.sin(frameCount * 0.1) * 127;
+                     r = intensity; g = 0; b = intensity; // Unconfigured: Magenta
+                } else {
+                    // Configured: Glows the color of the content
+                    const isBorder = (i % width + Math.floor(i/width)) % 2 === 0 || frameCount % 60 < 30;
+                    if (product === WATER) { r=0; g=80; b=200; }
+                    else if (product === FIRE) { r=200; g=50; b=0; }
+                    else if (product === SAND) { r=200; g=180; b=100; }
+                    else if (product === ACID) { r=40; g=180; b=40; }
+                    else if (product === LAVA) { r=200; g=40; b=0; }
+                    else if (product === OIL) { r=150; g=140; b=20; }
+                    else { r=150; g=150; b=150; }
+                    
+                    if (!isBorder) { r+=40; g+=40; b+=40; } // Chequer pattern
+                }
             } else if (type === THUNDER) {
                 r = 255; g = 255; b = 0;
                 if (Math.random() < 0.5) { r = 255; g = 255; b = 255; } // Flicker white
@@ -762,17 +1050,26 @@ function draw() {
                 r = 57; g = 255; b = 20; // Neon Green
                 if (Math.random() < 0.2) { r=200; b=240; }
             } else if (type === VOID) {
-                r = 40; g = 0; b = 60; // Dark purple
-                if ((i % 9) === 0 && Math.random() < 0.1) { r=75; b=130; } // Subtle sparkle
+                // Void Logic: flashes when eating
+                const val = grid[i]; // temporary flash
+                r = val; g = val/2; b = val; // Mostly black/dark
+                if (grid[i] > 0) grid[i] -= 25; // Fade flash
+                if ((i % 9) === 0 && Math.random() < 0.05) { r+=40; b+=80; } // Subtle sparkle
             }
             
             data[idx] = r;
             data[idx+1] = g;
             data[idx+2] = b;
-            data[idx+3] = 255; // Alpha
+            data[idx+3] = alpha; 
         }
     }
     ctx.putImageData(imgData, 0, 0);
+
+    // Visual effects overlay for Thunder
+    if (hasThunder && Math.random() < 0.2) {
+         ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+         ctx.fillRect(0, 0, width, height);
+    }
 }
 
 function loop() {
@@ -786,4 +1083,5 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
+updateCursor();
 loop();

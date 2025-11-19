@@ -1,13 +1,17 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: #111;
-    color: #eee;
+    background-color: #050505;
+    background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+    color: #f0f0f0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
+    user-select: none; /* Prevent text selection while painting */
     min-height: 100vh;
+    overflow: hidden;
+    touch-action: none; /* Prevent zooming/scrolling on mobile */
 }
 
 .container {
@@ -26,7 +30,7 @@ body {
 }
 
 h1 {
-    margin: 0 0 5px 0;
+    margin: 0 0 10px 0;
     font-weight: 300;
 }
 
@@ -41,41 +45,54 @@ button {
 
 .controls {
     margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
     display: flex;
+    max-width: 620px;
     gap: 5px;
     flex-wrap: wrap;
     justify-content: center;
 }
 
+@keyframes pulse-border {
+    0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(255, 255, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
 button.active {
-    background-color: #666;
+    background-color: #505050;
     border-color: #888;
+    transform: scale(1.05);
+    box-shadow: 0 0 8px rgba(255,255,255,0.3);
+    animation: pulse-border 2s infinite;
+    text-shadow: 0 0 5px rgba(255,255,255,0.5);
 }
 
 /* Tech-demo styling specific colors */
-#btn-sand.active { border-bottom: 3px solid #f4d03f; }
-#btn-water.active { border-bottom: 3px solid #1e90ff; }
-#btn-stone.active { border-bottom: 3px solid #888; }
-#btn-wood.active { border-bottom: 3px solid #8b4513; }
-#btn-acid.active { border-bottom: 3px solid #32cd32; }
-#btn-fire.active { border-bottom: 3px solid #ff4500; }
-#btn-eraser.active { border-bottom: 3px solid #fff; }
-#btn-gunpowder.active { border-bottom: 3px solid #555; }
-#btn-lava.active { border-bottom: 3px solid #cf1020; }
-#btn-oil.active { border-bottom: 3px solid #bab020; }
-#btn-plant.active { border-bottom: 3px solid #2ecc71; }
-#btn-ice.active { border-bottom: 3px solid #aaddff; }
-#btn-methane.active { border-bottom: 3px solid #9b59b6; }
-#btn-virus.active { border-bottom: 3px solid #d84294; }
-#btn-fuse.active { border-bottom: 3px solid #556b2f; }
-#btn-c4.active { border-bottom: 3px solid #d3d3d3; }
-#btn-wall.active { border-bottom: 3px solid #444; }
-#btn-glass.active { border-bottom: 3px solid #8af; }
-#btn-plasma.active { border-bottom: 3px solid #d0f; }
-#btn-source.active { border-bottom: 3px solid #f0f; }
-#btn-thunder.active { border-bottom: 3px solid #ffd700; }
-#btn-void.active { border-bottom: 3px solid #4b0082; }
-#btn-nuke.active { border-bottom: 3px solid #39ff14; }
+#btn-sand.active { border-bottom: 3px solid #f4d03f; color: #f4d03f; }
+#btn-water.active { border-bottom: 3px solid #1e90ff; color: #1e90ff; }
+#btn-stone.active { border-bottom: 3px solid #888; color: #aaa; }
+#btn-wood.active { border-bottom: 3px solid #8b4513; color: #d2691e; }
+#btn-acid.active { border-bottom: 3px solid #32cd32; color: #32cd32; }
+#btn-fire.active { border-bottom: 3px solid #ff4500; color: #ff4500; }
+#btn-eraser.active { border-bottom: 3px solid #fff; color: #fff; }
+#btn-gunpowder.active { border-bottom: 3px solid #777; color: #ccc; }
+#btn-lava.active { border-bottom: 3px solid #cf1020; color: #cf1020; }
+#btn-oil.active { border-bottom: 3px solid #bab020; color: #bab020; }
+#btn-plant.active { border-bottom: 3px solid #2ecc71; color: #2ecc71; }
+#btn-ice.active { border-bottom: 3px solid #aaddff; color: #aaddff; }
+#btn-methane.active { border-bottom: 3px solid #9b59b6; color: #9b59b6; }
+#btn-virus.active { border-bottom: 3px solid #d84294; color: #d84294; }
+#btn-fuse.active { border-bottom: 3px solid #556b2f; color: #556b2f; }
+#btn-c4.active { border-bottom: 3px solid #d3d3d3; color: #d3d3d3; }
+#btn-wall.active { border-bottom: 3px solid #666; color: #888; }
+#btn-glass.active { border-bottom: 3px solid #8af; color: #8af; }
+#btn-plasma.active { border-bottom: 3px solid #d0f; color: #d0f; }
+#btn-source.active { border-bottom: 3px solid #f0f; color: #f0f; }
+#btn-thunder.active { border-bottom: 3px solid #ffd700; color: #ffd700; }
+#btn-void.active { border-bottom: 3px solid #4b0082; color: #9370db; }
+#btn-nuke.active { border-bottom: 3px solid #39ff14; color: #39ff14; }
 
 button:hover {
     background-color: #444;
@@ -89,11 +106,23 @@ button:hover {
 }
 
 canvas {
-    background-color: black;
-    cursor: crosshair;
+    cursor: none;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    border: 1px solid #333;
     image-rendering: pixelated;
     width: 600px;
     height: 600px;
+}
+
+#cursor-outline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 2px rgba(0,0,0,0.8);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    display: none;
+    will-change: transform; /* Performance optimization */
 }
