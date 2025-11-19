@@ -11,31 +11,31 @@
         <div id="cursor-outline"></div>
         <div class="header">
             <h1>JS Physics Sandbox</h1>
-            <p>Simulates 25 materials. <strong>Hint:</strong> Middle-click to pick a material. Steam condenses at the ceiling. Paint 'Source', then paint a material onto it to configure.</p>
+            <p>Simulates 25 materials. <strong>Hint:</strong> Middle-click to pick. <strong>Shift+Drag</strong> for straight lines. <strong>[</strong> and <strong>]</strong> to resize brush.</p>
             <div class="controls">
-                <button id="btn-eraser" onclick="setTool('eraser')">Eraser</button>
-                <button id="btn-sand" class="active" onclick="setTool('sand')">Sand</button>
-                <button id="btn-stone" onclick="setTool('stone')">Stone</button>
-                <button id="btn-wood" onclick="setTool('wood')">Wood</button>
-                <button id="btn-water" onclick="setTool('water')">Water</button>
-                <button id="btn-ice" onclick="setTool('ice')">Ice</button>
-                <button id="btn-oil" onclick="setTool('oil')">Oil</button>
-                <button id="btn-methane" onclick="setTool('methane')">Gas</button>
-                <button id="btn-plant" onclick="setTool('plant')">Plant</button>
-                <button id="btn-fire" onclick="setTool('fire')">Fire</button>
-                <button id="btn-acid" onclick="setTool('acid')">Acid</button>
-                <button id="btn-lava" onclick="setTool('lava')">Lava</button>
-                <button id="btn-gunpowder" onclick="setTool('gunpowder')">TNT</button>
-                <button id="btn-virus" onclick="setTool('virus')">Virus</button>
-                <button id="btn-plasma" onclick="setTool('plasma')">Plasma</button>
-                <button id="btn-fuse" onclick="setTool('fuse')">Fuse</button>
-                <button id="btn-c4" onclick="setTool('c4')">C4</button>
-                <button id="btn-glass" onclick="setTool('glass')">Glass</button>
-                <button id="btn-wall" onclick="setTool('wall')">Wall</button>
-                <button id="btn-source" onclick="setTool('source')">Source</button>
-                <button id="btn-thunder" onclick="setTool('thunder')">Thunder</button>
-                <button id="btn-void" onclick="setTool('void')">Void</button>
-                <button id="btn-nuke" onclick="setTool('nuke')">Nuke</button>
+                <button id="btn-eraser" data-key="1" onclick="setTool('eraser')" onmouseenter="previewTool('eraser')" onmouseleave="resetPreview()">Eraser</button>
+                <button id="btn-sand" class="active" data-key="2" onclick="setTool('sand')" onmouseenter="previewTool('sand')" onmouseleave="resetPreview()">Sand</button>
+                <button id="btn-stone" data-key="3" onclick="setTool('stone')" onmouseenter="previewTool('stone')" onmouseleave="resetPreview()">Stone</button>
+                <button id="btn-wood" data-key="4" onclick="setTool('wood')" onmouseenter="previewTool('wood')" onmouseleave="resetPreview()">Wood</button>
+                <button id="btn-water" data-key="5" onclick="setTool('water')" onmouseenter="previewTool('water')" onmouseleave="resetPreview()">Water</button>
+                <button id="btn-fire" data-key="6" onclick="setTool('fire')" onmouseenter="previewTool('fire')" onmouseleave="resetPreview()">Fire</button>
+                <button id="btn-acid" data-key="7" onclick="setTool('acid')" onmouseenter="previewTool('acid')" onmouseleave="resetPreview()">Acid</button>
+                <button id="btn-gunpowder" data-key="8" onclick="setTool('gunpowder')" onmouseenter="previewTool('gunpowder')" onmouseleave="resetPreview()">TNT</button>
+                <button id="btn-thunder" data-key="9" onclick="setTool('thunder')" onmouseenter="previewTool('thunder')" onmouseleave="resetPreview()">Thunder</button>
+                <button id="btn-ice" onclick="setTool('ice')" onmouseenter="previewTool('ice')" onmouseleave="resetPreview()">Ice</button>
+                <button id="btn-oil" onclick="setTool('oil')" onmouseenter="previewTool('oil')" onmouseleave="resetPreview()">Oil</button>
+                <button id="btn-methane" onclick="setTool('methane')" onmouseenter="previewTool('methane')" onmouseleave="resetPreview()">Gas</button>
+                <button id="btn-plant" onclick="setTool('plant')" onmouseenter="previewTool('plant')" onmouseleave="resetPreview()">Plant</button>
+                <button id="btn-lava" onclick="setTool('lava')" onmouseenter="previewTool('lava')" onmouseleave="resetPreview()">Lava</button>
+                <button id="btn-virus" onclick="setTool('virus')" onmouseenter="previewTool('virus')" onmouseleave="resetPreview()">Virus</button>
+                <button id="btn-plasma" onclick="setTool('plasma')" onmouseenter="previewTool('plasma')" onmouseleave="resetPreview()">Plasma</button>
+                <button id="btn-fuse" onclick="setTool('fuse')" onmouseenter="previewTool('fuse')" onmouseleave="resetPreview()">Fuse</button>
+                <button id="btn-c4" onclick="setTool('c4')" onmouseenter="previewTool('c4')" onmouseleave="resetPreview()">C4</button>
+                <button id="btn-glass" onclick="setTool('glass')" onmouseenter="previewTool('glass')" onmouseleave="resetPreview()">Glass</button>
+                <button id="btn-wall" onclick="setTool('wall')" onmouseenter="previewTool('wall')" onmouseleave="resetPreview()">Wall</button>
+                <button id="btn-source" onclick="setTool('source')" onmouseenter="previewTool('source')" onmouseleave="resetPreview()">Source</button>
+                <button id="btn-void" onclick="setTool('void')" onmouseenter="previewTool('void')" onmouseleave="resetPreview()">Void</button>
+                <button id="btn-nuke" onclick="setTool('nuke')" onmouseenter="previewTool('nuke')" onmouseleave="resetPreview()">Nuke</button>
             </div>
         </div>
         <div class="controls">

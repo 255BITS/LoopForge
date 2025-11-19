@@ -41,18 +41,37 @@ let grid = new Float32Array(width * height).fill(0); // Stores Hue logic
 let isMouseDown = false;
 let mouseButton = 0; // 0: Left, 2: Right
 let isPaused = false;
+let isShiftHeld = false;
 let mouseX = 0;
 let mouseY = 0;
 let lastMouseX = 0;
 let lastMouseY = 0;
+let startMouseX = 0; // For straight line constraint
+let startMouseY = 0;
 let hue = 0;
 let currentTool = SAND;
+let currentToolName = 'sand'; // Store string name for UI restoration
 let brushSize = 5;
 let frameCount = 0;
 const imgData = ctx.createImageData(width, height);
 
-function updateCursor() {
-    cursorOutline.style.width = cursorOutline.style.height = (brushSize * (600/width)) + 'px';
+function updateCursor(e) {
+    // Calculate dynamic scale based on current display size
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = rect.width / width;
+    
+    cursorOutline.style.width = cursorOutline.style.height = (brushSize * scaleX) + 'px';
+    
+    if (e) {
+        // If shift is held and mouse is down, snap the visual cursor to the axis
+        let clientX = e.clientX;
+        let clientY = e.clientY;
+        if (isMouseDown && isShiftHeld) {
+            // Logic is handled in 'renderCursorPosition' mostly, but kept here for sizing updates
+        }
+        renderCursorPosition(clientX, clientY);
+    }
+    // Color update moved to setTool for efficiency
 }
 
 // Inputs
@@ -63,6 +82,12 @@ canvas.addEventListener('mousedown', (e) => {
     updateMouseCoords(e);
     lastMouseX = mouseX;
     lastMouseY = mouseY;
+    startMouseX = mouseX;
+    startMouseY = mouseY;
+    if (e.altKey) pickMaterial(e); // Alt+Click alternative for picking
+    
+    // Visual feedback for Right-Click Eraser
+    if (e.button === 2) cursorOutline.style.borderColor = '#ffffff';
 });
 canvas.addEventListener('contextmenu', e => e.preventDefault()); // Disable context menu for right-click erase
 canvas.addEventListener('wheel', (e) => {
@@ -72,15 +97,73 @@ canvas.addEventListener('wheel', (e) => {
     updateBrush(newSize);
     document.getElementById('brushSize').value = newSize;
 }, { passive: false });
-canvas.addEventListener('mouseup', () => isMouseDown = false);
+canvas.addEventListener('mouseup', () => {
+    isMouseDown = false;
+    // Restore cursor color
+    cursorOutline.style.borderColor = toolColors[currentToolName] || 'rgba(255, 255, 255, 0.5)';
+});
 canvas.addEventListener('mouseout', () => isMouseDown = false);
 canvas.addEventListener('mousemove', (e) => {
     updateMouseCoords(e);
+    renderCursorVisuals(e);
+});
+window.addEventListener('resize', () => updateCursor()); // Fix cursor size on window resize
+
+// Touch Support
+function handleTouch(e) {
+    e.preventDefault(); // Stop scrolling
+    if (e.touches.length > 0) {
+        const t = e.touches[0];
+        const fakeEvent = { clientX: t.clientX, clientY: t.clientY };
+        
+        if (e.type === 'touchstart') {
+            isMouseDown = true;
+            mouseButton = 0; // Treat as left click
+            lastMouseX = mouseX; lastMouseY = mouseY; // Prevent jumping
+            startMouseX = mouseX; startMouseY = mouseY;
+        }
+        
+        updateMouseCoords(fakeEvent);
+        renderCursorVisuals(fakeEvent);
+        if (e.type === 'touchmove') spawnSand(); // Ensure smooth drawing on touch
+    } else {
+        isMouseDown = false;
+    }
+}
+canvas.addEventListener('touchstart', handleTouch, { passive: false });
+canvas.addEventListener('touchmove', handleTouch, { passive: false });
+canvas.addEventListener('touchend', handleTouch);
+
+function renderCursorVisuals(e) {
+    // Determine visual position (handling Shift-lock)
+    let visualX = e.clientX;
+    let visualY = e.clientY;
+
+    if (isMouseDown && isShiftHeld) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = rect.width / width;
+        const scaleY = rect.height / height;
+
+        // Calculate where the cursor "actually" is for physics
+        // If X distance > Y distance, lock Y to startY
+        if (Math.abs(mouseX - startMouseX) > Math.abs(mouseY - startMouseY)) {
+            // Locked to Y axis (horizontal line)
+            // Convert grid Y back to screen Y
+            visualY = rect.top + (startMouseY * scaleY) + (scaleY / 2); 
+        } else {
+            // Locked to X axis (vertical line)
+            visualX = rect.left + (startMouseX * scaleX) + (scaleX / 2);
+        }
+    }
+    renderCursorPosition(visualX, visualY);
+}
+
+function renderCursorPosition(cx, cy) {
     // Update cursor visually immediately
     cursorOutline.style.display = 'block';
     // Use transform for better performance (gpu composition)
-    cursorOutline.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
-});
+    cursorOutline.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
+}
 
 function updateMouseCoords(e) {
     const rect = canvas.getBoundingClientRect();
@@ -93,15 +176,15 @@ function updateMouseCoords(e) {
 function pickMaterial(e) {
     e.preventDefault();
     updateMouseCoords(e);
-    const idx = mouseX + mouseY * width;
+    const idx = (mouseX >= 0 && mouseX < width && mouseY >= 0 && mouseY < height) ? mouseX + mouseY * width : -1;
     if (idx >= 0 && idx < types.length) {
         let t = types[idx];
         if (t === EMPTY) return;
         
         // Intelligent Pick: If picking a Source, pick what it spawns
-        if (t === SOURCE) {
+        if (t === SOURCE && grid[idx] !== 0) {
              const spawned = grid[idx];
-             if (spawned !== 0) t = spawned;
+             t = spawned;
         }
         
         // Reverse lookup for UI (simple map)
@@ -117,6 +200,14 @@ function pickMaterial(e) {
 
 // Keyboard Shortcuts
 document.addEventListener('keydown', (e) => {
+    if (e.key === 'Shift') {
+        isShiftHeld = true;
+        // Trigger a reflow of the cursor to snap it immediately
+        // We need the last mouse position, strictly speaking, but we can wait for next move
+        // or store last event. For now, the next micro-movement will snap it.
+        cursorOutline.style.borderStyle = 'dashed'; // Visual cue
+    }
+    
     if (e.key === '1') setTool('eraser');
     if (e.key === '2') setTool('sand');
     if (e.key === '3') setTool('stone');
@@ -128,7 +219,43 @@ document.addEventListener('keydown', (e) => {
     if (e.key === '9') setTool('thunder');
     if (e.key === '0') resetGrid();
     if (e.code === 'Space') togglePause();
+    
+    // Improved Shortcuts
+    if (e.key === '[') updateBrush(brushSize - 1);
+    if (e.key === ']') updateBrush(brushSize + 1);
+    if (e.key.toLowerCase() === 'e') setTool('eraser');
+    if (e.key.toLowerCase() === 'p') togglePause();
 });
+document.addEventListener('keyup', (e) => {
+    if (e.key === 'Shift') isShiftHeld = false;
+    cursorOutline.style.borderStyle = 'solid';
+});
+
+const toolColors = {
+    'sand': '#f4d03f',
+    'water': '#1e90ff',
+    'stone': '#aaa',
+    'acid': '#32cd32',
+    'wood': '#d2691e',
+    'fire': '#ff4500',
+    'lava': '#cf1020',
+    'oil': '#bab020',
+    'eraser': '#ffffff',
+    'gunpowder': '#ccc',
+    'plant': '#2ecc71',
+    'ice': '#aaddff',
+    'methane': '#9b59b6',
+    'virus': '#d84294',
+    'fuse': '#556b2f',
+    'c4': '#d3d3d3',
+    'wall': '#888',
+    'plasma': '#d0f',
+    'glass': '#8af',
+    'source': '#f0f',
+    'thunder': '#ffd700',
+    'void': '#9370db',
+    'nuke': '#39ff14',
+};
 
 const descriptions = {
     'sand': 'Sand: Simple particles that pile up.',
@@ -163,8 +290,11 @@ function togglePause() {
 }
 
 function setTool(toolName) {
+    currentToolName = toolName;
     document.querySelectorAll('button').forEach(b => b.classList.remove('active')); // clear all
     document.getElementById(`btn-${toolName}`)?.classList.add('active');
+    
+    cursorOutline.style.borderColor = toolColors[toolName] || 'rgba(255, 255, 255, 0.5)';
     
     document.getElementById('infoText').innerText = descriptions[toolName] || "";
 
@@ -193,8 +323,17 @@ function setTool(toolName) {
     else if (toolName === 'nuke') currentTool = NUKE;
 }
 
+function previewTool(toolName) {
+    document.getElementById('infoText').innerText = descriptions[toolName] || "";
+}
+
+function resetPreview() {
+    document.getElementById('infoText').innerText = descriptions[currentToolName] || "";
+}
+
 function updateBrush(val) {
-    brushSize = parseInt(val);
+    brushSize = Math.max(1, Math.min(15, parseInt(val)));
+    document.getElementById('brushSize').value = brushSize;
     document.getElementById('brushVal').innerText = brushSize;
     updateCursor();
 }
@@ -213,7 +352,7 @@ function resetGrid() {
 
 function getInitialData(type) {
     if (type === FIRE) return 100 + Math.random() * 50;
-    if (type === WOOD) return 20 + Math.random() * 10;
+    if (type === WOOD) return 30 + Math.random() * 20;
     if (type === STONE) return 136 + Math.random() * 20;
     if (type === LAVA) return 200 + Math.random() * 55;
     if (type === GUNPOWDER) return Math.random() * 30;
@@ -224,7 +363,7 @@ function getInitialData(type) {
     if (type === FUSE) return Math.random() * 20;
     if (type === C4) return Math.random() * 20;
     if (type === WALL) return 50 + Math.random() * 20;
-    if (type === PLASMA) return 50 + Math.random() * 100;
+    if (type === PLASMA) return 100 + Math.random() * 100;
     if (type === ACID) return hue;
     if (type === SAND) return Math.random() * 50; // Natural variation
     if (type === THUNDER) return 255;
@@ -260,6 +399,8 @@ function updatePhysics() {
             if (processed[idx]) continue; // Skip if already moved this frame
             const type = types[idx];
 
+            let rDx = 0, rDy = 0; // Moves for this particle
+
             // Gas Logic (Steam, Smoke, Methane)
             if (type === STEAM || type === SMOKE || type === METHANE || type === NUKE) {
                 // Randomize flow direction per particle for more natural diffusion
@@ -270,10 +411,12 @@ function updatePhysics() {
                         // Water cycle: Form "clouds" by hanging at the top, then rain randomly
                         if (Math.random() < 0.02) { types[idx] = WATER; grid[idx] = 0; } 
                     }
-                    else if (type === NUKE) { types[idx] = ACID; grid[idx] = 0; } // Radioactive rain
-                    else { types[idx] = EMPTY; grid[idx] = 0; } // Vent other gases into atmosphere
+                    else if (type === NUKE) { types[idx] = ACID; grid[idx] = 0; processed[idx] = 1; } // Radioactive rain
+                    else { types[idx] = EMPTY; grid[idx] = 0; processed[idx] = 1; } // Vent other gases into atmosphere
                     continue;
                 }
+                // If life <= 0 but not at ceiling, just die
+                if (grid[idx] <= 0 && y > 0) { types[idx] = EMPTY; continue; }
 
                 // Methane Ignition check (highly flammable gas)
                 if (type === METHANE) {
@@ -312,32 +455,20 @@ function updatePhysics() {
 
                 grid[idx] -= 1; // Life decay
                 // Methane lasts longer
-                if (type === METHANE && grid[idx] < 10) grid[idx] = 0; 
+                if (type === METHANE && grid[idx] < 10) grid[idx] = 0;
                 
-                if (grid[idx] <= 0 && type !== METHANE && type !== SMOKE) { // Condensate or die
-                    if (type === STEAM && Math.random() < 0.05) {
-                         types[idx] = WATER;
-                         grid[idx] = 0;
-                    } else {
-                        types[idx] = EMPTY;
-                        grid[idx] = 0;
-                    }
-                    continue;
-                }
-                if (grid[idx] <= 0 && (type === METHANE || type === SMOKE)) {
-                     types[idx] = EMPTY; 
-                     continue;
-                }
-
+                // Logic moved up: Condensation checks handle life <= 0 now
+ 
                 // Rise (with throttling to prevent instant teleportation in bottom-up loop)
                 if (Math.random() < 0.3) {
                     const above = idx - width;
                     const dir = flowDir;
                     const aboveSide = above + dir;
+                    // Check X boundaries for diagonal movement
+                    const safeSide = (dir === -1 && x > 0) || (dir === 1 && x < width - 1);
 
                     // Try move up
-                    // Logic Update: Gases shouldn't just disappear at ceiling, check boundary
-                    if (y > 0 && types[above] === EMPTY && above >= 0) {
+                    if (y > 0 && above >= 0 && types[above] === EMPTY) {
                         types[above] = type;
                         grid[above] = grid[idx];
                         processed[above] = 1;
@@ -346,7 +477,7 @@ function updatePhysics() {
                         
                     } 
                     // Try move up-diagonal (dispersion)
-                    else if (y > 0 && aboveSide >= 0 && aboveSide < types.length && types[aboveSide] === EMPTY && above >= 0) {
+                    else if (y > 0 && safeSide && aboveSide >= 0 && aboveSide < types.length && types[aboveSide] === EMPTY && above >= 0) {
                         types[aboveSide] = type;
                         grid[aboveSide] = grid[idx];
                         processed[aboveSide] = 1;
@@ -370,8 +501,8 @@ function updatePhysics() {
                 // Source Logic
                 let spawnType = grid[idx];
                 const neighbors = [idx-width, idx+width];
-                if (x > 0) neighbors.push(idx - 1);
-                if (x < width - 1) neighbors.push(idx + 1);
+                if (x > 0) { neighbors.push(idx - 1); if(types[idx-1]===EMPTY) neighbors.push(idx-1); } // Double chance for sides
+                if (x < width - 1) { neighbors.push(idx + 1); if(types[idx+1]===EMPTY) neighbors.push(idx+1); }
 
                 if (spawnType === 0) {
                     // Unconfigured: Absorb type from neighbor
@@ -387,6 +518,7 @@ function updatePhysics() {
                         if (target >= 0 && target < types.length && types[target] === EMPTY) {
                             types[target] = spawnType;
                             grid[target] = getInitialData(spawnType);
+                            processed[target] = 1; // Fix: Prevent "beam" effect by stopping immediate fall
                         }
                     }
                 }
@@ -462,7 +594,7 @@ function updatePhysics() {
                 }
 
                 // Thunder hits bottom or runs out of energy
-                if (grid[idx] <= 0 || y >= height - 2) {
+                if (grid[idx] <= 0 || y >= height - 1) {
                     types[idx] = EMPTY;
                     // Impact flash
                     if (y >= height - 5) {
@@ -509,6 +641,7 @@ function updatePhysics() {
                         if (types[n] === FUSE) {
                             types[n] = EMBER; // Ignite fuse
                             grid[n] = 100 + Math.random() * 20;
+                            processed[n] = 1;
                         } else if (types[n] === C4 || types[n] === GUNPOWDER || types[n] === METHANE) {
                             types[n] = FIRE; // Detonate
                             grid[n] = 100; 
@@ -527,7 +660,7 @@ function updatePhysics() {
                 if (Math.random() < 0.05) {
                     const above = idx - width;
                     if (above >= 0 && (types[above] === EMPTY || types[above] === FIRE)) {
-                        types[above] = SMOKE;
+                        types[above] = (Math.random() < 0.5 ? SMOKE : EMPTY);
                         grid[above] = 100 + Math.random() * 100;
                     }
                 }
@@ -708,7 +841,7 @@ function updatePhysics() {
                                     }
                                     types[nIdx] = EMPTY; grid[nIdx] = 0; // Instant dissolve
                                 }
-                                if (Math.random() < 0.1) { types[idx] = EMPTY; grid[idx] = 0; reacted = true; break; }
+                                if (Math.random() < 0.33) { types[idx] = EMPTY; grid[idx] = 0; reacted = true; break; } // Increased consumption rate
                             }
                         }
                     }
@@ -756,10 +889,11 @@ function updatePhysics() {
                         const neighborIndex = idx + offset;
                         if (neighborIndex >= 0 && neighborIndex < types.length) {
                             const nType = types[neighborIndex];
-                            if (nType === WATER || nType === ICE) {
+                            if (nType === WATER || nType === ICE || nType === ACID) {
                                 types[idx] = STONE; // Lava cools
                                 types[neighborIndex] = (nType === ICE) ? WATER : STEAM; // Water boils or Ice melts
                                 grid[neighborIndex] = 200 + Math.random() * 50;
+                                processed[idx] = 1; processed[neighborIndex] = 1;
                                 break; // solidified
                             } else if (nType === WOOD || nType === GUNPOWDER || nType === OIL || nType === FUSE || nType === C4) {
                                 if (Math.random() < 0.1) {
@@ -812,6 +946,7 @@ function updatePhysics() {
                 
                 // 2. Try Diagonal (if didn't move down)
                 if (!moved && y < height - 1) {
+                    // Randomize diagonal checking order to prevent directional bias
                     const checkLeft = x > 0;
                     const checkRight = x < width - 1;
                     
@@ -848,16 +983,25 @@ function updatePhysics() {
                     if (sides.length > 1 && Math.random() < 0.5) sides.reverse();
 
                     for (let target of sides) {
-                        if (types[target] === EMPTY) {
+                        if (target >= 0 && target < types.length && types[target] === EMPTY) {
                             types[target] = type;
-                            // Lava viscosity: Only move 10% of the time horizontally
-                            if (type === LAVA && Math.random() > 0.1) break; 
+                            
+                            // Viscosity / Slip control
+                            if (type === LAVA && Math.random() > 0.1) break; // Lava moves slow
+                            if (type === WATER || type === OIL) {
+                                // Liquids move faster if they are on top of other liquids (slip)
+                                // If the pixel below is also liquid, we slide easier
+                                if (y < height-1 && isLiquid(types[idx+width])) {
+                                    // allow double move? handled by logic loop speed, 
+                                    // but we ensure we don't break early to allow "far" checks if we added them.
+                                } 
+                            }
                             
                             grid[target] = grid[idx];
                             processed[target] = 1;
                             types[idx] = EMPTY;
                             grid[idx] = 0;
-                            break;
+                            if(Math.random() > 0.2) break; // Enable faster flow (viscosity)
                         }
                     }
                 }
@@ -870,9 +1014,21 @@ function spawnSand() {
     if (isMouseDown) {
         const extent = Math.floor(brushSize / 2);
         
+        let targetX = mouseX;
+        let targetY = mouseY;
+
+        // Shift key constraint (Straight lines)
+        if (isShiftHeld) {
+            if (Math.abs(mouseX - startMouseX) > Math.abs(mouseY - startMouseY)) {
+                targetY = startMouseY; // Lock Y, move X
+            } else {
+                targetX = startMouseX; // Lock X, move Y
+            }
+        }
+
         // Interpolate mouse movement to fill gaps
-        const dx = mouseX - lastMouseX;
-        const dy = mouseY - lastMouseY;
+        const dx = targetX - lastMouseX;
+        const dy = targetY - lastMouseY;
         const distance = Math.sqrt(dx*dx + dy*dy);
         const steps = Math.max(1, Math.round(distance));
 
@@ -889,10 +1045,10 @@ function spawnSand() {
         const effectiveTool = (mouseButton === 2) ? EMPTY : currentTool;
         
         // Ensure the final point is drawn (handles click without move)
-        if (steps > 0) paintStroke(mouseX, mouseY, extent, effectiveTool);
+        if (steps > 0) paintStroke(targetX, targetY, extent, effectiveTool);
         
-        lastMouseX = mouseX;
-        lastMouseY = mouseY;
+        lastMouseX = targetX;
+        lastMouseY = targetY;
         hue = (hue + 1) % 360;
     } else {
         // Reset last positions to current to prevent jumping on next click
@@ -913,7 +1069,8 @@ function paintStroke(cx, cy, extent, toolVal = currentTool) {
                     const idx = c + r * width;
 
                     // Feature: Configure Source by painting into it
-                    if (types[idx] === SOURCE && toolVal !== EMPTY && toolVal !== SOURCE) {
+                    if (types[idx] === SOURCE && toolVal !== EMPTY && toolVal !== WALL) {
+                        if (toolVal === SOURCE) continue; // Prevent self-sourcing
                         grid[idx] = toolVal;
                         continue;
                     }
@@ -927,6 +1084,7 @@ function paintStroke(cx, cy, extent, toolVal = currentTool) {
                         else if (types[idx] === EMPTY || types[idx] !== toolVal) {
                             types[idx] = toolVal;
                             grid[idx] = getInitialData(toolVal);
+                            processed[idx] = 1; // Don't fall immediately in this frame
                         }
                     }
                 }
@@ -963,13 +1121,15 @@ function draw() {
                 const shade = grid[i]; // Use stored texture, no shimmering
                 r = shade; g = shade; b = shade;
             } else if (type === ACID) {
-                r = 50; g = 205; b = 50;
+                // Use hue calculation for acid or standard Green
+                r = 60 + Math.sin(grid[i] * 0.1) * 20; g = 220; b = 60;
             } else if (type === WOOD) {
                 const shade = grid[i]; // varied brown
                 r = 139 + shade; g = 69 + shade; b = 19 + shade;
             } else if (type === FIRE) {
-                // Heat Gradient: White -> Yellow -> Red
                 const life = grid[i];
+                if (life > 230) { r=255; g=255; b=200; } // White hot
+                else if (life > 150) { r=255; g=200; b=0; } // Yellow
                 r = 255;
                 g = life > 200 ? 255 : (life > 100 ? life : 0);
                 b = life > 220 ? life : 0;
@@ -981,7 +1141,7 @@ function draw() {
                 r = 230; g = 230; b = 255;
                 alpha = Math.max(0, Math.min(255, val)); // Real alpha
             } else if (type === SMOKE) {
-                const val = 50 + (grid[i] / 4);
+                const val = 30 + (grid[i] / 4);
                 r = val; g = val; b = val;
             } else if (type === OIL) {
                 r = 186; g = 176; b = 32; // Olive gold
@@ -1027,21 +1187,37 @@ function draw() {
             } else if (type === SOURCE) {
                 const product = grid[i];
                 
-                if (product === 0) {
-                     const intensity = 128 + Math.sin(frameCount * 0.1) * 127;
-                     r = intensity; g = 0; b = intensity; // Unconfigured: Magenta
+                if (!product || product === 0) {
+                     // Unconfigured Source Pulse
+                     const phase = (i/width + frameCount) * 0.1;
+                      const intensity = 128 + Math.sin(phase) * 100;
+                       r = intensity; g = 0; b = intensity; // Unconfigured: Magenta
                 } else {
-                    // Configured: Glows the color of the content
-                    const isBorder = (i % width + Math.floor(i/width)) % 2 === 0 || frameCount % 60 < 30;
-                    if (product === WATER) { r=0; g=80; b=200; }
-                    else if (product === FIRE) { r=200; g=50; b=0; }
-                    else if (product === SAND) { r=200; g=180; b=100; }
-                    else if (product === ACID) { r=40; g=180; b=40; }
-                    else if (product === LAVA) { r=200; g=40; b=0; }
-                    else if (product === OIL) { r=150; g=140; b=20; }
-                    else { r=150; g=150; b=150; }
+                    // Configured: Glows the color of the content, but draw a solid block with a border
+                    const x = i % width;
+                    const y = Math.floor(i / width);
                     
-                    if (!isBorder) { r+=40; g+=40; b+=40; } // Chequer pattern
+                    if (product === WATER) { r=30; g=144; b=255; }
+                    else if (product === FIRE) { r=200; g=50; b=0; }
+                    else if (product === SAND) { r=230; g=196; b=120; }
+                    else if (product === ACID) { r=50; g=205; b=50; }
+                    else if (product === LAVA) { r=200; g=40; b=0; }
+                    else if (product === OIL) { r=186; g=176; b=32; }
+                    else if (product === PLASMA) { r=200; g=0; b=255; }
+                    else if (product === PLANT) { r=34; g=139; b=34; }
+                    else if (product === GUNPOWDER) { r=180; g=180; b=180; }
+                    else if (product === C4) { r=220; g=220; b=200; }
+                    else if (product === ICE) { r=220; g=240; b=255; }
+                    else if (product === THUNDER) { r=255; g=255; b=0; }
+                    else { r=128; g=128; b=128; }
+                    
+                    // Add a pulse to the whole block
+                    const pulse = 0.8 + Math.sin(frameCount * 0.1) * 0.2;
+                    r *= pulse; g *= pulse; b *= pulse;
+
+                    // Border for clarity
+                    const isEdge = (x > 0 && types[i-1] !== SOURCE) || (x < width-1 && types[i+1] !== SOURCE) || (y>0 && types[i-width]!==SOURCE);
+                    if (isEdge) { r=255; g=255; b=255; }
                 }
             } else if (type === THUNDER) {
                 r = 255; g = 255; b = 0;
@@ -1052,7 +1228,7 @@ function draw() {
             } else if (type === VOID) {
                 // Void Logic: flashes when eating
                 const val = grid[i]; // temporary flash
-                r = val; g = val/2; b = val; // Mostly black/dark
+                r = 20 + val; g = val/2; b = 40 + val; // Visible dark purple base
                 if (grid[i] > 0) grid[i] -= 25; // Fade flash
                 if ((i % 9) === 0 && Math.random() < 0.05) { r+=40; b+=80; } // Subtle sparkle
             }
