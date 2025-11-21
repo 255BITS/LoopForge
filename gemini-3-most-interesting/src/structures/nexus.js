@@ -1,5 +1,6 @@
 import { Structure } from './structure.js';
 import { state } from '../state.js';
+import { endGame } from '../ui.js';
  
 export class Nexus extends Structure {
     constructor(x, y) {
@@ -10,9 +11,37 @@ export class Nexus extends Structure {
         this.regenTimer = 0;
         this.synergyTimer = 0;
         this.recentItems = new Map();
+        this.dying = false;
+        this.deathTimer = 0;
     }
 
     tick(grid) {
+        if (this.dying) {
+            this.deathTimer--;
+            this.hp = 1; // Keep structure "active" in main loop during death animation
+            
+            if (this.deathTimer % 4 === 0) {
+                state.cameraShake = Math.min(40, state.cameraShake + 4);
+                state.effects.push({
+                    type: 'explosion', 
+                    x: this.x + (Math.random()-0.5)*4, 
+                    y: this.y + (Math.random()-0.5)*4, 
+                    radius: 1 + Math.random()*3, 
+                    life: 15, 
+                    color: Math.random()>0.5?'#fff':'#ff2e63'
+                });
+            }
+            if (this.deathTimer === 120 || this.deathTimer === 60) {
+                 state.effects.push({type:'text', text:'CRITICAL ERROR', x:this.x, y:this.y-2, color:'#ff2e63', life:60, vy:0.2});
+            }
+            if (this.deathTimer <= 0) {
+                this.active = false;
+                state.effects.push({type:'explosion', x:this.x, y:this.y, radius:50, life:180, color:'#fff'});
+                endGame();
+            }
+            return;
+        }
+
         if (this.hp < this.maxHp) {
             this.regenTimer += (1 + this.level * 0.2);
             if (this.regenTimer > 60) { this.hp += Math.floor(this.level/2) + 1; this.regenTimer = 0; }
@@ -25,8 +54,22 @@ export class Nexus extends Structure {
     }
     
     heal(amount) { this.hp = Math.min(this.maxHp, this.hp + amount); }
+    
+    takeDamage(amount) {
+        if (this.dying) return;
+        this.hp -= amount;
+        if (this.hp <= 0) {
+            this.hp = 1;
+            this.dying = true;
+            this.deathTimer = 180; // 3 seconds of destruction
+            state.cameraShake = 20;
+            state.effects.push({type:'text', text:'CONTAINMENT BREACH', x:this.x, y:this.y-3, color:'#fff', life:120, vy:0});
+            state.effects.push({type:'explosion', x:this.x, y:this.y, radius:4, life:30, color:'#ff2e63'});
+        }
+    }
 
     receiveItem(item) {
+        if (this.dying) return;
         const c = this.recentItems.get(item.type) || 0;
         this.recentItems.set(item.type, Math.min(5, c+1));
         this.synergyTimer = 300; 
@@ -54,5 +97,10 @@ export class Nexus extends Structure {
         state.effects.push({type: 'text', text: `LEVEL UP! (L${this.level})`, x: this.x, y: this.y - 1, life: 120, color: '#ffff00'});
     }
 
-    interact(state) { super.interact(state); if (this.xp >= this.xpToNext) { this.levelUp(); return true; } return false; }
+    interact(state) { 
+        if (this.dying) return false;
+        super.interact(state); 
+        if (this.xp >= this.xpToNext) { this.levelUp(); return true; } 
+        return false; 
+    }
 }
