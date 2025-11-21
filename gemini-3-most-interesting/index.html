@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Geo-Factorum: Deep Core</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div id="ui-layer">
+            <div id="top-bar"></div>
+            <div id="objective-box"></div>
+            <div id="hotbar"></div>
+        </div>
+        <div id="recipe-panel">
+            <h3 style="margin:0 0 5px 0; color:#45a29e">RECIPES</h3>
+            <div id="recipe-list"></div>
+        </div>
+        <div class="viewport">
+            <canvas id="gameCanvas"></canvas>
+            <div id="game-over">
+                <h2 style="color: #e94560">CRITICAL FAILURE</h2>
+                <p id="final-score">Score: 0</p>
+                <button onclick="location.reload()" style="padding: 10px; background: #e94560; color: white; border: none; cursor: pointer;">REBOOT SYSTEM</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>

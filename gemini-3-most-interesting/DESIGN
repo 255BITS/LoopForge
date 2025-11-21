@@ -1,0 +1,23 @@
+# Game Title: Geo-Factorum
+
+## Concept
+An automation-roguelike hybrid. The player controls a "Fabricator Unit" in a dark, subterranean cavern.
+
+## Core Feedback Loops
+1. **Gather**: Mine resources (Redium, Bluestone) manually or with machines.
+2. **Automate**: Build Miners to extract, Belts to transport, and Processors to refine.
+3. **Survive**: Pollution/Activity attracts "Creeps". Build Turrets to defend the supply line.
+4. **Evolve**: Feed resources into the central "Nexus" to level up, unlocking faster machines and combat stats.
+
+## Tech Specs
+*   **Engine**: Custom Vanilla JS Grid Engine.
+*   **Data Structures**:
+    *   `Grid`: 1D Float32Array backed representation for terrain (performance).
+    *   `EntityManager`: Spatial Hashing for collision and logic updates of dynamic objects.
+    *   `Automata`: System for ticking structures (Belts, Miners).
+
+## MVP Scope
+*   Moveable Player.
+*   Placeable Conveyor Belts and Miners.
+*   Items moving along belts.
+*   Resource nodes on the map.

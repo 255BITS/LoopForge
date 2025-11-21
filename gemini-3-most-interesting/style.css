@@ -1,0 +1,35 @@
+* { box-sizing: border-box; }
+body { margin: 0; padding: 0; background-color: #0b0c10; color: #c5c6c7; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; user-select: none; cursor: none; }
+/* Fun: Add a subtle vignette for atmosphere */
+body::after { content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.7) 100%); pointer-events: none; z-index: 5; }
+
+#app { display: flex; flex-direction: column; align-items: center; height: 100vh; cursor: crosshair; background: #000; }
+.controls { display: none; }
+#ui-layer { position: absolute; top: 0; width: 100%; height:100%; pointer-events: none; z-index: 10; }
+#top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: linear-gradient(180deg, rgba(11, 12, 16, 0.95) 0%, rgba(11, 12, 16, 0.01) 100%); backdrop-filter: blur(2px); pointer-events: auto; height: 60px; width:100%; }
+#hotbar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; background: rgba(11, 12, 16, 0.85); padding: 8px; border-radius: 12px; border: 1px solid #45a29e; pointer-events: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8); backdrop-filter: blur(5px); transition: transform 0.2s; }
+#hotbar:hover { transform: translateX(-50%) translateY(-2px); }
+.hotbar-slot { width: 58px; height: 58px; border: 2px solid #2b2b3b; background: #1f2833; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275); border-radius: 8px; overflow: visible; }
+.hotbar-slot:hover { transform: translateY(-6px) scale(1.1); border-color: #4ecca3; z-index: 100; background: #2b2b3b; box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3); }
+.hotbar-slot.active { border-color: #e94560; background: #2b2b3b; transform: translateY(-6px); box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4); z-index: 5; }
+.hotbar-slot.locked { opacity: 0.6; pointer-events: none; filter: grayscale(100%); background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, #000 5px, #000 10px); }
+.hotbar-slot.tutorial-highlight { border-color: #ffd700; animation: pulse-slot 1.5s infinite; box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); z-index:20; }
+.hotbar-slot .key { position: absolute; top: 2px; left: 4px; color: #fff; font-family: monospace; font-weight: 900; font-size: 0.8rem; text-shadow: 0 1px 2px #000; opacity: 0.6; }
+.hotbar-slot .cost { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); color: #4ecca3; font-size: 0.7rem; font-weight: bold; text-shadow: 0 1px 3px black; background: rgba(0,0,0,0.8); padding: 1px 4px; border-radius: 4px; white-space: nowrap; opacity: 0; transition: opacity 0.2s; pointer-events: none;}
+.hotbar-slot:hover .cost, .hotbar-slot.active .cost { opacity: 1; bottom: -22px; }
+h1 { font-size: 1.2rem; color: #e94560; margin: 0; text-shadow: 0 0 5px #e94560; }
+.viewport { flex: 1; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; background: #050505; }
+canvas { display: block; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+#game-over { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(11, 12, 16, 0.95); border: 2px solid #e94560; padding: 2rem; text-align: center; display: none; z-index: 100; box-shadow: 0 0 20px #e94560; }
+#recipe-panel { position: fixed; top: 80px; right: 10px; background: rgba(11, 12, 16, 0.85); border: 1px solid #45a29e; padding: 10px; font-size: 0.75rem; text-align: left; pointer-events: none; border-radius: 5px; min-width: 180px; }
+.recipe-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.recipe-row:last-child { border-bottom: none; } 
+.r-in { color: #ccc; } .r-out { color: #fff; font-weight: bold; } .arrow { color: #45a29e; margin: 0 5px; }
+.res-icon { display: inline-block; width: 10px; height: 10px; margin-right: 5px; border: 1px solid rgba(255,255,255,0.3); vertical-align: middle; }
+#objective-box { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.8); border: 1px solid #66fcf1; padding: 8px 20px; color: #4ecca3; pointer-events: none; font-size: 0.9rem; z-index: 5; border-radius: 20px; backdrop-filter: blur(2px); font-weight: bold; transition: all 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+@keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(78, 204, 163, 0.7); transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.05); border-color: #fff; } 100% { box-shadow: 0 0 0 15px rgba(78, 204, 163, 0); transform: translateX(-50%) scale(1); } }
+@keyframes pulse-slot { 0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); transform: translateY(-6px) scale(1); } 50% { transform: translateY(-6px) scale(1.05); border-color: #fff; } 100% { box-shadow: 0 0 0 15px rgba(255, 215, 0, 0); transform: translateY(-6px) scale(1); } }
+@keyframes pulse-text { 0% { transform: scale(1); } 50% { transform: scale(1.1); color: #fff; } 100% { transform: scale(1); } }
+.pulse-anim { animation: pulse-green 1.0s ease-out; }
+.interaction-prompt { position: absolute; pointer-events: none; font-weight: bold; font-size: 12px; color: white; text-shadow: 0 1px 2px black; white-space: nowrap; z-index: 20; transition: opacity 0.2s; }
+.interaction-key { display: inline-block; background: #e94560; color: white; padding: 2px 6px; border-radius: 4px; border: 1px solid white; margin-right: 5px; font-family: monospace; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
