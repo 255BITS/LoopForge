@@ -61,6 +61,7 @@
         </div>
         <div class="actions">
           <button id="attack-btn" class="btn primary" title="Space to strike">Strike</button>
+          <button id="burst-btn" class="btn" title="R to activate • 10s cooldown">Rune Burst</button>
         </div>
       </section>
 
@@ -74,6 +75,18 @@
           </div>
 
           <div class="tab-body active" id="tab-upgrades">
+            <div class="card compact">
+              <div class="attune-row">
+                <strong>Buy amount</strong>
+                <div class="spacer"></div>
+                <div class="btn-group" id="buy-qty">
+                  <button class="btn small qty-btn" data-qty="1">x1</button>
+                  <button class="btn small qty-btn" data-qty="10">x10</button>
+                  <button class="btn small qty-btn" data-qty="100">x100</button>
+                  <button class="btn small qty-btn qty-max qty-btn" data-qty="max" title="Buy as many as you can afford">MAX</button>
+                </div>
+              </div>
+            </div>
             <div id="shop-list" class="shop-list"></div>
           </div>
 
@@ -96,7 +109,7 @@
               </div>
               <div class="attune">
                 <h3>❄️ Frost</h3>
-                <p>+5% idle DPS per shard.</p>
+                <p>+5% idle DPS and +1% gold on kill per shard.</p>
                 <div class="attune-row">
                   <button class="btn" data-alloc="frost" data-delta="1">+1</button>
                   <button class="btn" data-alloc="frost" data-delta="-1">-1</button>
@@ -105,8 +118,8 @@
                 </div>
               </div>
               <div class="attune">
-                <h3>🜂 Shadow</h3>
-                <p>+5% crit <em>multiplier</em> per shard.</p>
+                <h3>🌑 Shadow</h3>
+                <p>+5% crit <em>multiplier</em> and +0.5% crit chance per shard (total crit chance capped at 75%).</p>
                 <div class="attune-row">
                   <button class="btn" data-alloc="shadow" data-delta="1">+1</button>
                   <button class="btn" data-alloc="shadow" data-delta="-1">-1</button>

@@ -114,10 +114,10 @@ function handleMouseMove(e) {
             if (newRot !== -1) {
                 state.player.rotation = newRot;
                 // Retroactively fix the previous belt to point to this one for smooth curves
-                /* 
-                   Optional: Logic to turn previous belt corner. 
-                   Simplified: Just ensure current belt points correct way.
-                */
+                const prevCell = state.grid.get(lastGx, lastGy);
+                if (prevCell && prevCell.structure && prevCell.structure.type === 'belt') {
+                    prevCell.structure.rotation = newRot;
+                }
             }
         }
         // Note: We no longer trigger interact() here directly for everything, 

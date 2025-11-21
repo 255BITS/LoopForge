@@ -13,11 +13,17 @@ let upgradeCost = 10;
 let swordUpgradeCost = 20;
 let manaUpgradeCost = 50;
 let zone = 0;
+let heroMaxHP = 100;
+let heroHP = 100;
+let heroDefense = 0;
+let armorUpgradeCost = 30;
 let mana = 0;
 let maxMana = 50;
 let manaRegen = 5;
 let spellCost = 20;
 let spellDamage = 20;
+const healCost = 30;
+let healAmount = 50;
 const video = document.getElementById('enemy-video');
 const logDiv = document.getElementById('log');
 
@@ -37,6 +43,11 @@ function updateUI() {
     document.getElementById('xp-next').textContent = xpToNext;
     document.getElementById('dps').textContent = dps;
     document.getElementById('enemy-level').textContent = enemyLevel;
+    document.getElementById('enemy-name').textContent = enemyNames[enemyLevel] + (enemyLevel === 10 ? ' (Boss)' : '');
+    document.getElementById('armor-cost').textContent = armorUpgradeCost;
+    document.getElementById('hero-hp').textContent = `${Math.floor(Math.max(0, heroHP))}/${heroMaxHP}`;
+    const heroPercent = Math.max(0, (heroHP / heroMaxHP) * 100);
+    document.getElementById('hero-hp-fill').style.width = `${heroPercent}%`;
     document.getElementById('enemy-hp').textContent = `${Math.max(0, enemyHP)}/${enemyMaxHP}`;
     document.getElementById('dps-cost').textContent = upgradeCost;
     document.getElementById('sword-cost').textContent = swordUpgradeCost;
@@ -100,9 +111,23 @@ function attack(damage, isManual = false, isSpell = false) {
 // Idle auto-attack every second
 // No change, but context
 function autoTick() {
-  attack(dps);
-  mana = Math.min(mana + manaRegen, maxMana);
-  updateUI();
+    attack(dps);
+    let baseDmg = (enemyLevel + 1) * Math.pow(1.5, zone);
+    if (enemyLevel === 10) baseDmg *= 2;
+    const enemyDamage = Math.max(1, baseDmg - heroDefense);
+    heroHP -= enemyDamage;
+    if (heroHP <= 0) {
+        log(`You have been defeated by the ${enemyNames[enemyLevel]}! Lost half your gold and returned to Zone 0.`);
+        gold = Math.floor(gold * 0.5);
+        zone = 0;
+        enemyLevel = 0;
+        enemyMaxHP = 10;
+        enemyHP = enemyMaxHP;
+        video.src = `assets/enemy-0.mp4`;
+        heroHP = heroMaxHP;
+    }
+    mana = Math.min(mana + manaRegen, maxMana);
+    updateUI();
 }
 setInterval(autoTick, 1000);
 
@@ -148,6 +173,7 @@ document.getElementById('upgrade-mana').addEventListener('click', () => {
   if (gold >= manaUpgradeCost) {
     gold -= manaUpgradeCost;
     maxMana += 50;
+    healAmount += 25;
     manaRegen += 5;
     spellDamage += 10;
     manaUpgradeCost = Math.floor(manaUpgradeCost * 1.5);
@@ -157,9 +183,37 @@ document.getElementById('upgrade-mana').addEventListener('click', () => {
     log('Not enough gold!');
   }
 });
+// Upgrade Armor
+document.getElementById('upgrade-armor').addEventListener('click', () => {
+  if (gold >= armorUpgradeCost) {
+    gold -= armorUpgradeCost;
+    heroMaxHP += 50;
+    heroDefense += 5;
+    armorUpgradeCost = Math.floor(armorUpgradeCost * 1.5);
+    heroHP = heroMaxHP;
+    log(`Upgraded armor! Max HP ${heroMaxHP}, defense ${heroDefense}. Next upgrade costs ${armorUpgradeCost}.`);
+    updateUI();
+  } else {
+    log('Not enough gold!');
+  }
+});
+// Heal Spell
+document.getElementById('heal-btn').addEventListener('click', () => {
+  if (mana >= healCost) {
+    mana -= healCost;
+    heroHP = Math.min(heroHP + healAmount, heroMaxHP);
+    log(`You cast heal, restoring ${healAmount} HP.`);
+    updateUI();
+  }
+});
 // Save and load
 function saveGame() {
     const saveData = { heroLevel, gold, xp, xpToNext, dps, manualDamage, enemyLevel, enemyMaxHP, enemyHP, upgradeCost, swordUpgradeCost, manaUpgradeCost, zone, mana, maxMana, manaRegen, spellDamage };
+    saveData.heroMaxHP = heroMaxHP;
+    saveData.heroHP = heroHP;
+    saveData.heroDefense = heroDefense;
+    saveData.armorUpgradeCost = armorUpgradeCost;
+    saveData.healAmount = healAmount;
     localStorage.setItem('eldoriaSave', JSON.stringify(saveData));
     log('Game saved.');
 }
@@ -182,6 +236,11 @@ function loadGame() {
         manaUpgradeCost = data.manaUpgradeCost || 50;
         zone = data.zone || 0;
         mana = data.mana || 0;
+        heroMaxHP = data.heroMaxHP || 100;
+        heroHP = data.heroHP || 100;
+        heroDefense = data.heroDefense || 0;
+        armorUpgradeCost = data.armorUpgradeCost || 30;
+        healAmount = data.healAmount || 50;
         maxMana = data.maxMana || 50;
         manaRegen = data.manaRegen || 5;
         spellDamage = data.spellDamage || 20;
@@ -195,7 +254,7 @@ function loadGame() {
 
 document.getElementById('save-btn').addEventListener('click', saveGame);
 document.getElementById('load-btn').addEventListener('click', loadGame);
-
+video.addEventListener('click', () => attack(manualDamage, true));
 // Initial setup 
 video.src = `assets/enemy-${enemyLevel}.mp4`;
 updateUI();

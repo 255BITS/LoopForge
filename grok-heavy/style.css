@@ -75,3 +75,16 @@ button:hover {
     clear: both;
     margin-top: 20px;
 }
+#hero-hp-bar {
+    width: 200px;
+    height: 10px;
+    background-color: #333;
+    border: 1px solid white;
+}
+#hero-hp-fill {
+    height: 100%;
+    background-color: green;
+}
+#enemy-name {
+    text-align: center;
+}

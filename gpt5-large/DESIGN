@@ -1,7 +1,7 @@
 Runebloom: Idle Realms
-======================
+=====================
 
-High-level pitch
+High-level pitch (updated)
 ----------------
 Runebloom: Idle Realms is a fantasy-themed incremental RPG you can play in the browser.
 Click to strike, hire allies for idle DPS, beat bosses every 10 waves to earn **Aspect Shards**,
@@ -13,13 +13,16 @@ Core loops
 1) **Fight loop**: Attack the current enemy (or let idle DPS work). Earn gold & XP on kill.
 2) **Progress loop**: Clear 10 waves → fight a boss. Killing a boss grants 1 Aspect Shard.
 3) **Growth loop**: Spend gold on upgrades (click damage, idle DPS, crit…). Spend shards on permanent
-   Attunements (Fire = click, Frost = idle, Shadow = crit scaling). Repeat.
+   Attunements (Fire = click, Frost = idle + gold, Shadow = crit scaling + chance). Repeat.
 
 Game feel
 ---------
 * Click feels punchy (damage floaters + crit glow).
 * Enemies animate using the provided videos. Zone difficulty maps to video `enemy-<powerlevel>.mp4`.
 * Numbers scale smoothly with readable abbreviations (K, M, B…).
+* **New**: Active ability **Rune Burst** on a 10s cooldown for satisfying burst windows.
+* **New**: Multi-buy (x1/x10/x100/MAX) for upgrades.
+* **Polish**: Boss badge in UI, better autosave behavior, safer load (no enemy progress loss).
 
 Balance sketch
 --------------
@@ -28,16 +31,16 @@ Balance sketch
 * **Upgrades**: Exponential pricing (1.15–1.35 multipliers). Early items are cheap and impactful.
 * **Attunements**: Each allocated shard boosts:
   - Fire: +5% click damage (multiplicative)
-  - Frost: +5% idle DPS (multiplicative)
-  - Shadow: +5% critical *multiplier* per shard (starts at ×2 base)
+  - Frost: +5% idle DPS (multiplicative) **and** +1% gold on kill per shard
+  - Shadow: +5% critical *multiplier* per shard **and** +0.5% crit chance per shard (capped at 75% total)
 
 UI
 --
 * **Header**: Title + compact save indicator.
 * **Left panel**: Player stats (Level, XP bar, Health [abstract], Gold, Damage profile).
-* **Center**: Enemy video with HP bar overlay, Attack button, floating damage numbers.
+* **Center**: Enemy video with HP bar overlay, **BOSS** badge when applicable, Attack & **Rune Burst** buttons, floating damage numbers.
 * **Right/Tabs**:
-  - *Upgrades*: Buyable items with cost scaling & live effects.
+  - *Upgrades*: Buyable items with cost scaling & live effects, **multi-buy controls** (x1/x10/x100/MAX).
   - *Attunements*: Allocate/unallocate shards across Fire/Frost/Shadow (free respec).
   - *Settings*: Autosave toggle, mute video, reset save.
 
@@ -72,6 +75,11 @@ Testing notes / bug priorities
 * Video error fallback to `enemy-0.mp4`.
 * Never allow negative HP / gold / XP; floor tiny residuals to 0.
 * Debounce autosave; wrap JSON parse/stringify in try/catch.
+* **Fixed**: Autosave timing bug (mixed `performance.now()` and `Date.now()`).
+* **Fixed**: Loading no longer wipes an in-progress enemy; enemy is preserved when valid.
+* **Added**: Multi-buy uses closed-form geometric series; includes MAX option.
+* **Added**: Shadow shards now also grant crit **chance** (capped), Frost shards grant gold on kill.
+* **Added**: Active ability cooldown UI with overlay.
 
 Changelog (this pass)
 ---------------------
@@ -79,3 +87,5 @@ Changelog (this pass)
 * Implemented playable UI (`index.html`), styles (`styles.css`), and logic (`game.js`).
 * Integrated enemy video assets by power level with safe fallback.
 * Added upgrades, bosses, aspects (elemental attunements), autosave, and reset.
+* **New**: Rune Burst active skill, multi-buy (x1/x10/x100/MAX), boss badge, richer attunements.
+* **Bugs**: Fixed autosave clock mixup; preserve enemy on load; various clamps & UI polish.

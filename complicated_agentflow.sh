@@ -28,6 +28,7 @@ log_warning() {
 
 run_pytest() {
   python3 -m pytest "$@" --collect-only --disable-warnings
+  export PYTHONPATH="$(pwd):${PYTHONPATH}" # Dynamically add the current working directory to PYTHONPATH
   local ret=$?
   # Replace 5 with the actual problematic exit code.
   [ $ret -eq 5 ] && ret=0
@@ -60,12 +61,13 @@ while true; do
         gptdiff "${INSTRUCTIONS}. Create pytest tests for the requirements in requirements_${FEATURE_ID}.txt in test_feature_${FEATURE_ID}.py. Tests must include assertions and cover both success and failure cases" --apply --model o3-mini
         
         if [ -f "test_feature_${FEATURE_ID}.py" ]; then
-            # Validate test structure
-            if ! run_pytest test_feature_${FEATURE_ID}.py; then
-
+            # Validate test structure and execute test to capture output
+            TEST_OUTPUT=$(pytest test_feature_${FEATURE_ID}.py -v 2>&1)
+            RET=$?
+            if [ $RET -ne 0 ]; then
                 # Check for missing module errors and prompt for pip install
                 if echo "$TEST_OUTPUT" | grep -q "No module named"; then
-                    MISSING_MODULE=$(echo "$TEST_OUTPUT" | grep "No module named" | sed -E "s/.*(No module named '([^']+)').*/\2/")
+                    MISSING_MODULE=$(echo "$TEST_OUTPUT" | grep -oP "'\K(.*?)(?=')" | head -n 1) # Improved regex for extracting missing module
                     log_error "Missing Module Detected: $MISSING_MODULE"
                     echo -e "\n${BOLD}${CYAN}Attempting to install missing module: ${MISSING_MODULE}${NC}"
                     echo -e "Please run the following command to manually install:\n"
@@ -87,8 +89,7 @@ while true; do
                 continue
             fi
             
-            # Ensure test actually fails
-            TEST_OUTPUT=$(pytest test_feature_${FEATURE_ID}.py -v 2>&1)
+            echo -e "\nDEBUG: Raw Test Output:\n${TEST_OUTPUT}\n" # Log raw debug output for inspection
             if ! echo "$TEST_OUTPUT" | grep -q "FAILED"; then
                 log_warning "Tests Pass Without Implementation - Invalid Tests"
                 echo -e "${YELLOW}${TEST_OUTPUT}${NC}"

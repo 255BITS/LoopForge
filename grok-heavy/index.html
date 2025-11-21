@@ -12,6 +12,7 @@
         <div id="enemy-container">
             <div id="hp-bar"><div id="hp-fill"></div></div>
             <video id="enemy-video" autoplay loop muted></video>
+            <h2 id="enemy-name">Slime</h2>
         </div>
         <div id="stats">
             <p>Hero Level: <span id="hero-level">1</span></p>
@@ -22,18 +23,23 @@
             <p>Mana: <span id="mana">0</span> / <span id="max-mana">50</span></p>
             <div id="mana-bar"><div id="mana-fill"></div></div>
             <p>Current Enemy Level: <span id="enemy-level">0</span></p>
+            <p>Hero HP: <span id="hero-hp">100 / 100</span></p>
+            <div id="hero-hp-bar"><div id="hero-hp-fill"></div></div>
+            <p>Current Enemy Level: <span id="enemy-level">0</span></p>
             <p>Zone: <span id="zone">0</span></p>
             <p>Enemy HP: <span id="enemy-hp">10/10</span></p>
         </div>
         <div id="actions">
             <button id="attack-btn"><img src="assets/sword-icon.png" alt="attack"> Attack!</button>
             <button id="cast-spell"><img src="assets/spell-icon.png" alt="spell"> Cast Spell</button>
+            <button id="heal-btn"><img src="assets/heal-icon.png" alt="heal"> Heal</button>
         </div>
         <div id="shop">
             <h2>Upgrades</h2>
             <button id="upgrade-dps">Upgrade DPS (cost: <span id="dps-cost">10</span>)</button>
             <button id="upgrade-sword">Upgrade Sword (cost: <span id="sword-cost">20</span>)</button>
             <button id="upgrade-mana">Upgrade Magic (cost: <span id="mana-cost">50</span>)</button>
+            <button id="upgrade-armor">Upgrade Armor (cost: <span id="armor-cost">30</span>)</button>
         </div>
         <div id="log">
         </div>
