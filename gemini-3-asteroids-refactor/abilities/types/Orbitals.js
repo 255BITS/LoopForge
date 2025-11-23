@@ -4,7 +4,7 @@ export class Orbitals extends BaseAbility {
     constructor(player) { super(player); this.angle = 0; }
 
     update(dt, context) {
-        this.angle += 0.05;
+        this.angle += 0.05 + (this.level * 0.01); // Rotation speed scales with count
         const { enemies } = context;
         if (this.level <= 0) return;
 

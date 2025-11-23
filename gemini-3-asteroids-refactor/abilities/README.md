@@ -5,6 +5,7 @@ Modular ability system that handles active skills and routines attached to the P
 ## Architecture
 * **BaseAbility**: Abstract interface.
 * **types/**: Individual implementations for skills (Nova, Railgun, etc).
+  * *New:* GravityWell (Control), Inferno (Directional DOT), Sentry (Minion), Boomerang (Returning).
 * **Factory**: Central registration for string-based instantiation (used by Upgrade menu).
 
 ## Usage

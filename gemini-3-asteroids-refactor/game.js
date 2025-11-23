@@ -289,11 +289,15 @@ function loop(timestamp) {
         player,
         bullets,
         enemies,
+        gems,
+        vortexes,
+        floatingTexts,
         beams,
         particles,
         width: canvas.width, 
         height: canvas.height,
         enemyTimeScale,
+        timeScale: enemyTimeScale,
         keys: Input.keys,
         input: Input.mouse,
         isOverdrive,
@@ -306,6 +310,11 @@ function loop(timestamp) {
         createExplosion: createExplosion,
         spawnMinion: (x,y) => {
             const m = createEnemy(level, canvas.width, canvas.height, false, 'speeder');
+            m.x = x; m.y = y;
+            enemies.push(m);
+        },
+        spawnEnemy: (type, x, y) => {
+            const m = createEnemy(level, canvas.width, canvas.height, false, type);
             m.x = x; m.y = y;
             enemies.push(m);
         },

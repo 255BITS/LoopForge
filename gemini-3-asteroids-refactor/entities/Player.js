@@ -35,11 +35,15 @@ export class Player {
         this.boomerang = 0;
         this.angle = 0;
         
+        // Auto-aim
+        this.lastMousePos = {x: 0, y: 0};
+        this.cursorIdleTime = 0;
+
         this.activeAbilities = new Map();
     }
 
     update(dt, context) {
-        const { keys, input, width, height, isOverdrive, combo, sfx, addParticle, addBullet, createExplosion, setScreenShake } = context;
+        const { keys, input, width, height, enemies, isOverdrive, combo, sfx, addParticle, addBullet, createExplosion, setScreenShake } = context;
 
         // Physics Movement
         let dx = 0;
@@ -105,8 +109,31 @@ export class Player {
         if (this.y < -margin) this.y = height + margin;
         else if (this.y > height + margin) this.y = -margin;
 
-        // Simple aim at cursor
-        const targetAngle = Math.atan2(input.y - this.y, input.x - this.x);
+        // Auto-aim logic
+        if (input.x !== this.lastMousePos.x || input.y !== this.lastMousePos.y) {
+            this.lastMousePos.x = input.x;
+            this.lastMousePos.y = input.y;
+            this.cursorIdleTime = 0;
+        } else {
+            this.cursorIdleTime += dt;
+        }
+
+        let targetAngle;
+        let autoTarget = null;
+
+        if (this.cursorIdleTime > 2000 && enemies) {
+            let minDist = Infinity;
+            for (const e of enemies) {
+                const d = Math.hypot(e.x - this.x, e.y - this.y);
+                if (d < minDist) { minDist = d; autoTarget = e; }
+            }
+        }
+
+        if (autoTarget) {
+            targetAngle = Math.atan2(autoTarget.y - this.y, autoTarget.x - this.x);
+        } else {
+            targetAngle = Math.atan2(input.y - this.y, input.x - this.x);
+        }
 
         let diff = targetAngle - this.angle;
         while (diff < -Math.PI) diff += Math.PI * 2;
