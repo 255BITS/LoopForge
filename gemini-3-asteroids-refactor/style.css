@@ -1,0 +1,149 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background: radial-gradient(circle at center, #1a0a2e, #000 90%);
+    font-family: 'Courier New', Courier, monospace;
+    color: #eee;
+    user-select: none;
+    cursor: crosshair;
+}
+
+#ui-layer {
+    position: absolute;
+    box-shadow: inset 0 0 150px rgba(0,0,0,0.8);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Let clicks collide with canvas if needed, though we use overlays */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.scanlines {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.3;
+    animation: scroll 0.8s infinite linear;
+}
+
+/* Re-enable pointer events for UI elements */
+#ui-layer > * {
+    pointer-events: all;
+}
+
+#score {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 0 0 5px #000;
+}
+
+#start-btn {
+    padding: 15px 40px;
+    font-size: 24px;
+    cursor: pointer;
+    background: linear-gradient(45deg, #666, #444);
+    color: #fff;
+    border: 1px solid #888;
+    box-shadow: 0 0 10px rgba(0,255,255,0.5);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 10px rgba(0,255,255,0.5); }
+    50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(0,255,255,0.8); }
+    100% { transform: scale(1); box-shadow: 0 0 10px rgba(0,255,255,0.5); }
+}
+
+.boss-hud {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 20px;
+    background: #300;
+    border: 2px solid #f00;
+    display: none;
+    box-shadow: 0 0 15px #f00;
+    z-index: 100;
+}
+.boss-hud.active { display: block; }
+#boss-hp-bar { width: 100%; height: 100%; background: #f00; transition: width 0.2s; box-shadow: inset 0 0 10px #600; }
+
+#instructions {
+    position: absolute;
+    bottom: 100px;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.5);
+    text-shadow: 0 0 5px #00f;
+    padding: 10px;
+}
+
+#upgrade-menu {
+    background: rgba(10, 10, 20, 0.95);
+    padding: 30px;
+    border: 2px solid #0ff;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0,255,255,0.4), inset 0 0 20px rgba(0,255,255,0.1);
+    backdrop-filter: blur(10px);
+}
+
+.hidden { display: none !important; }
+
+#overdrive-ui {
+    position: absolute;
+    bottom: 30px;
+    width: 300px;
+    text-align: center;
+}
+
+#overdrive-bar-bg {
+    width: 100%;
+    height: 16px;
+    background: #222;
+    box-shadow: 0 0 10px rgba(255,255,255,0.2);
+    border: 2px solid #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#overdrive-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #f0f, #0ff);
+    box-shadow: 0 0 10px #fff;
+}
+
+#overdrive-msg {
+    margin-top: 8px;
+    color: #0ff;
+    font-weight: bold;
+    text-shadow: 0 0 5px #f0f;
+    opacity: 0;
+}
+
+.ready #overdrive-msg {
+    opacity: 1;
+    animation: blink-text 0.3s infinite alternate;
+}
+
+@keyframes blink-text {
+    from { opacity: 0.5; text-shadow: 0 0 5px #f0f; }
+    to { opacity: 1; text-shadow: 0 0 20px #fff; }
+}
+
+.upgrade-option { display: block; width: 250px; padding: 15px; margin: 10px; background: #223; border: 1px solid #445; color: #aaf; cursor: pointer; transition: all 0.2s; }
+.upgrade-option:hover { background: #334; border-color: #0ff; color: #fff; transform: scale(1.05); }
+.upgrade-option strong { display: block; font-size: 1.2em; margin-bottom: 5px; color: #0ff; }
+.reroll-btn:hover { background: #310; border-color: #fa0; box-shadow: 0 0 15px #fa0; }

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Survivor: Overdrive</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="scanlines"></div>
+    <div id="ui-layer">
+        <div id="boss-hud" class="boss-hud"><div id="boss-hp-bar"></div></div>
+        <div id="score">Level: 1 | Score: 0</div>
+        <button id="start-btn">Start Game</button>
+        <div id="instructions">WASD to Move | SPACE to Dash | E for Overdrive</div>
+        <div id="upgrade-menu" class="hidden">
+            <h2>Level Up!</h2>
+            <div style="font-size: 14px; margin-bottom: 10px;">Choose an upgrade:</div>
+            <div id="options"></div>
+        </div>
+        <div id="overdrive-ui" class="hidden">
+            <div id="overdrive-bar-bg"><div id="overdrive-bar-fill"></div></div>
+            <div id="overdrive-msg">OVERDRIVE READY [E]</div>
+        </div>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <script type="module" src="game.js"></script>
+</body>
+</html>
