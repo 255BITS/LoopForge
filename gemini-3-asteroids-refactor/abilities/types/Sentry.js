@@ -52,7 +52,11 @@ export class Sentry extends BaseAbility {
     }
 
     draw(ctx) {
+        ctx.save();
+        ctx.rotate(-this.player.angle);
+        ctx.translate(-this.player.x, -this.player.y);
         ctx.fillStyle = '#ea0';
         for(let t of this.turrets) { ctx.fillRect(t.x-6, t.y-6, 12, 12); ctx.strokeRect(t.x-8, t.y-8, 16, 16); }
+        ctx.restore();
     }
 }

@@ -53,10 +53,14 @@ export class Boomerang extends BaseAbility {
     }
 
     draw(ctx) {
+        ctx.save();
+        ctx.rotate(-this.player.angle);
+        ctx.translate(-this.player.x, -this.player.y);
         ctx.fillStyle = '#5f5';
         for (const p of this.projectiles) {
             ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(Date.now()/30);
             ctx.beginPath(); ctx.moveTo(0,-12); ctx.lineTo(8,4); ctx.lineTo(0,0); ctx.lineTo(-8,4); ctx.fill(); ctx.restore();
         }
+        ctx.restore();
     }
 }

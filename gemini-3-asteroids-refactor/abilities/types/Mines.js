@@ -79,6 +79,9 @@ export class Mines extends BaseAbility {
     }
 
     draw(ctx) {
+        ctx.save();
+        ctx.rotate(-this.player.angle);
+        ctx.translate(-this.player.x, -this.player.y);
         for (const m of this.mines) {
             ctx.save();
             ctx.translate(m.x, m.y);
@@ -93,5 +96,6 @@ export class Mines extends BaseAbility {
             }
             ctx.restore();
         }
+        ctx.restore();
     }
 }

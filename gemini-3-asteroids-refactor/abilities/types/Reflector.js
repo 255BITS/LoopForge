@@ -57,13 +57,10 @@ export class Reflector extends BaseAbility {
     }
 
     draw(ctx) {
-        const dx = ctx.canvas.width/2 - (this.player.x - ctx.canvas.width/2) - this.player.x; // Crude input hack or need context
-        // We don't have access to mouse pos in draw directly usually, assuming update handles state or visual only works if we stored angle in update.
-        // Let's assume a simple visual shield effect around player based on velocity or time.
         ctx.strokeStyle = `rgba(100, 200, 255, 0.5)`;
         ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.arc(this.player.x, this.player.y, 60, 0, Math.PI*2);
+        ctx.arc(0, 0, 60, 0, Math.PI*2);
         ctx.stroke();
     }
 }

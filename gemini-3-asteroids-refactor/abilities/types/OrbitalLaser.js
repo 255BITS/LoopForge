@@ -61,6 +61,9 @@ export class OrbitalLaser extends BaseAbility {
     }
 
     draw(ctx) {
+        ctx.save();
+        ctx.rotate(-this.player.angle);
+        ctx.translate(-this.player.x, -this.player.y);
         for (const s of this.strikes) {
             if (s.charge > 0) {
                 // Warning reticle
@@ -88,5 +91,6 @@ export class OrbitalLaser extends BaseAbility {
                 ctx.fillRect(s.x - 10, s.y - 1000, 20, 1000);
             }
         }
+        ctx.restore();
     }
 }

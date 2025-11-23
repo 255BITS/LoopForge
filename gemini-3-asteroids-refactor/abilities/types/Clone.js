@@ -56,7 +56,11 @@ export class Clone extends BaseAbility {
     }
 
     draw(ctx) {
+        ctx.save();
+        ctx.rotate(-this.player.angle);
+        ctx.translate(-this.player.x, -this.player.y);
         ctx.fillStyle = 'rgba(100, 255, 255, 0.5)';
         for(const c of this.clones) { ctx.beginPath(); ctx.arc(c.x, c.y, 10, 0, Math.PI*2); ctx.fill(); }
+        ctx.restore();
     }
 }

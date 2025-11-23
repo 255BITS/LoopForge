@@ -20,6 +20,6 @@ export class Repulsor extends BaseAbility {
         const radius = 85 + (this.level * 15);
         ctx.strokeStyle = `rgba(150, 100, 255, ${0.1 + (Math.sin(Date.now() * 0.005)+1)*0.1})`;
         ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(this.player.x, this.player.y, radius, 0, Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI*2); ctx.stroke();
     }
 }

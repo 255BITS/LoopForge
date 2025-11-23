@@ -44,6 +44,8 @@ export class GravityWell extends BaseAbility {
 
     draw(ctx) {
         ctx.save();
+        ctx.rotate(-this.player.angle);
+        ctx.translate(-this.player.x, -this.player.y);
         for (const w of this.wells) {
             // Draw Event Horizon
             ctx.fillStyle = `rgba(70, 0, 150, ${Math.min(0.4, w.life / 60)})`;

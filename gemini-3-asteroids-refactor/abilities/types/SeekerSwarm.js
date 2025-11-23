@@ -52,10 +52,14 @@ export class SeekerSwarm extends BaseAbility {
     }
 
     draw(ctx) {
+        ctx.save();
+        ctx.rotate(-this.player.angle);
+        ctx.translate(-this.player.x, -this.player.y);
         ctx.fillStyle = '#0f0';
         for (const m of this.missiles) {
             ctx.beginPath(); ctx.arc(m.x, m.y, 3, 0, Math.PI*2); ctx.fill();
             ctx.beginPath(); ctx.arc(m.x - m.vx, m.y - m.vy, 1.5, 0, Math.PI*2); ctx.fill();
         }
+        ctx.restore();
     }
 }

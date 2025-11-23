@@ -59,10 +59,14 @@ export class Hive extends BaseAbility {
     }
 
     draw(ctx) {
+        ctx.save();
+        ctx.rotate(-this.player.angle);
+        ctx.translate(-this.player.x, -this.player.y);
         ctx.fillStyle = '#fe0';
         for(const d of this.drones) {
             ctx.beginPath(); ctx.arc(d.x, d.y, 4, 0, Math.PI*2); ctx.fill();
             ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x-4, d.y-6); ctx.lineTo(d.x+4, d.y-6); ctx.fill();
         }
+        ctx.restore();
     }
 }

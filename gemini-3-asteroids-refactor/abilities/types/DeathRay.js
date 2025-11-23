@@ -37,6 +37,8 @@ export class DeathRay extends BaseAbility {
     draw(ctx) {
         const range = 250 + (this.level * 30);
         ctx.save();
+        ctx.rotate(-this.player.angle);
+        ctx.translate(-this.player.x, -this.player.y);
         ctx.translate(this.player.x, this.player.y);
         ctx.rotate(this.angle);
         ctx.shadowBlur = 10;

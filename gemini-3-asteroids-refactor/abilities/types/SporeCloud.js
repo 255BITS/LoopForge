@@ -32,9 +32,13 @@ export class SporeCloud extends BaseAbility {
     }
 
     draw(ctx) {
+        ctx.save();
+        ctx.rotate(-this.player.angle);
+        ctx.translate(-this.player.x, -this.player.y);
         for(const c of this.clouds) {
             ctx.fillStyle = `rgba(100, 255, 50, ${Math.min(0.3, c.life/60)})`;
             ctx.beginPath(); ctx.arc(c.x, c.y, c.radius, 0, Math.PI*2); ctx.fill();
         }
+        ctx.restore();
     }
 }
