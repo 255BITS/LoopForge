@@ -42,6 +42,10 @@ export class Player {
         this.activeAbilities = new Map();
     }
 
+    get abilities() {
+        return Array.from(this.activeAbilities.values());
+    }
+
     update(dt, context) {
         const { keys, input, width, height, enemies, isOverdrive, combo, sfx, addParticle, addBullet, createExplosion, setScreenShake } = context;
 

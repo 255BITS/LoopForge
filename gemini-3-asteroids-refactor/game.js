@@ -63,8 +63,6 @@ const collisionCallbacks = {
 
 Input.init(canvas);
 
-window.addEventListener('resize', resize);
-
 Input.onAction((action) => {
     if(action === 'PAUSE') togglePause();
     if(action === 'OVERDRIVE' && gameState === 'PLAYING' && ultCharge >= 100 && !isOverdrive) {
@@ -84,6 +82,8 @@ Input.onAction((action) => {
         });
     }
 });
+
+window.addEventListener('resize', resize);
 
 bgm.onBeat = (t, b) => {
     if (b % 4 === 0) sfx.playTone(100, 'square', 0.1, 0.4, t);
@@ -139,7 +139,7 @@ function triggerGameOver() {
         highScore = score;
         localStorage.setItem('survivor_highscore', highScore);
     }
-    ui.showGameOver();
+    ui.showGameOver(score, level, player);
 }
 
 function levelUp() {
@@ -155,7 +155,7 @@ function levelUp() {
     for(let i=0;i<60;i++) particles.push(new Particle(player.x, player.y, `hsl(${Math.random()*360},100%,50%)`));
     
     const showMenu = () => {
-        const choices = UpgradePool.getChoices(3);
+        const choices = UpgradePool.getChoices(3, player);
         
         ui.showUpgradeMenu(choices, rerolls, (choice) => {
             choice.apply(player);
@@ -341,6 +341,8 @@ function loop(timestamp) {
     // Delegate Collision Logic
     collisionSystem.update(gameContext);
     
+    ctx.restore(); // End shake
+
     // Permanent neon glow for entities
     // ctx.globalCompositeOperation = 'lighter';
     
@@ -349,11 +351,28 @@ function loop(timestamp) {
     beams.forEach(b => b.draw(ctx));
     enemies.forEach(e => e.draw(ctx));
     player.draw(ctx);
+    
+    // Draw Clones/Ghosts if active
+    if (player.hasAbility && player.hasAbility('clone')) {
+        const ability = player.abilities.find(a => a.constructor.name === 'Clone');
+        if (ability && ability.history) {
+             const cloneCount = 1 + Math.floor(ability.level / 2);
+             const delay = Math.max(5, 15 - ability.level);
+             for(let i=1; i<=cloneCount; i++) {
+                 const idx = i * delay;
+                 if (ability.history[idx]) {
+                     const pos = ability.history[idx];
+                     ctx.globalAlpha = 0.4;
+                     player.draw(ctx, pos.x, pos.y, '#5f5'); // Override draw position
+                     ctx.globalAlpha = 1.0;
+                 }
+             }
+        }
+    }
+    
     bullets.forEach(b => b.draw(ctx));
     particles.forEach(p => p.draw(ctx));
     floatingTexts.forEach(t => t.draw(ctx));
-
-    ctx.restore(); // End shake
 
     // HUD
     ui.updateScore(level, score, combo);

@@ -6,7 +6,6 @@ import { Orbitals } from './types/Orbitals.js';
 import { Buzzsaw } from './types/Buzzsaw.js';
 import { GravityWell } from './types/GravityWell.js';
 import { Inferno } from './types/Inferno.js';
-import { Sentry } from './types/Sentry.js';
 import { Boomerang } from './types/Boomerang.js';
 import { Mines } from './types/Mines.js';
 import { OrbitalLaser } from './types/OrbitalLaser.js';
@@ -30,10 +29,9 @@ const types = {
     saws: Buzzsaw,
     gravity: GravityWell,
     inferno: Inferno,
-    sentry: Sentry,
     boomerang: Boomerang,
     mines: Mines,
-    orbital: OrbitalLaser,
+    orbital_strike: OrbitalLaser,
     hive: Hive,
     reflector: Reflector,
     adrenaline: Adrenaline,

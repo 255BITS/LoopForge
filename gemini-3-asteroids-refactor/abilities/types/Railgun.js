@@ -10,10 +10,8 @@ export class Railgun extends BaseAbility {
             this.timer = Math.max(40, 180 - this.level * 20);
             const angle = this.player.angle;
             context.addBeam(new RailBeam(this.player.x, this.player.y, angle, this.player.damage * 3 + (this.level * 10)));
-            context.sfx.shoot();
-            context.setScreenShake(8);
-            this.player.vx -= Math.cos(angle) * 5;
-            this.player.vy -= Math.sin(angle) * 5;
+            context.sfx.shoot(); context.setScreenShake(8);
+            this.player.vx -= Math.cos(angle) * 5; this.player.vy -= Math.sin(angle) * 5;
         }
     }
 }

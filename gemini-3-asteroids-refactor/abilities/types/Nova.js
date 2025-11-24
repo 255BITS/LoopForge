@@ -12,10 +12,7 @@ export class Nova extends BaseAbility {
             const count = 12 + this.level * 2;
             for(let i=0; i<count; i++) {
                 const a = this.angle + (Math.PI*2/count)*i;
-                const b = new Bullet(this.player.x, this.player.y, Math.cos(a)*5, Math.sin(a)*5, this.player.damage*0.5, 99, 'player');
-                if (this.player.piercing > 0) b.piercing = this.player.piercing;
-                if (this.player.homing > 0) b.homing = this.player.homing;
-                context.addBullet(b);
+                context.addBullet(new Bullet(this.player.x, this.player.y, Math.cos(a)*5, Math.sin(a)*5, this.player.damage*0.5, 99, 'player'));
             }
         }
     }

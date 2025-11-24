@@ -18,22 +18,5 @@ export class Buzzsaw extends BaseAbility {
             }
         }
     }
-
-    draw(ctx) {
-        ctx.fillStyle = '#f00';
-        const sawRadius = 70 + (this.level * 10);
-        for(let i=0; i<this.level; i++) {
-            const ang = this.angle + (i * (Math.PI*2/this.level));
-            const sx = Math.cos(ang) * sawRadius;
-            const sy = Math.sin(ang) * sawRadius;
-            ctx.save(); ctx.translate(sx, sy); ctx.rotate(this.angle * 3);
-            ctx.beginPath();
-            for(let j=0; j<8; j++) {
-                const a = (Math.PI*2/8)*j;
-                ctx.lineTo(Math.cos(a)*12, Math.sin(a)*12);
-                ctx.lineTo(Math.cos(a+0.4)*6, Math.sin(a+0.4)*6);
-            }
-            ctx.fill(); ctx.restore();
-        }
-    }
+    draw(ctx) {}
 }

@@ -5,62 +5,31 @@ export class Clone extends BaseAbility {
     constructor(player) { 
         super(player); 
         this.clones = [];
-        this.timer = 0;
+        this.history = [];
     }
 
     update(dt, context) {
-        this.timer--;
-        if (this.timer <= 0) {
-            this.timer = Math.max(60, 180 - (this.level * 15));
-            this.clones.push({
-                x: this.player.x,
-                y: this.player.y,
-                life: 180 + (this.level * 30),
-                cooldown: 0
-            });
-        }
+        this.history.unshift({ x: this.player.x, y: this.player.y, angle: this.player.angle });
+        const maxHistory = 40 + (this.level * 20);
+        if (this.history.length > maxHistory) this.history.pop();
 
-        for (let i = this.clones.length - 1; i >= 0; i--) {
-            const c = this.clones[i];
-            c.life--;
-            c.cooldown--;
+        const cloneCount = 1 + Math.floor(this.level / 2);
+        const delay = Math.max(5, 15 - this.level);
+        const isFiring = context.input && (context.input.isDown || context.input.isPressed);
 
-            if (c.cooldown <= 0) {
-                c.cooldown = Math.max(15, this.player.fireRate * 3); // Synergizes with Rapid Fire
-                let target = null, minDist = 350;
-                for(const e of context.enemies) {
-                    const d = Math.hypot(e.x - c.x, e.y - c.y);
-                    if (d < minDist) { minDist = d; target = e; }
-                }
-                if (target) {
-                    const angle = Math.atan2(target.y - c.y, target.x - c.x);
-                    const b = new Bullet(c.x, c.y, Math.cos(angle)*10, Math.sin(angle)*10, this.player.damage * 0.5, 40, 'player');
-                    // Synergy: Clones inherit bullet properties
-                    b.piercing = this.player.piercing || 1;
-                    b.homing = this.player.homing || 0;
-                    b.ricochet = this.player.ricochet || 0;
+        for(let i=1; i<=cloneCount; i++) {
+            const idx = i * delay;
+            if (this.history[idx]) {
+                const pos = this.history[idx];
+                if (isFiring && Math.random() < (0.1 + (this.level * 0.05))) {
+                    const aimX = context.input.x; const aimY = context.input.y;
+                    const angle = Math.atan2(aimY - pos.y, aimX - pos.x);
+                    const b = new Bullet(pos.x, pos.y, Math.cos(angle)*12, Math.sin(angle)*12, this.player.damage * 0.35, 40, 'player');
+                    b.color = '#5f5';
                     context.addBullet(b);
                 }
             }
-            if (c.life <= 0) {
-                // Synergy: Exploding Decoys (Mines/Explosive)
-                if (this.player.blastRadius > 0) {
-                    context.createExplosion(c.x, c.y, '#f00', 10);
-                    for (const e of context.enemies) {
-                        if (Math.hypot(e.x - c.x, e.y - c.y) < this.player.blastRadius) e.hp -= this.player.damage * 2;
-                    }
-                }
-                this.clones.splice(i, 1);
-            }
         }
-    }
-
-    draw(ctx) {
-        ctx.save();
-        ctx.rotate(-this.player.angle);
-        ctx.translate(-this.player.x, -this.player.y);
-        ctx.fillStyle = 'rgba(100, 255, 255, 0.5)';
-        for(const c of this.clones) { ctx.beginPath(); ctx.arc(c.x, c.y, 10, 0, Math.PI*2); ctx.fill(); }
-        ctx.restore();
-    }
+    } 
+    draw(ctx) {}
 }

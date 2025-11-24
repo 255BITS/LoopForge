@@ -5,7 +5,6 @@ export class ChronoBreaker extends BaseAbility {
         super(player); 
         this.timer = 0; 
     }
-
     update(dt, context) {
         this.timer--;
         if (this.timer <= 0) {

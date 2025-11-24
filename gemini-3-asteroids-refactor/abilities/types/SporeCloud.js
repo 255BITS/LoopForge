@@ -1,4 +1,5 @@
 import { BaseAbility } from '../BaseAbility.js';
+import { Particle } from '../../effects/Particle.js';
 
 export class SporeCloud extends BaseAbility {
     constructor(player) { 
@@ -10,35 +11,27 @@ export class SporeCloud extends BaseAbility {
     update(dt, context) {
         this.timer--;
         if (this.timer <= 0) {
-            this.timer = Math.max(90, 180 - (this.level * 15));
-            this.clouds.push({ x: this.player.x, y: this.player.y, life: 240, radius: 10 });
+            this.timer = Math.max(60, 150 - (this.level * 15));
+            this.clouds.push({ x: this.player.x, y: this.player.y, life: 300, radius: 10 });
         }
 
         for (let i = this.clouds.length - 1; i >= 0; i--) {
-            const c = this.clouds[i];
-            c.life--;
-            if (c.radius < 70 + (this.level * 10)) c.radius += 0.5;
-
-            if (c.life % 15 === 0) {
-                for(const e of context.enemies) {
-                    if (Math.hypot(e.x - c.x, e.y - c.y) < c.radius) {
-                        e.hp -= this.player.damage * 0.3;
-                        e.hitFlash = 2;
-                    }
+            const c = this.clouds[i]; c.life--;
+            const maxRadius = 120 + (this.level * 20);
+            if (c.radius < maxRadius) c.radius += 2.0;
+            
+            if (Math.random() < 0.2) {
+                const ang = Math.random() * Math.PI * 2; const r = Math.random() * c.radius;
+                context.addParticle(new Particle(c.x + Math.cos(ang)*r, c.y + Math.sin(ang)*r, '#5f5', 1));
+            }
+            for (const e of context.enemies) {
+                if (Math.hypot(e.x - c.x, e.y - c.y) < c.radius) {
+                    e.hp -= 0.1 + (this.level * 0.05); e.color = '#5f5'; 
+                    if (!e.defenseDebuff) { e.oldDefense = e.defense || 0; e.defenseDebuff = true; }
+                    if (e.hitFlash > 0) e.hp -= 1.0; 
                 }
             }
             if (c.life <= 0) this.clouds.splice(i, 1);
         }
-    }
-
-    draw(ctx) {
-        ctx.save();
-        ctx.rotate(-this.player.angle);
-        ctx.translate(-this.player.x, -this.player.y);
-        for(const c of this.clouds) {
-            ctx.fillStyle = `rgba(100, 255, 50, ${Math.min(0.3, c.life/60)})`;
-            ctx.beginPath(); ctx.arc(c.x, c.y, c.radius, 0, Math.PI*2); ctx.fill();
-        }
-        ctx.restore();
     }
 }
