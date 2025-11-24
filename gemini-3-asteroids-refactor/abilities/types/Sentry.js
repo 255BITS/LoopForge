@@ -24,7 +24,10 @@ export class Sentry extends BaseAbility {
             t.cooldown--;
             
             if (t.cooldown <= 0) {
-                t.cooldown = 45 - (this.level * 3);
+                // Synergy: Rapid Fire (Player rate influences turret rate)
+                const rateMod = this.player.fireRate < 10 ? 0.5 : 1.0;
+                t.cooldown = (45 - (this.level * 3)) * rateMod;
+
                 // Find target
                 let target = null;
                 let minDist = 300 + (this.level * 20);
@@ -42,6 +45,12 @@ export class Sentry extends BaseAbility {
                     if (this.player.damage > 150 || (this.player.piercing||0) > 4) {
                         b.color = '#a0f'; b.vx *= 1.5; b.vy *= 1.5; b.damage *= 1.5;
                         b.piercing = (b.piercing || 0) + 4;
+                    }
+                    // Synergy: Explosives
+                    if (this.player.blastRadius > 40) {
+                        b.damage *= 1.2;
+                        // Rudimentary check in collision handling to explode, or visual effect
+                        b.color = '#f80';
                     }
                     context.addBullet(b);
                 }

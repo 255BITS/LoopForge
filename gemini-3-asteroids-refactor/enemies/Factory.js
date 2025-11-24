@@ -30,15 +30,15 @@ export function createEnemy(level, canvasWidth, canvasHeight, isBoss = false, ov
     else { x = -30; y = Math.random() * canvasHeight; }
 
     // Default configuration
-    let config = { x, y, type: 'basic', radius: 12 + Math.random() * 8, speed: 1.5 + Math.random() + (level * 0.1), hp: 25 + (level * 10), color: '#f55' };
+    let config = { x, y, type: 'basic', radius: 12 + Math.random() * 8, speed: 1.8 + Math.random() + (level * 0.15), hp: 30 + (level * 22), color: '#f55' };
 
     const r = Math.random();
     
     if (isBoss) {
         config.type = 'boss';
         config.radius = 60;
-        config.hp = 500 + (level * 100);
-        config.speed = 0.6;
+        config.hp = 4000 + (level * 800);
+        config.speed = 0.9;
         config.color = '#f00';
         config.attackTimer = 100;
     } else if (overrideType) {
@@ -50,10 +50,10 @@ export function createEnemy(level, canvasWidth, canvasHeight, isBoss = false, ov
         }
     } else if (!isBoss && level > 2 && r < 0.05) {
         config.type = 'charger';
-        config.radius = 16; config.hp = 60 + (level * 12); config.speed = 2.5; config.color = '#ff8';
+        config.radius = 16; config.hp = 50 + (level * 10); config.speed = 2.8; config.color = '#ff8';
     } else if (!isBoss && level > 3 && r < 0.12) {
         config.type = 'orbiter';
-        config.radius = 14; config.hp = 40 + (level * 8); config.speed = 3; config.color = '#0ef';
+        config.radius = 14; config.hp = 35 + (level * 8); config.speed = 3.2; config.color = '#0ef';
     } else if (!isBoss && level > 4 && r < 0.1) {
         config.type = 'kamikaze';
         config.radius = 14; config.hp = 10 + level * 2; config.speed = 0; config.color = '#fa0';

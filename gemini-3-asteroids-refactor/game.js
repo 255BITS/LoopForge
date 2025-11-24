@@ -23,7 +23,7 @@ let lastTime = 0;
 let score = 0;
 let level = 1;
 let xp = 0;
-let xpToNextLevel = 50;
+let xpToNextLevel = 60;
 let combo = 0;
 let comboTimer = 0;
 let ultCharge = 0;
@@ -113,7 +113,7 @@ function startGame() {
     score = 0;
     level = 1;
     xp = 0;
-    xpToNextLevel = 50;
+    xpToNextLevel = 60;
     ultCharge = 0;
     isOverdrive = false;
     freezeTimer = 0;
@@ -147,16 +147,11 @@ function levelUp() {
     gameState = 'LEVEL_UP';
     xp -= xpToNextLevel;
     level++;
-    xpToNextLevel = Math.floor(xpToNextLevel * 1.2);
+    xpToNextLevel = Math.floor(xpToNextLevel * 1.15);
     
     gems.forEach(g => g.magnetized = true); // Vacuum effect!
     screenShake = 15;
 
-    // Level Up Shockwave - Wipes weak enemies for a power moment
-    enemies.forEach(e => {
-        if (e.type !== 'boss') { e.hp = 0; createExplosion(e.x, e.y, '#fff', 4); }
-    });
-    
     for(let i=0;i<60;i++) particles.push(new Particle(player.x, player.y, `hsl(${Math.random()*360},100%,50%)`));
     
     const showMenu = () => {

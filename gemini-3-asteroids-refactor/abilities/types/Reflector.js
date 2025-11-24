@@ -45,9 +45,9 @@ export class Reflector extends BaseAbility {
                         while (angleDiff < -Math.PI) angleDiff += Math.PI*2;
 
                         if (Math.abs(angleDiff) < arc / 2) {
-                            b.vx *= -1.5; b.vy *= -1.5; // Return to sender with speed boost
+                            b.vx *= -2.0; b.vy *= -2.0; // Return to sender with speed boost
                             b.team = 'player'; // Convert allegiance
-                            b.life = 100; // Refresh duration
+                            b.life = 200; // Refresh duration
                             context.sfx.playTone(800, 'square', 0.05, 0.1);
                         }
                     }

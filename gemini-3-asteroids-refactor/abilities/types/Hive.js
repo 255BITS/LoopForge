@@ -50,10 +50,12 @@ export class Hive extends BaseAbility {
                     continue;
                 }
             } else {
-                // Orbit player idle
+                // Orbit player idle - Synergy: Protect the Queen
+                // If player is low HP, tighten orbit to act as shield
+                const orbitDist = (this.player.hp / this.player.maxHp < 0.3) ? 30 : 70;
                 d.angle += 0.05;
-                d.x += (this.player.x + Math.cos(d.angle) * 60 - d.x) * 0.1;
-                d.y += (this.player.y + Math.sin(d.angle) * 60 - d.y) * 0.1;
+                d.x += (this.player.x + Math.cos(d.angle) * orbitDist - d.x) * 0.1;
+                d.y += (this.player.y + Math.sin(d.angle) * orbitDist - d.y) * 0.1;
             }
         }
     }

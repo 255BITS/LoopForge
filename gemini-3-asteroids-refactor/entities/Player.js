@@ -11,15 +11,15 @@ export class Player {
         this.radius = 15;
         this.color = '#0ff';
         this.friction = 0.92;
-        this.accel = 1.2;
+        this.speed = 5.5; // Represents agility/acceleration base
         
         // Stats
-        this.hp = 100;
-        this.maxHp = 100;
-        this.fireRate = 400; // ms
+        this.hp = 80;
+        this.maxHp = 80;
+        this.fireRate = 420; // ms
         this.lastFire = 0;
         this.bulletSpeed = 9;
-        this.damage = 15;
+        this.damage = 20;
         this.bulletCount = 1;
         this.spread = 0.2;
         this.piercing = 0;
@@ -57,7 +57,8 @@ export class Player {
         // Apply force
         if (dx !== 0 || dy !== 0) {
             const len = Math.sqrt(dx * dx + dy * dy);
-            const s = isOverdrive ? this.accel * 2 : this.accel;
+            const accel = this.speed * 0.2; 
+            const s = isOverdrive ? accel * 2 : accel;
             this.vx += (dx / len) * s;
             this.vy += (dy / len) * s;
             
@@ -78,8 +79,8 @@ export class Player {
         if (this.dashTime > 0) this.dashTime--;
 
         if (keys[' '] && this.dashCooldown <= 0) {
-            this.dashTime = 15;
-            this.dashCooldown = 90;
+            this.dashTime = 12;
+            this.dashCooldown = 100;
             const angle = (Math.abs(this.vx) > 0.1 || Math.abs(this.vy) > 0.1) 
                         ? Math.atan2(this.vy, this.vx) 
                         : Math.atan2(dy, dx);

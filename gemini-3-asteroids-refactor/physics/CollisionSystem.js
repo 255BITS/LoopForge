@@ -158,10 +158,41 @@ export class CollisionSystem {
 
         // 4. Player vs Enemies / Gems
         for (let e of enemies) {
-            if (Math.hypot(player.x - e.x, player.y - e.y) < player.radius + e.radius) {
-                if (player.dashTime <= 0 && !isOverdrive) player.hp -= 2; 
-                else { e.hp -= 5; e.hitFlash = 2; } 
+            const dx = player.x - e.x;
+            const dy = player.y - e.y;
+            const dist = Math.hypot(dx, dy);
+            const combinedRadius = player.radius + e.radius;
+
+            if (dist < combinedRadius) {
+                // Collision Physics & Impact
+                const angle = Math.atan2(dy, dx);
+                const overlap = combinedRadius - dist;
+
+                // Helper: Elastic Bounce
+                player.vx += Math.cos(angle) * 10;
+                player.vy += Math.sin(angle) * 10;
+                player.x += Math.cos(angle) * (overlap * 0.5);
+                player.y += Math.sin(angle) * (overlap * 0.5);
                 
+                e.x -= Math.cos(angle) * (overlap * 0.5 + (player.knockback || 0));
+                e.y -= Math.sin(angle) * (overlap * 0.5 + (player.knockback || 0));
+
+                // Visuals
+                createExplosion((player.x + e.x)/2, (player.y + e.y)/2, '#fff', 8);
+                addShake(8);
+
+                // Calculate Kinetic Damage
+                const ramDmg = 20 + (player.maxHp * 0.2) + (Math.hypot(player.vx, player.vy) * 2);
+
+                if (player.dashTime > 0 || isOverdrive) {
+                    e.hp -= ramDmg * 5; e.hitFlash = 10;
+                    createExplosion(e.x, e.y, '#ff0', 15); sfx.explode();
+                } else {
+                    player.hp -= (10 + Math.floor(level * 1.2));
+                    e.hp -= ramDmg; e.hitFlash = 5;
+                    sfx.hit();
+                }
+
                 if (e.type === 'kamikaze') { e.hp = 0; player.hp -= 25; createExplosion(player.x, player.y, '#fa0', 20); addShake(15); sfx.explode(); }
                 if (player.hp <= 0) callbacks.onGameOver();
             }
