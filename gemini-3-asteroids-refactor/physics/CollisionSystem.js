@@ -40,7 +40,18 @@ export class CollisionSystem {
                         e.hp -= b.damage;
                         e.hitFlash = 2;
                         sfx.hit();
-                        floatingTexts.push(new FloatingText(e.x, e.y - e.radius, b.damage));
+                        
+                        let val = Math.floor(b.damage);
+                        let txt = val.toString();
+                        if(val >= 1000) txt = (val/1000).toFixed(1).replace('.0','') + 'k';
+                        
+                        let col = '#fff', sz = 16;
+                        if(val < 20) { col = '#ccc'; sz = 14; }
+                        else if(val < 50) { col = '#ff0'; sz = 20; } 
+                        else if(val < 150) { col = '#fa0'; sz = 26; }
+                        else { col = '#f33'; sz = 32; }
+
+                        floatingTexts.push(new FloatingText(e.x, e.y - e.radius, txt, col, sz));
                         b.hitList.push(e);
                         
                         if (b.piercing <= 0) b.life = 0;
