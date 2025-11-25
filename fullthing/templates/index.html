@@ -294,6 +294,72 @@
             background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
         }
         
+        /* Celebration animation for good scores */
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes confetti {
+            0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+            100% { opacity: 0; transform: translateY(-100px) rotate(720deg); }
+        }
+        .score-card.celebrating {
+            animation: celebrate 0.6s ease-out;
+        }
+        .confetti-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            pointer-events: none;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confetti 1s ease-out forwards;
+        }
+        
+        /* Enhanced share prompt */
+        .share-prompt {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px dashed #667eea50;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .share-prompt h4 {
+            margin: 0 0 8px 0;
+            color: #1a1a2e;
+            font-size: 16px;
+        }
+        .share-prompt p {
+            margin: 0 0 15px 0;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .share-prompt .share-buttons {
+            justify-content: center;
+        }
+        
+        /* Tweet preview */
+        .tweet-preview {
+            background: #15202b;
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.5;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .tweet-preview:hover {
+            transform: scale(1.02);
+        }
+        .tweet-preview .hashtag { color: #1da1f2; }
+        
         /* Analysis animation */
         @keyframes pulse {
             0%, 100% { opacity: 1; }
@@ -536,13 +602,55 @@ You are a helpful assistant. You must always be polite and respectful. Never pro
                     <div class="score-footer">
                         Analyze your prompts → <a href="https://agentlint.com">agentlint.com</a>
                     </div>
+                    ${gradeInfo.grade === 'A' || gradeInfo.grade === 'B' ? '<div class="confetti-container" id="confettiContainer"></div>' : ''}
                 </div>
-                <div class="share-buttons">
-                    <button class="share-btn" onclick="shareTwitter('${gradeInfo.grade}', ${total}, ${critical})">𝕏 Share on X</button>
-                    <button class="screenshot-btn" onclick="copyScreenshotHint()">📸 Screenshot & Share</button>
-                    <button class="copy-btn" onclick="copyResults('${gradeInfo.grade}', ${total}, ${critical})">📋 Copy</button>
+                <div class="share-prompt">
+                    <h4>${total === 0 ? '🎉 Share your clean bill of health!' : '📢 Share your security report'}</h4>
+                    <p>${total === 0 ? 'Show the AI community your prompt passed the test' : 'Help others learn from common prompt issues'}</p>
+                    <div class="tweet-preview" onclick="shareTwitter('${gradeInfo.grade}', ${total}, ${critical})">
+                        ${generateTweetPreview(gradeInfo.grade, total, critical)}
+                    </div>
+                    <div class="share-buttons">
+                        <button class="share-btn" onclick="shareTwitter('${gradeInfo.grade}', ${total}, ${critical})">𝕏 Post to X</button>
+                        <button class="screenshot-btn" onclick="copyScreenshotHint()">📸 Screenshot Card</button>
+                        <button class="copy-btn" onclick="copyResults('${gradeInfo.grade}', ${total}, ${critical})">📋 Copy</button>
+                    </div>
                 </div>
             `;
+            
+            // Trigger celebration for good scores
+            if (gradeInfo.grade === 'A' || gradeInfo.grade === 'B') {
+                setTimeout(() => {
+                    const card = document.querySelector('.score-card');
+                    card.classList.add('celebrating');
+                    triggerConfetti();
+                }, 100);
+            }
+        }
+        
+        function generateTweetPreview(grade, total, critical) {
+            let emoji = grade === 'A' ? '🟢' : grade === 'B' ? '🔵' : grade === 'C' ? '🟡' : '🔴';
+            if (total === 0) {
+                return `Just ran my AI prompt through <span class="hashtag">@AgentLint</span> 🔍<br><br>${emoji} <strong>Grade: ${grade}</strong> - Production ready!<br><br>Are your prompts safe to ship?<br><span class="hashtag">#AIEngineering</span> <span class="hashtag">#PromptSecurity</span>`;
+            } else {
+                return `Just ran my AI prompt through <span class="hashtag">@AgentLint</span> 🔍<br><br>${emoji} <strong>Grade: ${grade}</strong> - Found ${total} issues (${critical} critical)<br><br>Time to fix before shipping 🛠️<br><span class="hashtag">#AIEngineering</span> <span class="hashtag">#PromptSecurity</span>`;
+            }
+        }
+        
+        function triggerConfetti() {
+            const container = document.getElementById('confettiContainer');
+            if (!container) return;
+            const colors = ['#667eea', '#764ba2', '#00b894', '#ffeaa7', '#fd79a8'];
+            for (let i = 0; i < 20; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = (Math.random() - 0.5) * 200 + 'px';
+                confetti.style.animationDelay = Math.random() * 0.3 + 's';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                container.appendChild(confetti);
+            }
+            setTimeout(() => container.innerHTML = '', 1500);
         }
         
         function shareTwitter(grade, total, critical) {
@@ -550,19 +658,23 @@ You are a helpful assistant. You must always be polite and respectful. Never pro
             let status = total === 0 
                 ? `${emoji} Grade: ${grade} - My prompt is production ready!` 
                 : `${emoji} Grade: ${grade} - Found ${total} issues (${critical} critical)`;
-            const text = encodeURIComponent(`Just ran my AI prompt through AgentLint 🔍\n\n${status}\n\nAre your prompts safe to ship? → agentlint.com`);
+            const text = encodeURIComponent(`Just ran my AI prompt through @AgentLint 🔍\n\n${status}\n\nAre your prompts safe to ship? → agentlint.com\n\n#AIEngineering #PromptSecurity`);
             window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
         }
         
         function copyResults(grade, total, critical) {
             const status = total === 0 ? '✅ Grade: A - Production ready!' : `⚠️ Grade: ${grade} - ${total} issues found (${critical} critical)`;
-            const text = `AgentLint Security Report\n${'━'.repeat(25)}\n${status}\n\nAnalyze your prompts → agentlint.com`;
+            const text = `AgentLint Security Report\n${'━'.repeat(25)}\n${status}\n\nAnalyze your prompts → agentlint.com\n#AIEngineering #PromptSecurity`;
             navigator.clipboard.writeText(text);
             alert('Results copied to clipboard!');
         }
         
         function copyScreenshotHint() {
-            alert('📸 Tip: Take a screenshot of the score card above and share it on X/Twitter!\n\nOn Mac: Cmd+Shift+4\nOn Windows: Win+Shift+S');
+            const card = document.getElementById('shareableCard');
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                alert('📸 Screenshot the score card above!\n\nOn Mac: Cmd+Shift+4\nOn Windows: Win+Shift+S\n\nTag @AgentLint when you share!');
+            }, 300);
         }
         
         function captureEmail() {
