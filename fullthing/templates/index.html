@@ -62,6 +62,11 @@
             border-radius: 8px;
             font-size: 14px;
             resize: vertical;
+            box-sizing: border-box;
+        }
+        textarea:focus {
+            border-color: #667eea;
+            outline: none;
         }
         button {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -72,13 +77,16 @@
             font-size: 16px;
             cursor: pointer;
             margin-top: 20px;
+            transition: transform 0.2s, opacity 0.2s;
         }
         button:hover {
             opacity: 0.9;
+            transform: translateY(-1px);
         }
         button:disabled {
             background: #95a5a6;
             cursor: not-allowed;
+            transform: none;
         }
         .results {
             margin-top: 30px;
@@ -157,6 +165,204 @@
             font-size: 12px;
             opacity: 0.8;
         }
+        
+        /* Security Score Card - Optimized for Screenshots */
+        .score-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .score-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(102,126,234,0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .score-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .score-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .score-brand .logo {
+            width: 28px;
+            height: 28px;
+            font-size: 14px;
+            border-radius: 6px;
+        }
+        .score-grade {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            font-weight: 800;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        .score-grade.grade-a {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            box-shadow: 0 0 30px rgba(0,184,148,0.4);
+        }
+        .score-grade.grade-b {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            box-shadow: 0 0 30px rgba(116,185,255,0.4);
+        }
+        .score-grade.grade-c {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            color: #2d3436;
+            box-shadow: 0 0 30px rgba(253,203,110,0.4);
+        }
+        .score-grade.grade-d {
+            background: linear-gradient(135deg, #fab1a0 0%, #e17055 100%);
+            box-shadow: 0 0 30px rgba(225,112,85,0.4);
+        }
+        .score-grade.grade-f {
+            background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+            box-shadow: 0 0 30px rgba(214,48,49,0.4);
+        }
+        .score-label {
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 25px;
+        }
+        .score-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .score-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .score-stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+        .score-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            opacity: 0.6;
+        }
+        .score-footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        /* Share buttons row */
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .share-buttons button {
+            margin-top: 0;
+            flex: 1;
+            min-width: 140px;
+        }
+        .screenshot-btn {
+            background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+        }
+        
+        /* Analysis animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        @keyframes scan-line {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .analyzing-overlay {
+            position: relative;
+            overflow: hidden;
+        }
+        .analyzing-overlay::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #667eea, transparent);
+            animation: scan-line 1.5s ease-in-out infinite;
+        }
+        .analyzing-text {
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        /* Email capture */
+        .email-capture {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 1px solid #667eea30;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+        }
+        .email-capture h4 {
+            margin: 0 0 8px 0;
+            color: #1a1a2e;
+            font-size: 15px;
+        }
+        .email-capture p {
+            margin: 0 0 12px 0;
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+        .email-form {
+            display: flex;
+            gap: 10px;
+        }
+        .email-form input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .email-form input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        .email-form button {
+            margin-top: 0;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        .email-success {
+            color: #00b894;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -181,16 +387,27 @@ You are a helpful assistant. You must always be polite and respectful. Never pro
         <div class="scan-count">Free scans remaining: <span id="scansRemaining">5</span>/month &nbsp;|&nbsp; <a href="#pro">Upgrade to Pro →</a></div>
         
         <div id="results" class="results"></div>
-        <div id="shareSection" class="share-section"></div>
+        <div id="scoreCard"></div>
+        
+        <div id="emailCapture" class="email-capture">
+            <h4>🚀 Get notified when Pro launches</h4>
+            <p>Unlimited scans, API access, CI/CD integration, and advanced jailbreak testing.</p>
+            <div class="email-form">
+                <input type="email" id="emailInput" placeholder="you@example.com">
+                <button onclick="captureEmail()">Join Waitlist</button>
+            </div>
+        </div>
     </div>
 
     <script>
         let scansUsed = 0;
+        let lastAnalysis = null;
         
         async function analyzePrompt() {
             const prompt = document.getElementById('promptInput').value;
             const btn = document.getElementById('analyzeBtn');
             const results = document.getElementById('results');
+            const textarea = document.getElementById('promptInput');
             
             if (!prompt.trim()) {
                 alert('Please enter a prompt to analyze');
@@ -198,7 +415,8 @@ You are a helpful assistant. You must always be polite and respectful. Never pro
             }
             
             btn.disabled = true;
-            btn.textContent = 'Analyzing...';
+            btn.innerHTML = '<span class="analyzing-text">Analyzing...</span>';
+            textarea.classList.add('analyzing-overlay');
             
             try {
                 const response = await fetch('/analyze', {
@@ -217,6 +435,7 @@ You are a helpful assistant. You must always be polite and respectful. Never pro
                     return;
                 }
                 
+                lastAnalysis = data;
                 displayResults(data);
                 scansUsed++;
                 document.getElementById('scansRemaining').textContent = Math.max(0, 5 - scansUsed);
@@ -229,12 +448,26 @@ You are a helpful assistant. You must always be polite and respectful. Never pro
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Analyze Prompt';
+                textarea.classList.remove('analyzing-overlay');
             }
+        }
+        
+        function calculateGrade(issues) {
+            const critical = issues.filter(i => i.severity === 'critical').length;
+            const high = issues.filter(i => i.severity === 'high').length;
+            const medium = issues.filter(i => i.severity === 'medium').length;
+            
+            const score = 100 - (critical * 30) - (high * 15) - (medium * 5);
+            
+            if (score >= 90) return { grade: 'A', label: 'Excellent - Production Ready', class: 'grade-a' };
+            if (score >= 75) return { grade: 'B', label: 'Good - Minor Issues', class: 'grade-b' };
+            if (score >= 60) return { grade: 'C', label: 'Fair - Needs Attention', class: 'grade-c' };
+            if (score >= 40) return { grade: 'D', label: 'Poor - Significant Issues', class: 'grade-d' };
+            return { grade: 'F', label: 'Critical - Not Safe to Deploy', class: 'grade-f' };
         }
         
         function displayResults(data) {
             const results = document.getElementById('results');
-            const shareSection = document.getElementById('shareSection');
             results.style.display = 'block';
             
             if (data.issues.length === 0) {
@@ -242,7 +475,7 @@ You are a helpful assistant. You must always be polite and respectful. Never pro
                     <h3>✅ ${data.summary}</h3>
                     <p>No critical issues found in your prompt.</p>
                 `;
-                showShareSection(data, 0, 0, 0);
+                showScoreCard(data);
                 return;
             }
             
@@ -266,54 +499,84 @@ You are a helpful assistant. You must always be polite and respectful. Never pro
             html += '</div>';
             results.innerHTML = html;
             
-            const critical = data.issues.filter(i => i.severity === 'critical').length;
-            const high = data.issues.filter(i => i.severity === 'high').length;
-            showShareSection(data, data.issues.length, critical, high);
+            showScoreCard(data);
         }
         
-        function showShareSection(data, total, critical, high) {
-            const shareSection = document.getElementById('shareSection');
-            shareSection.style.display = 'block';
+        function showScoreCard(data) {
+            const scoreCard = document.getElementById('scoreCard');
+            const gradeInfo = calculateGrade(data.issues);
+            const critical = data.issues.filter(i => i.severity === 'critical').length;
+            const high = data.issues.filter(i => i.severity === 'high').length;
+            const total = data.issues.length;
             
-            const status = total === 0 ? '✅ Clean' : `⚠️ ${total} issues found`;
-            
-            shareSection.innerHTML = `
-                <div class="share-card">
-                    <h4><span class="logo" style="width:24px;height:24px;font-size:12px;border-radius:4px;">A</span> AgentLint Analysis</h4>
-                    <p>${status}</p>
-                    <div class="stats">
-                        <div class="stat">
-                            <div class="stat-value">${data.rules_found}</div>
-                            <div class="stat-label">Rules Found</div>
+            scoreCard.innerHTML = `
+                <div class="score-card" id="shareableCard">
+                    <div class="score-header">
+                        <div class="score-brand">
+                            <span class="logo">A</span> AgentLint
                         </div>
-                        <div class="stat">
-                            <div class="stat-value">${critical}</div>
-                            <div class="stat-label">Critical</div>
+                        <div style="font-size: 12px; opacity: 0.6;">Security Report</div>
+                    </div>
+                    <div class="score-grade ${gradeInfo.class}">${gradeInfo.grade}</div>
+                    <div class="score-label">${gradeInfo.label}</div>
+                    <div class="score-stats">
+                        <div>
+                            <div class="score-stat-value">${data.rules_found}</div>
+                            <div class="score-stat-label">Rules Found</div>
                         </div>
-                        <div class="stat">
-                            <div class="stat-value">${high}</div>
-                            <div class="stat-label">High Severity</div>
+                        <div>
+                            <div class="score-stat-value">${critical}</div>
+                            <div class="score-stat-label">Critical</div>
+                        </div>
+                        <div>
+                            <div class="score-stat-value">${total}</div>
+                            <div class="score-stat-label">Total Issues</div>
                         </div>
                     </div>
+                    <div class="score-footer">
+                        Analyze your prompts → <a href="https://agentlint.com">agentlint.com</a>
+                    </div>
                 </div>
-                <div style="margin-top:15px;">
-                    <button class="share-btn" onclick="shareTwitter(${total}, ${critical})">𝕏 Share on X</button>
-                    <button class="copy-btn" onclick="copyResults(${total}, ${critical})">📋 Copy Results</button>
+                <div class="share-buttons">
+                    <button class="share-btn" onclick="shareTwitter('${gradeInfo.grade}', ${total}, ${critical})">𝕏 Share on X</button>
+                    <button class="screenshot-btn" onclick="copyScreenshotHint()">📸 Screenshot & Share</button>
+                    <button class="copy-btn" onclick="copyResults('${gradeInfo.grade}', ${total}, ${critical})">📋 Copy</button>
                 </div>
             `;
         }
         
-        function shareTwitter(total, critical) {
-            const status = total === 0 ? 'My prompt passed!' : `Found ${total} issues (${critical} critical)`;
-            const text = encodeURIComponent(`Just ran my AI prompt through AgentLint 🔍\n\n${status}\n\nCheck your prompts before shipping → agentlint.com`);
+        function shareTwitter(grade, total, critical) {
+            let emoji = grade === 'A' ? '🟢' : grade === 'B' ? '🔵' : grade === 'C' ? '🟡' : '🔴';
+            let status = total === 0 
+                ? `${emoji} Grade: ${grade} - My prompt is production ready!` 
+                : `${emoji} Grade: ${grade} - Found ${total} issues (${critical} critical)`;
+            const text = encodeURIComponent(`Just ran my AI prompt through AgentLint 🔍\n\n${status}\n\nAre your prompts safe to ship? → agentlint.com`);
             window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
         }
         
-        function copyResults(total, critical) {
-            const status = total === 0 ? '✅ Clean - no issues found' : `⚠️ ${total} issues found (${critical} critical)`;
-            const text = `AgentLint Analysis Results\n${status}\n\nAnalyze your prompts: agentlint.com`;
+        function copyResults(grade, total, critical) {
+            const status = total === 0 ? '✅ Grade: A - Production ready!' : `⚠️ Grade: ${grade} - ${total} issues found (${critical} critical)`;
+            const text = `AgentLint Security Report\n${'━'.repeat(25)}\n${status}\n\nAnalyze your prompts → agentlint.com`;
             navigator.clipboard.writeText(text);
             alert('Results copied to clipboard!');
+        }
+        
+        function copyScreenshotHint() {
+            alert('📸 Tip: Take a screenshot of the score card above and share it on X/Twitter!\n\nOn Mac: Cmd+Shift+4\nOn Windows: Win+Shift+S');
+        }
+        
+        function captureEmail() {
+            const email = document.getElementById('emailInput').value;
+            if (!email || !email.includes('@')) {
+                alert('Please enter a valid email address');
+                return;
+            }
+            // In production, this would POST to a backend
+            document.getElementById('emailCapture').innerHTML = `
+                <p class="email-success">✅ You're on the list! We'll notify you when Pro launches.</p>
+            `;
+            // Track for analytics
+            console.log('Email captured:', email);
         }
     </script>
 </body>
