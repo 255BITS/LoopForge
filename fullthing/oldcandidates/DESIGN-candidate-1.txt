@@ -1,0 +1,93 @@
+# DESIGN CANDIDATE 1: ContractLint
+## AI-Powered Contract & Policy Validation SaaS
+
+---
+
+### Product Summary
+
+A web service that allows freelancers, small agencies, and solopreneurs to upload contracts (NDAs, service agreements, terms of service) and receive instant validation against common legal pitfalls, inconsistencies, and red flags.
+
+**Tagline:** "Lint your contracts before you sign."
+
+---
+
+### Why This Leverages Our Edges
+
+| Team Member    | Contribution                                                                 |
+|----------------|------------------------------------------------------------------------------|
+| Martyn Garcia  | Core engine - neurosymbolic parser extracts clauses → Prolog validates logic |
+| Mikkel Garcia  | Agent loop refines rule extraction and improves accuracy over iterations     |
+| Gabe Hamilton  | System architecture, agent orchestration, project management                 |
+| Lee Gonzalez   | Market positioning, launch strategy, community engagement                    |
+
+---
+
+### Distribution Strategy (Specific)
+
+**Week 1-2: Seed via Project Umbrella**
+- Lee + Gabe reach out to Project Umbrella contacts directly
+- Offer free beta access in exchange for feedback
+- Goal: 50 beta users from existing network
+
+**Week 3-4: Indie Hacker / Solopreneur Communities**
+- Post on Indie Hackers, r/freelance, r/Entrepreneur, r/smallbusiness
+- "I built a tool to catch contract red flags" narrative
+- Goal: 200 sign-ups, 20 paying conversions
+
+**Week 5-8: Content + SEO Play**
+- Lee writes 3-4 thought pieces on AI + legal tech
+- Publish on Substack/Medium, cross-post to LinkedIn
+- Target keywords: "contract review tool", "NDA checker", "freelance contract risks"
+
+**Week 9-12: Partnerships**
+- Reach out to freelancer platforms (Contra, Toptal communities)
+- Offer affiliate/referral program (20% rev share)
+- Goal: 2-3 active referral partners
+
+---
+
+### Revenue Model
+
+| Tier       | Price      | Features                                      |
+|------------|------------|-----------------------------------------------|
+| Free       | $0         | 2 contract scans/month, basic checks          |
+| Pro        | $19/month  | Unlimited scans, detailed reports, history    |
+| Team       | $49/month  | 5 seats, shared workspace, priority support   |
+
+**Target for $1000/month:**
+- 53 Pro users, OR
+- 21 Team users, OR
+- Mix of both
+
+---
+
+### Technical Architecture (High-Level)
+
+```
+[User Upload] → [PDF Parser] → [Martyn's Neurosymbolic Engine]
+                                       ↓
+                              [Prolog Rule Validation]
+                                       ↓
+                              [Mikkel's Agent Loop]
+                              (iterative refinement)
+                                       ↓
+                              [Report Generator] → [User Dashboard]
+```
+
+---
+
+### 3-Month Milestones
+
+| Month | Milestone                                                    |
+|-------|--------------------------------------------------------------|
+| 1     | MVP live: upload PDF → get basic validation report           |
+| 2     | Payment integration, Pro tier, 100+ users, first revenue     |
+| 3     | SEO traction, partnerships active, $1000 MRR target          |
+
+---
+
+### Risks & Mitigations
+
+- **Legal liability:** Clear disclaimers - "not legal advice", educational tool only
+- **Accuracy concerns:** Position as "first-pass filter", recommend lawyer for final review
+- **Low conversion:** Aggressive free tier to build trust, case studies from beta users

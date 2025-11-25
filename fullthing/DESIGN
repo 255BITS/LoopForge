@@ -1,0 +1,131 @@
+# DESIGN: AgentLint
+## AI Agent & Prompt Configuration Validator
+
+---
+
+### Product Summary
+
+A tool for AI builders that validates prompt configurations, system messages, and agent instructions for contradictions, edge cases, jailbreak vulnerabilities, and logical inconsistencies. Upload your prompts → get a structured report of issues before deploying.
+
+**Tagline:** "Ship agents with confidence."
+
+---
+
+### Why This Leverages Our Edges
+
+| Team Member    | Contribution                                                                 |
+|----------------|------------------------------------------------------------------------------|
+| Martyn Garcia  | Neurosymbolic engine parses prompts into rule sets, Prolog finds contradictions |
+| Mikkel Garcia  | Agent loop generates adversarial test cases, improves detection over time    |
+| Gabe Hamilton  | Built agent framework before—deep domain knowledge, architecture lead        |
+| Lee Gonzalez   | AI thought leader = instant credibility, direct access to builder community  |
+
+---
+
+### Distribution Strategy (Specific)
+
+**Week 1-2: Lee's Network + AI Twitter/X**
+- Lee tweets thread: "We analyzed 100 production prompts—here's what breaks them"
+- Offer free scans to AI builders in Lee's network (DMs, replies)
+- Post in AI Discord servers (Latent Space, AI Engineer, Cursor community)
+- Goal: 100 beta users, 500+ email list from viral thread
+
+**Week 3-4: Project Umbrella Cross-Pollination**
+- Gabe activates Project Umbrella contacts (tech-savvy, crypto-adjacent builders)
+- Offer "founding member" pricing ($9/mo locked forever) for early adopters
+- These users are likely building AI side projects—direct pain point
+- Goal: 40 paid founding members ($360 MRR locked in)
+
+**Week 5-8: Developer Community Saturation**
+- Publish on Hacker News: "Show HN: We built a linter for AI prompts"
+- Post on r/LocalLLaMA, r/ChatGPTCoding, r/MachineLearning
+- Create free "Prompt Security Checklist" PDF as lead magnet
+- Guest on 2-3 AI podcasts (Latent Space, Practical AI—Lee has connections)
+- GitHub: Open-source basic rule set, paid tier for advanced checks
+- Goal: 300 sign-ups, 60 paying users
+
+**Week 9-12: Enterprise/Startup Outreach**
+- Target AI startups who need to prove prompt safety to customers/investors
+- Cold outreach to YC AI companies (compliance angle for fundraising)
+- Offer "AgentLint Certified" badge for marketing
+- Partner with AI safety consultants as affiliates
+- Goal: 5-10 Team tier conversions at $99/mo
+
+---
+
+### Revenue Model
+
+| Tier       | Price      | Features                                           |
+|------------|------------|----------------------------------------------------|
+| Free       | $0         | 5 prompt scans/month, basic contradiction check    |
+| Pro        | $19/month  | Unlimited scans, jailbreak testing, export reports |
+| Team       | $99/month  | API access, CI/CD integration, audit logs, 10 seats|
+
+**Target for $1000/month:**
+- 53 Pro users, OR
+- 10 Team users, OR
+- Mix (e.g., 30 Pro + 4 Team = $966)
+
+---
+
+### Technical Architecture (High-Level)
+
+```
+[Prompt Upload] → [Martyn's Parser] → [Rule Graph Extraction]
+                                             ↓
+                                    [Prolog Consistency Check]
+                                    (contradictions, ambiguity)
+                                             ↓
+                                    [Mikkel's Adversarial Agent]
+                                    (generates attack prompts)
+                                             ↓
+                                    [Vulnerability Report]
+                                             ↓
+                                    [Dashboard + CI/CD Webhook]
+```
+
+---
+
+### 3-Month Milestones
+
+| Month | Milestone                                                       |
+|-------|-----------------------------------------------------------------|
+| 1     | MVP: paste prompt → get contradiction + basic jailbreak report  |
+| 2     | Pro tier, founding members, Lee's launch thread, 100+ users     |
+| 3     | HN launch, API/CI integration, Team tier, $1000 MRR             |
+
+---
+
+### Risks & Mitigations
+
+- **"I can just use ChatGPT for this":** Structured analysis + Prolog logic checking is genuinely different from LLM vibes
+- **Niche market:** AI builder market is exploding; even 0.01% penetration = thousands of users
+- **Fast-moving space:** Advantage—we're building for builders, can iterate with them
+- **Open-source competition:** Lead with speed + polish; open-source basic rules to build trust
+
+---
+
+## RATIONALE
+
+### Why AgentLint over the other candidates:
+
+**1. Distribution is the hardest startup problem—and we've solved it.**
+Lee's AI thought leader status provides free, high-trust distribution to the exact audience that needs this tool. No other candidate has this advantage. ContractLint and ProposalMatch would require building audience from scratch in fragmented markets.
+
+**2. This is our home turf.**
+Gabe built an agent framework. Martyn's neurosymbolic engine + Prolog is *purpose-built* for detecting logical contradictions in rule systems—which is exactly what prompts are. FactLint's fact-checking requires solving a much harder technical problem (knowledge bases, real-time web verification). SpecLint is viable but applies our tools to a less natural domain.
+
+**3. Greenfield market with perfect timing.**
+There's no dominant player in "prompt linting." ContractLint competes with legal tech incumbents. ProposalMatch competes with PandaDoc. SpecLint enters a crowded PM tools market (acknowledged in its own doc with lower pricing). AgentLint creates a new category.
+
+**4. Tribal identity drives viral growth.**
+AI builders share tools compulsively. A single Lee thread can reach 50k+ builders. The "100 prompts analyzed" content practically writes itself. FactLint has viral potential but requires catching external errors (riskier); AgentLint's virality comes from teaching (safer, more sustainable).
+
+**5. Project Umbrella synergy.**
+Crypto-adjacent tech builders are exactly the early adopters building AI tools. This channel is strong for AgentLint, weak for all other candidates.
+
+**6. Realistic path to $1000 MRR.**
+53 Pro users from a dense, tool-sharing community is achievable. SpecLint needs 67 users at a lower price point in a crowded market. FactLint's enterprise-dependent model is riskier for initial traction.
+
+### The decisive factor:
+When distribution is built-in, technical alignment is perfect, and the market is greenfield, you take that bet. AgentLint is the only candidate where all three conditions are true.

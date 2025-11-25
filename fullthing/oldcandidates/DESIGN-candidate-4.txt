@@ -1,0 +1,154 @@
+# DESIGN CANDIDATE 4: SpecLint
+## Product Requirements & Specification Validator
+
+---
+
+### Product Summary
+
+A tool for product managers and engineering leads that validates PRDs, product specs, and requirements documents for contradictions, ambiguities, missing edge cases, and logical gaps. Paste your spec → get a structured report of issues before your team starts building the wrong thing.
+
+**Tagline:** "Catch spec bugs before they become code bugs."
+
+---
+
+### Why This Leverages Our Edges
+
+| Team Member    | Contribution                                                                 |
+|----------------|------------------------------------------------------------------------------|
+| Martyn Garcia  | Neurosymbolic engine parses requirements into logical predicates, Prolog detects contradictions |
+| Mikkel Garcia  | Agent loop generates "what about X?" edge case questions, improves coverage over time |
+| Gabe Hamilton  | Former CTO—personally felt this pain, understands PM↔Eng handoff deeply       |
+| Lee Gonzalez   | Tech audience overlap with PM community, credibility for launch content       |
+
+---
+
+### Distribution Strategy (Specific)
+
+**Week 1-2: Product Hunt Launch + Gabe's Network**
+- Product Hunt launch (Tuesday, 12:01 AM PT)—PM community lives there
+- Gabe personally emails 50 former colleagues (PMs, eng leads, founders)
+- Create "Spec Review Checklist" as free downloadable, capture emails
+- Post in "Product Management" and "ProductTank" Slack communities
+- Goal: 300 sign-ups from launch week, 50+ email list from checklist
+
+**Week 3-4: Content Play on LinkedIn + Lenny's Newsletter Community**
+- Lee writes LinkedIn post: "The 7 spec mistakes that cost startups months"
+- Gabe writes "Confessions of a CTO: Specs I wish I'd questioned" (shared in CTO Slack groups)
+- Submit to Lenny's Newsletter community Slack for feedback/sharing
+- Post in r/ProductManagement, r/startups, r/ExperiencedDevs
+- Goal: 200 additional sign-ups, 15-20 paid conversions
+
+**Week 5-8: Notion/Confluence Template Distribution**
+- Create "SpecLint-Ready PRD Template" for Notion (free, with SpecLint integration)
+- Submit to Notion template gallery (high discovery channel)
+- Create Confluence equivalent, post in Atlassian community forums
+- Partner with 2-3 popular PM template creators (revenue share for referrals)
+- YouTube tutorial: "How to write specs that don't contradict themselves" (SEO play)
+- Goal: 500 sign-ups via template discovery, 40 paid users
+
+**Week 9-12: Startup Studio & Accelerator Partnerships**
+- Target YC, Techstars, On Deck companies (PMs at early-stage = high pain)
+- Offer "Accelerator Partner" pricing: $12/mo for batch companies
+- Cold email to startup studio operators: "Your portfolio companies ship faster with validated specs"
+- Integrate with Linear/Jira for seamless workflow (feature, not distribution, but increases stickiness)
+- Goal: 3 accelerator partnerships, 50+ paid users from this channel
+
+---
+
+### Revenue Model
+
+| Tier       | Price      | Features                                           |
+|------------|------------|----------------------------------------------------|
+| Free       | $0         | 3 spec scans/month, basic contradiction check      |
+| Pro        | $15/month  | Unlimited scans, edge case generation, export PDF  |
+| Team       | $59/month  | 5 seats, spec versioning, Notion/Linear integration|
+
+**Target for $1000/month:**
+- 67 Pro users, OR
+- 17 Team users, OR
+- Mix (e.g., 30 Pro + 8 Team = $922)
+
+**Note:** Lower Pro price point than other candidates—PM tools market is price-sensitive and crowded. Volume play.
+
+---
+
+### Technical Architecture (High-Level)
+
+```
+[Spec Paste/Upload] → [Martyn's Parser] → [Requirements Graph]
+                                               ↓
+                                     [Prolog Consistency Engine]
+                                     (contradiction detection)
+                                               ↓
+                                     [Mikkel's Edge Case Agent]
+                                     ("What if user does X?")
+                                               ↓
+                                     [Ambiguity Scorer]
+                                     (vague language detection)
+                                               ↓
+                                     [Report: Contradictions, Gaps, Edge Cases]
+                                               ↓
+                                     [Export: PDF, Notion, Linear ticket]
+```
+
+---
+
+### 3-Month Milestones
+
+| Month | Milestone                                                       |
+|-------|-----------------------------------------------------------------|
+| 1     | MVP: paste spec → get contradiction + edge case report          |
+| 2     | Product Hunt launch, Notion template live, 200+ users, first $$ |
+| 3     | Team tier, Linear integration, accelerator deals, $1000 MRR     |
+
+---
+
+### Risks & Mitigations
+
+- **"I can just use ChatGPT":** Structured Prolog analysis catches logical contradictions ChatGPT misses; edge case agent is systematic, not vibes
+- **Crowded PM tools market:** Position as "QA for specs" not "another PM tool"—new category
+- **Spec format variety:** Start with plain text/Markdown; Notion integration covers 80% of startup PMs
+- **Price sensitivity:** Low Pro price + generous free tier builds adoption; monetize on Team/org upgrade
+
+---
+
+### Why This Might Beat Candidates 1, 2 & 3
+
+| Factor                    | ContractLint | ProposalMatch | AgentLint | **SpecLint** |
+|---------------------------|--------------|---------------|-----------|--------------|
+| TAM size                  | Medium       | Medium        | Growing   | **Large**    |
+| Repeat usage frequency    | Low          | Medium        | Medium    | **High**     |
+| Gabe's direct experience  | Low          | Low           | High      | **Highest**  |
+| Product Hunt fit          | Moderate     | Low           | High      | **Highest**  |
+| Template distribution     | None         | None          | Low       | **High**     |
+| Price tolerance           | Medium       | High          | High      | Medium       |
+| Virality mechanics        | Low          | Low           | High      | **Medium**   |
+
+**Key advantages:**
+
+1. **Gabe's lived experience:** As a former CTO, Gabe personally felt the pain of building from bad specs. Authentic founder-market fit = better product, better marketing copy, better sales conversations.
+
+2. **Template distribution is underrated:** Notion template gallery has millions of monthly visitors. A well-designed "SpecLint PRD Template" can drive thousands of sign-ups passively. No other candidate has this channel.
+
+3. **Product Hunt is home turf:** PM community dominates Product Hunt. AgentLint might do well there, but SpecLint is *perfectly* positioned for that audience.
+
+4. **High repeat usage:** PMs write specs constantly. Unlike contracts (occasional) or RFPs (periodic), specs are weekly/daily artifacts at fast-moving companies.
+
+5. **Clear expansion path:** Start with PRD validation → expand to user stories, technical specs, design docs. Natural upsell to Team tier as org adopts.
+
+---
+
+### Distribution Advantage Summary
+
+| Channel                  | Candidate 1 | Candidate 2 | Candidate 3 | **Candidate 4** |
+|--------------------------|-------------|-------------|-------------|-----------------|
+| Product Hunt             | Moderate    | Weak        | Strong      | **Perfect**     |
+| Notion/Template gallery  | None        | None        | None        | **Strong**      |
+| Gabe's CTO network       | Weak        | Moderate    | Moderate    | **Perfect**     |
+| Lee's tech audience      | Weak        | Weak        | Perfect     | **Strong**      |
+| LinkedIn organic         | Low         | Moderate    | High        | **High**        |
+| Accelerator partnerships | Weak        | Weak        | Moderate    | **Strong**      |
+
+---
+
+**Bottom line:** SpecLint trades AgentLint's "AI builder" tribal identity for broader PM market + unique Notion distribution channel + Gabe's direct founder-market fit. Lower ceiling but wider floor—more paths to $1000 MRR.

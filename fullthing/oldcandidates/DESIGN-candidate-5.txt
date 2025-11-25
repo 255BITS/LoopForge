@@ -1,0 +1,219 @@
+# DESIGN CANDIDATE 5: FactLint
+## AI Content Hallucination & Accuracy Validator
+
+---
+
+### Product Summary
+
+A tool for content creators, marketers, and AI-assisted writers that validates AI-generated content for factual accuracy, hallucinations, and citation correctness. Paste your AI draft → get a fact-check report with confidence scores and suggested corrections before publishing.
+
+**Tagline:** "Trust but verify your AI content."
+
+---
+
+### Why This Leverages Our Edges
+
+| Team Member    | Contribution                                                                 |
+|----------------|------------------------------------------------------------------------------|
+| Martyn Garcia  | Neurosymbolic engine extracts claims/facts, Prolog validates against knowledge base |
+| Mikkel Garcia  | Agent loop cross-references multiple sources, improves fact-checking accuracy |
+| Gabe Hamilton  | Architecture for real-time web scraping/validation pipeline                  |
+| Lee Gonzalez   | Direct credibility with AI content creators, viral distribution potential    |
+
+---
+
+### Distribution Strategy (Specific)
+
+**Week 1-2: AI Content Creator Direct Outreach**
+- Lee DMs 100 AI newsletter writers/bloggers with free beta access
+- Create "caught in the act" Twitter thread showing famous AI hallucinations
+- Offer to fact-check prominent AI influencer's content publicly (with permission)
+- Post in WriterlyAI, Content at Scale, Jasper communities
+- Goal: 200 beta users, viral thread with 10k+ impressions
+
+**Week 3-4: Content Marketing Agency Angle**
+- Target agencies using AI for scale (identifiable via "powered by AI" footers)
+- Cold email with subject: "Your AI content has 3 factual errors"
+- Offer agency pricing: $79/mo for 5 seats
+- Partner with 2-3 AI content tools (Jasper, Copy.ai) for integration
+- Goal: 10 agency trials, 3-4 conversions
+
+**Week 5-8: SEO Content Farm Disruption**
+- Target high-volume SEO content producers (identify via Ahrefs/SEMRush)
+- These sites publish 50+ articles/day, high hallucination risk
+- Pitch: "Google's E-E-A-T update penalizes factual errors—we catch them"
+- Create Chrome extension for real-time fact-checking
+- YouTube video: "I fact-checked 100 AI articles—you won't believe what I found"
+- Goal: 500 sign-ups, 50 paid conversions
+
+**Week 9-12: Media Company Enterprise Push**
+- Target digital media companies experimenting with AI (BuzzFeed, CNET, etc.)
+- Offer "FactLint Verified" badge for their AI content
+- Compliance angle: "Protect your brand from AI-generated misinformation"
+- White-label option for enterprise at $499/mo
+- Goal: 2-3 enterprise pilots, 1 conversion
+
+---
+
+### Revenue Model
+
+| Tier       | Price      | Features                                           |
+|------------|------------|----------------------------------------------------|
+| Free       | $0         | 5 fact-checks/month, basic accuracy report         |
+| Pro        | $29/month  | Unlimited checks, source citations, API access     |
+| Team       | $79/month  | 5 seats, bulk upload, white-label reports         |
+| Enterprise | $499/month | Custom deployment, SLA, FactLint Verified badge   |
+
+**Target for $1000/month:**
+- 35 Pro users, OR
+- 13 Team users, OR
+- 2 Enterprise + 5 Pro users = $1,143
+
+---
+
+### Technical Architecture (High-Level)
+
+```
+[AI Content Input] → [Martyn's Claim Extractor] → [Fact Graph]
+                                                       ↓
+                                              [Web Scraping Layer]
+                                              (real-time verification)
+                                                       ↓
+                                              [Mikkel's Verify Agent]
+                                              (multi-source validation)
+                                                       ↓
+                                              [Prolog Truth Engine]
+                                              (consistency checking)
+                                                       ↓
+                                              [Accuracy Score + Report]
+                                                       ↓
+                                              [Suggested Corrections]
+```
+
+---
+
+### 3-Month Milestones
+
+| Month | Milestone                                                       |
+|-------|-----------------------------------------------------------------|
+| 1     | MVP: paste content → get fact-check report with sources         |
+| 2     | Chrome extension, API, Lee's viral thread, 300+ users          |
+| 3     | Enterprise features, media partnerships, $1000+ MRR             |
+
+---
+
+### Risks & Mitigations
+
+- **"Why not just use Perplexity?":** We validate existing content, not generate new; specialized for accuracy
+- **Fact-checking is hard:** Start with easily verifiable claims (dates, statistics, quotes)
+- **Real-time web access costs:** Cache common facts; charge more for real-time verification
+- **Liability concerns:** Terms clearly state "assistance tool"—human review recommended
+
+---
+
+### Why This Might Beat Other Candidates
+
+**1. Massive Market Timing Advantage**
+- AI content creation exploded in 2024—every blogger, marketer, journalist uses AI
+- Google's March 2024 update specifically targets low-quality AI content
+- Major publications (CNET, Sports Illustrated) faced scandals over AI errors
+- No dominant player in AI fact-checking yet
+
+**2. Viral Distribution Built-In**
+- "AI got this hilariously wrong" content performs incredibly well on social
+- Lee can create viral threads showing hallucinations in popular AI content
+- Each exposed error becomes marketing for FactLint
+- Media loves covering AI accuracy stories—free PR
+
+**3. Immediate, Visceral Pain Point**
+- One factual error can destroy a brand's credibility
+- SEO rankings tank with inaccurate content (E-E-A-T)
+- Legal risk for incorrect medical/financial AI content
+- Unlike specs or contracts, content errors are PUBLIC
+
+**4. Perfect Use of Mikkel's Agent Loop**
+- Each fact check improves the system's knowledge base
+- Agents can learn domain-specific fact patterns
+- Continuous improvement = competitive moat
+
+**5. Multiple Revenue Streams**
+- SaaS subscriptions (primary)
+- API for AI writing tools (Jasper, Copy.ai integration)
+- Enterprise white-label
+- Potential acquisition by Grammarly, Google, or AI writing platforms
+
+---
+
+### Distribution Advantage Summary
+
+| Channel                  | Candidate 1 | Candidate 2 | Candidate 3 | Candidate 4 | **Candidate 5** |
+|--------------------------|-------------|-------------|-------------|-------------|-----------------|
+| Viral social potential   | Low         | Low         | High        | Medium      | **Highest**     |
+| Lee's audience fit       | Weak        | Weak        | Perfect     | Strong      | **Perfect**     |
+| Market timing            | Stable      | Stable      | Good        | Good        | **Perfect**     |
+| Enterprise potential     | Low         | Medium      | Medium      | Medium      | **High**        |
+| Media coverage potential | Low         | Low         | Medium      | Low         | **Highest**     |
+| Clear before/after demo  | Medium      | Medium      | High        | Medium      | **Highest**     |
+
+---
+
+### Specific Week-by-Week Distribution Plan
+
+**Week 1:**
+- Set up basic landing page with email capture
+- Lee records Loom video fact-checking a popular AI article
+- Share in 5 AI Slack communities with "free beta access"
+- Goal: 50 signups
+
+**Week 2:**
+- Lee publishes Twitter/X thread: "I fact-checked @BigAIInfluencer's latest post..."
+- Include specific examples of hallucinations found
+- End thread with "We built a tool to catch these—DM for access"
+- Simultaneously submit to r/artificial, r/singularity
+- Goal: 150 more signups, 5k+ thread engagement
+
+**Week 3:**
+- Launch on Product Hunt as "Grammarly for facts"
+- Release Chrome extension (bare MVP—highlight suspicious claims)
+- First agency outreach emails (target 20 agencies)
+- Goal: 300 total users, first 10 paying customers
+
+**Week 4:**
+- Publish case study: "How FactLint saved [Agency] from publishing errors"
+- Guest post on AI marketing blogs
+- YouTube video with shocking examples
+- Goal: 500 users, 25 paying
+
+**Weeks 5-8:**
+- Scale agency outreach (100 emails/week)
+- Partner integration with one AI writing tool
+- Launch affiliate program for AI consultants
+- Goal: 1000 users, 60 paying ($1,740 MRR if all Pro)
+
+**Weeks 9-12:**
+- Enterprise sales push
+- Speaking slot at AI content conference
+- Major media coverage push (pitch TechCrunch, Verge)
+- Goal: 1 enterprise deal + maintain Pro growth = $1000+ MRR
+
+---
+
+### Why FactLint Wins
+
+**The Perfect Storm:**
+1. **Timing**: AI content boom + accuracy backlash happening RIGHT NOW
+2. **Distribution**: Lee's AI audience + viral content potential = explosive growth
+3. **Pain**: Public embarrassment from errors = stronger motivator than private contract issues
+4. **Demo-able**: "Here's the error, here's our catch" = instant value prop
+5. **Recurring**: Content creators publish daily/weekly = high retention
+6. **Exit potential**: Grammarly, Google, or OpenAI acquisition target
+
+**vs Other Candidates:**
+- ContractLint: Occasional use, no viral potential
+- ProposalMatch: Niche market, complex sales cycle  
+- AgentLint: Growing market but FactLint addresses EVERYONE using AI
+- SpecLint: B2B only; FactLint serves B2B + B2C + prosumers
+
+---
+
+**The Killer Feature**: "FactLint Verified" badge for websites. Creates network effects—readers trust badged content more, driving more publishers to subscribe. This alone could drive us past $1000 MRR.

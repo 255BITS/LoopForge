@@ -1,0 +1,110 @@
+# DESIGN CANDIDATE 2: ProposalMatch
+## AI-Powered RFP & Grant Compliance Checker
+
+---
+
+### Product Summary
+
+A tool that helps consultants, agencies, and nonprofits validate that their proposals actually address every requirement in an RFP or grant application. Upload the requirements doc + your draft proposal → get a compliance matrix showing gaps, mismatches, and missing sections.
+
+**Tagline:** "Never miss a requirement again."
+
+---
+
+### Why This Leverages Our Edges
+
+| Team Member    | Contribution                                                                 |
+|----------------|------------------------------------------------------------------------------|
+| Martyn Garcia  | Neurosymbolic engine extracts requirements as structured rules from RFPs     |
+| Mikkel Garcia  | Agent loop iteratively maps proposal sections to requirements                |
+| Gabe Hamilton  | Orchestration layer, manages multi-doc processing pipeline                   |
+| Lee Gonzalez   | Go-to-market via consulting/agency networks, content strategy                |
+
+---
+
+### Distribution Strategy (Specific)
+
+**Week 1-2: Direct Outreach to Consulting Networks**
+- Lee + Gabe tap into consulting Slack communities (Toptal, GLG, consulting subreddits)
+- Gabe leverages CTO network for agency referrals
+- DM-based outreach: "We're building X, would you try it?"
+- Goal: 30 beta users from warm outreach
+
+**Week 3-4: Nonprofit & Grant Writer Communities**
+- Target: r/nonprofit, r/grantwriting, Grant Professionals Association forums
+- Angle: "Stop losing grants to technicalities"
+- Free webinar: "Using AI to audit your grant proposals" (Lee presents)
+- Goal: 150 sign-ups, capture emails for nurture
+
+**Week 5-8: Upwork/Freelancer Bid Market**
+- Target freelancers who bid on projects (Upwork, Freelancer.com power users)
+- These users submit 10-20 proposals/month, high volume = high pain
+- Post in freelancer communities, run small Reddit/Twitter ads ($200 budget)
+- Create "Proposal Win Rate Calculator" as lead magnet
+- Goal: 300 sign-ups, 30 paying users
+
+**Week 9-12: Government Contractor Angle**
+- SAM.gov contractors are required to be highly compliant
+- Partner with 1-2 GovCon consultants as affiliates
+- Guest post on GovCon blogs
+- Goal: 10-15 high-value Team tier conversions
+
+---
+
+### Revenue Model
+
+| Tier       | Price      | Features                                           |
+|------------|------------|----------------------------------------------------|
+| Free       | $0         | 3 proposal checks/month, basic gap report          |
+| Pro        | $29/month  | Unlimited checks, detailed compliance matrix, export|
+| Team       | $79/month  | 5 seats, RFP template library, priority support    |
+
+**Target for $1000/month:**
+- 35 Pro users, OR
+- 13 Team users, OR
+- Mix (e.g., 20 Pro + 5 Team = $975)
+
+---
+
+### Technical Architecture (High-Level)
+
+```
+[RFP Upload] → [Martyn's Engine] → [Requirements Graph]
+                                          ↓
+[Proposal Upload] → [Section Parser] → [Proposal Graph]
+                                          ↓
+                                   [Mikkel's Agent Loop]
+                                   (maps proposal → requirements)
+                                          ↓
+                                   [Gap Analysis Engine]
+                                          ↓
+                                   [Compliance Matrix + Report]
+```
+
+---
+
+### 3-Month Milestones
+
+| Month | Milestone                                                      |
+|-------|----------------------------------------------------------------|
+| 1     | MVP: upload 2 docs → get compliance gap report                 |
+| 2     | Pro tier live, 50 users, webinar funnel active, first revenue  |
+| 3     | GovCon partnerships, 150+ users, $1000 MRR                     |
+
+---
+
+### Risks & Mitigations
+
+- **Document format variety:** Start with PDF/DOCX only, expand later
+- **Accuracy of requirement extraction:** Human review step for complex RFPs, improve via Mikkel's loop
+- **Niche market:** Freelancer segment adds volume; GovCon adds high-value customers
+- **Competition (PandaDoc, etc.):** Position as "compliance-first" not "proposal builder"
+
+---
+
+### Why This Might Beat Candidate 1
+
+- **Higher price tolerance:** Consultants/agencies have budget, contracts are often low-margin freelancers
+- **Clearer ROI:** "Win more bids" > "Avoid bad contracts"
+- **Repeat usage:** Power users submit 10+ proposals/month vs. occasional contract reviews
+- **Built-in urgency:** RFP deadlines create natural purchase triggers
