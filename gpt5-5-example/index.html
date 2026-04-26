@@ -1,0 +1,3189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bloodrift: Star-Crypt Survivors - Rift Hunt</title>
+  <style>
+    :root {
+      --bg0: #07030a;
+      --bg1: #130617;
+      --bg2: #241025;
+      --ink: #f7e9ff;
+      --muted: #bfa8c8;
+      --blood: #e33a5d;
+      --blood2: #8f1838;
+      --gold: #ffc857;
+      --violet: #9c5cff;
+      --cyan: #5ef6ff;
+      --green: #67ff9d;
+      --panel: rgba(20, 7, 25, 0.74);
+      --panel2: rgba(50, 15, 55, 0.82);
+      --line: rgba(255, 221, 255, 0.16);
+      --shadow: rgba(227, 58, 93, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(156, 92, 255, 0.16), transparent 34%),
+        radial-gradient(circle at 20% 80%, rgba(227, 58, 93, 0.11), transparent 33%),
+        linear-gradient(180deg, var(--bg1), var(--bg0) 55%, #020105);
+      color: var(--ink);
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      user-select: none;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.016) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(circle at 50% 45%, black, transparent 80%);
+      opacity: 0.65;
+    }
+
+    #game {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      cursor: crosshair;
+    }
+
+    .vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 50%, transparent 44%, rgba(0, 0, 0, 0.34) 74%, rgba(0, 0, 0, 0.82)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 12%, transparent 88%, rgba(0, 0, 0, 0.32));
+      mix-blend-mode: multiply;
+    }
+
+    .hud {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      padding: 18px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 14px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(260px, 420px) minmax(360px, 1fr) auto;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .brand,
+    .stats,
+    .codex,
+    .bottom,
+    .modal-card,
+    .relic-rack,
+    .boss-hud {
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 45%),
+        var(--panel);
+      box-shadow:
+        0 18px 60px rgba(0, 0, 0, 0.35),
+        0 0 42px rgba(156, 92, 255, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 18px;
+    }
+
+    .brand {
+      padding: 14px 16px;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 4px 0 6px;
+      font-size: clamp(22px, 2.5vw, 38px);
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+      text-shadow: 0 0 28px rgba(227, 58, 93, 0.38);
+    }
+
+    .brand p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .stats {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 12px;
+      justify-self: center;
+      max-width: 760px;
+    }
+
+    .pill {
+      min-width: 84px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--ink);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    .pill span {
+      display: block;
+      color: var(--muted);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-weight: 900;
+      margin-bottom: 2px;
+    }
+
+    .codex {
+      width: min(330px, 28vw);
+      padding: 14px 16px;
+      justify-self: end;
+    }
+
+    .codex h2 {
+      margin: 0 0 7px;
+      color: var(--cyan);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .codex p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.38;
+    }
+
+    .bars {
+      position: fixed;
+      left: 18px;
+      right: 18px;
+      top: 136px;
+      display: grid;
+      grid-template-columns: minmax(240px, 420px) minmax(220px, 1fr) minmax(160px, 280px);
+      gap: 12px;
+      pointer-events: none;
+    }
+
+    .bar-wrap {
+      height: 14px;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      background: rgba(0, 0, 0, 0.42);
+      box-shadow:
+        inset 0 0 12px rgba(0, 0, 0, 0.58),
+        0 0 22px rgba(0, 0, 0, 0.18);
+    }
+
+    .bar {
+      height: 100%;
+      width: 50%;
+      border-radius: 999px;
+      transition: width 0.12s linear;
+    }
+
+    #hpBar {
+      background: linear-gradient(90deg, #7c1029, var(--blood), #ff7893);
+      box-shadow: 0 0 16px rgba(227, 58, 93, 0.62);
+    }
+
+    #xpBar {
+      background: linear-gradient(90deg, #4f238f, var(--violet), #d9a8ff);
+      box-shadow: 0 0 16px rgba(156, 92, 255, 0.62);
+    }
+
+    #dashBar {
+      background: linear-gradient(90deg, #16747b, var(--cyan), #ecffff);
+      box-shadow: 0 0 16px rgba(94, 246, 255, 0.52);
+    }
+
+    .bottom {
+      align-self: end;
+      justify-self: center;
+      max-width: min(1120px, calc(100vw - 36px));
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .key {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 22px;
+      padding: 0 7px;
+      color: var(--ink);
+      border-radius: 7px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(156, 92, 255, 0.18), transparent 34%),
+        rgba(2, 1, 5, 0.72);
+      backdrop-filter: blur(4px);
+      z-index: 5;
+    }
+
+    .modal.hidden {
+      display: none;
+    }
+
+    .modal-card {
+      width: min(900px, 96vw);
+      padding: clamp(20px, 4vw, 42px);
+      pointer-events: auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .modal-card::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      right: -90px;
+      top: -90px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(227, 58, 93, 0.28), transparent 64%);
+      pointer-events: none;
+    }
+
+    .modal-card h2 {
+      margin: 0 0 10px;
+      font-size: clamp(34px, 6vw, 72px);
+      line-height: 0.88;
+      letter-spacing: -0.075em;
+    }
+
+    .modal-card h3 {
+      margin: 18px 0 8px;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      font-size: 13px;
+    }
+
+    .modal-card p {
+      color: var(--muted);
+      max-width: 700px;
+      line-height: 1.55;
+      margin: 0 0 12px;
+    }
+
+    .loadout {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 18px 0 24px;
+    }
+
+    .loadout article,
+    .choice {
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 16px;
+      padding: 14px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent 48%),
+        rgba(255, 255, 255, 0.045);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .loadout strong,
+    .choice strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--ink);
+    }
+
+    .loadout span,
+    .choice span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 13px 20px;
+      color: white;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent),
+        linear-gradient(90deg, var(--blood2), var(--blood));
+      box-shadow:
+        0 12px 28px rgba(227, 58, 93, 0.26),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+      font-weight: 950;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition:
+        transform 0.12s ease,
+        filter 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.12);
+    }
+
+    button.secondary {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent),
+        linear-gradient(90deg, rgba(156, 92, 255, 0.52), rgba(94, 246, 255, 0.34));
+    }
+
+    .level-up {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(2, 1, 5, 0.62);
+      backdrop-filter: blur(3px);
+      z-index: 6;
+    }
+
+    .level-up.hidden {
+      display: none;
+    }
+
+    .choices {
+      width: min(900px, 96vw);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .choice {
+      min-height: 170px;
+      text-align: left;
+      border-radius: 22px;
+      cursor: pointer;
+      color: var(--ink);
+      transition:
+        border-color 0.12s ease,
+        transform 0.12s ease,
+        box-shadow 0.12s ease;
+    }
+
+    .choice:hover {
+      outline: 2px solid rgba(255, 200, 87, 0.45);
+      transform: translateY(-2px);
+      box-shadow:
+        0 18px 42px rgba(255, 200, 87, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    .choice em {
+      display: inline-block;
+      margin-bottom: 10px;
+      color: var(--gold);
+      font-size: 10px;
+      font-style: normal;
+      font-weight: 950;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 180px;
+      transform: translateX(-50%);
+      color: var(--gold);
+      text-shadow: 0 0 18px rgba(255, 200, 87, 0.5);
+      font-weight: 950;
+      letter-spacing: 0.08em;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      z-index: 4;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-6px);
+    }
+
+    .relic-rack {
+      position: fixed;
+      left: 18px;
+      bottom: 76px;
+      width: min(520px, calc(100vw - 36px));
+      padding: 10px 12px;
+      pointer-events: none;
+    }
+
+    .relic-rack > span {
+      display: block;
+      color: var(--gold);
+      font-size: 10px;
+      font-weight: 950;
+      letter-spacing: 0.16em;
+      margin-bottom: 7px;
+      text-transform: uppercase;
+    }
+
+    .relic-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 24px;
+    }
+
+    .relic-chip {
+      max-width: 160px;
+      overflow: hidden;
+      padding: 6px 9px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--ink);
+      font-size: 11px;
+      font-weight: 850;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .boss-hud {
+      position: fixed;
+      left: 50%;
+      top: 98px;
+      width: min(620px, calc(100vw - 36px));
+      padding: 10px 12px 12px;
+      pointer-events: none;
+      transform: translateX(-50%);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .boss-hud.hidden {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px);
+    }
+
+    .boss-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 7px;
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    #bossBar {
+      background: linear-gradient(90deg, #54102a, #e33a5d, #ffc857);
+      box-shadow: 0 0 18px rgba(255, 200, 87, 0.6);
+    }
+
+    @media (max-width: 860px) {
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+
+      .codex {
+        display: none;
+      }
+
+      .stats {
+        justify-self: stretch;
+        justify-content: start;
+        overflow-x: auto;
+      }
+
+      .bars {
+        top: 224px;
+        grid-template-columns: 1fr;
+      }
+
+      .boss-hud {
+        top: 180px;
+      }
+
+      .relic-rack {
+        display: none;
+      }
+
+      .bottom {
+        display: none;
+      }
+
+      .loadout,
+      .choices {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game"></canvas>
+  <div class="vignette"></div>
+
+  <section class="hud" aria-label="Game HUD">
+    <div class="topbar">
+      <div class="brand">
+        <div class="eyebrow">Rift Hunt Prototype</div>
+        <h1>Bloodrift: Star-Crypt Survivors</h1>
+        <p>
+          A gothic space-arena roguelite with screen-wrap drift, relic drafting, manual blood lances,
+          cursed caches, sealable rift gates, blessing fountains, boss enrages, and build-synergy weapons that spiral into chaos.
+        </p>
+      </div>
+
+      <div class="stats">
+        <div class="pill"><span>Time</span><b id="timeText">00:00</b></div>
+        <div class="pill"><span>Level</span><b id="levelText">1</b></div>
+        <div class="pill"><span>Kills</span><b id="killsText">0</b></div>
+        <div class="pill"><span>Gold</span><b id="goldText">0</b></div>
+        <div class="pill"><span>Combo</span><b id="comboText">x1</b></div>
+        <div class="pill"><span>Heat</span><b id="heatText">0%</b></div>
+        <div class="pill"><span>Threat</span><b id="threatText">I</b></div>
+      </div>
+
+      <aside class="codex">
+        <h2>Design Pillars</h2>
+        <p>
+          Crack cursed caches for greedy relic drafts, seal cyan rift gates for risky arena rewards,
+          drink fountains for frenzy windows, parry cultist lances during dash i-frames, and force bosses into dangerous enrage phases.
+        </p>
+      </aside>
+    </div>
+
+    <div class="bottom">
+      <span><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span> thrust / drift</span>
+      <span><span class="key">Mouse</span> aim / hold blood lance</span>
+      <span><span class="key">Space</span> blood dash / parry shots</span>
+      <span><span class="key">P</span> pause</span>
+      <span>Fill Heat for Bloodfrenzy. Seal cyan rift gates before they expire for spoils and arena-clearing shockwaves.</span>
+    </div>
+  </section>
+
+  <div class="bars">
+    <div class="bar-wrap" title="Hull Blood">
+      <div id="hpBar" class="bar"></div>
+    </div>
+    <div class="bar-wrap" title="Soul Experience">
+      <div id="xpBar" class="bar"></div>
+    </div>
+    <div class="bar-wrap" title="Dash Charge">
+      <div id="dashBar" class="bar"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">LEVEL UP</div>
+
+  <div id="relicRack" class="relic-rack">
+    <span>Relics Claimed</span>
+    <div id="relics" class="relic-list">None yet</div>
+  </div>
+
+  <div id="bossHud" class="boss-hud hidden" aria-live="polite">
+    <div class="boss-row">
+      <span id="bossNameText">Warden</span>
+      <span>Boss</span>
+    </div>
+    <div class="bar-wrap" title="Boss Blood">
+      <div id="bossBar" class="bar"></div>
+    </div>
+  </div>
+
+  <div id="startModal" class="modal">
+    <div class="modal-card">
+      <div class="eyebrow">Design Name</div>
+      <h2>Bloodrift: Star-Crypt Survivors</h2>
+      <p>
+        A one-file browser prototype blending three fantasies: the frictionless survival dodging of
+        <em>Asteroids</em>, the automatic buildcraft chaos of survivor-likes, and the dark loot-hunt
+        atmosphere of a gothic action RPG. The late game now uses object caps, spatial collision bins, and automatic overflow harvesting so the chaos keeps moving without turning into a slideshow.
+      </p>
+      <h3>Prototype Loop</h3>
+      <div class="loadout">
+        <article>
+          <strong>Vampire Survivors Core</strong>
+          <span>Weapons auto-cast, while held-mouse blood lances let you steer burst damage into priority targets.</span>
+        </article>
+        <article>
+          <strong>Asteroids Core</strong>
+          <span>Momentum, drift, screen wrap, safe toroidal targeting, splitting bone-meteors, dash parries, and boost windows.</span>
+        </article>
+        <article>
+          <strong>Diablo Feel</strong>
+          <span>Named bosses, cursed caches, elites, blessing fountains, Heat-fueled Bloodfrenzy, and greedy gold healing.</span>
+        </article>
+      </div>
+      <div class="actions">
+        <button id="startBtn">Enter the Bloodrift</button>
+        <button id="muteBtn" class="secondary" type="button">Sound: On</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="levelUp" class="level-up hidden">
+    <div>
+      <div id="choicesTitle" class="eyebrow" style="text-align:center; margin-bottom:12px;">Choose a Relic</div>
+      <div id="choices" class="choices"></div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const canvas = document.getElementById("game");
+      const ctx = canvas.getContext("2d");
+      const startModal = document.getElementById("startModal");
+      const levelUpModal = document.getElementById("levelUp");
+      const choicesTitle = document.getElementById("choicesTitle");
+      const choicesEl = document.getElementById("choices");
+      const toast = document.getElementById("toast");
+      const hpBar = document.getElementById("hpBar");
+      const xpBar = document.getElementById("xpBar");
+      const dashBar = document.getElementById("dashBar");
+      const timeText = document.getElementById("timeText");
+      const levelText = document.getElementById("levelText");
+      const killsText = document.getElementById("killsText");
+      const goldText = document.getElementById("goldText");
+      const comboText = document.getElementById("comboText");
+      const heatText = document.getElementById("heatText");
+      const threatText = document.getElementById("threatText");
+      const bossHud = document.getElementById("bossHud");
+      const bossBar = document.getElementById("bossBar");
+      const bossNameText = document.getElementById("bossNameText");
+      const relicsEl = document.getElementById("relics");
+      const startBtn = document.getElementById("startBtn");
+      const muteBtn = document.getElementById("muteBtn");
+
+      const TAU = Math.PI * 2;
+      const keys = new Set();
+      const pointer = { x: innerWidth / 2, y: innerHeight / 2, down: false };
+      const rand = (min, max) => min + Math.random() * (max - min);
+      const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+      const vectorTo = (from, to) => {
+        let dx = to.x - from.x;
+        let dy = to.y - from.y;
+
+        if (width > 0) {
+          if (dx > width / 2) dx -= width;
+          if (dx < -width / 2) dx += width;
+        }
+
+        if (height > 0) {
+          if (dy > height / 2) dy -= height;
+          if (dy < -height / 2) dy += height;
+        }
+
+        return { dx, dy };
+      };
+      const dist2 = (a, b) => {
+        const { dx, dy } = vectorTo(a, b);
+        return dx * dx + dy * dy;
+      };
+      const angleTo = (from, to) => {
+        const { dx, dy } = vectorTo(from, to);
+        return Math.atan2(dy, dx);
+      };
+      const normalizeAngle = angle => Math.atan2(Math.sin(angle), Math.cos(angle));
+      const romanThreat = value => ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][clamp(value - 1, 0, 9)] || "X";
+
+      const LIMITS = Object.freeze({
+        enemies: 150,
+        meteors: 72,
+        shots: 210,
+        enemyShots: 130,
+        orbs: 240,
+        pickups: 16,
+        arcs: 70,
+        particles: 460,
+        texts: 54,
+        sfxPerFrame: 8
+      });
+
+      const SPATIAL_CELL = 176;
+      const spatial = {
+        cols: 1,
+        rows: 1,
+        enemies: new Map(),
+        meteors: new Map(),
+        enemyShots: new Map()
+      };
+
+      let width = 0;
+      let height = 0;
+      let dpr = 1;
+      let running = false;
+      let paused = false;
+      let last = 0;
+      let soundOn = true;
+      let audioCtx = null;
+
+      const state = {
+        t: 0,
+        spawnTimer: 0,
+        meteorTimer: 0,
+        riftTimer: 22,
+        eliteTimer: 18,
+        cacheTimer: 12,
+        bossTimer: 55,
+        surgeTimer: 28,
+        difficulty: 1,
+        hudTimer: 0,
+        kills: 0,
+        gold: 0,
+        combo: 0,
+        comboTimer: 0,
+        heat: 0,
+        heatMax: 100,
+        bloodfrenzy: 0,
+        blessingTimer: 0,
+        level: 1,
+        xp: 0,
+        xpNeed: 16,
+        shake: 0,
+        flash: 0,
+        player: null,
+        enemies: [],
+        meteors: [],
+        shots: [],
+        orbs: [],
+        enemyShots: [],
+        pickups: [],
+        arcs: [],
+        particles: [],
+        texts: [],
+        stars: [],
+        lastHud: Object.create(null),
+        relicNames: [],
+        choiceQueue: [],
+        sfxThisFrame: 0
+      };
+
+      const relics = [
+        {
+          name: "Sanguine Orbit",
+          rarity: "Common Relic",
+          text: "+1 blood moon familiar. Orbitals shred nearby enemies.",
+          apply: p => p.orbitals += 1
+        },
+        {
+          name: "Hellforge Quarrels",
+          rarity: "Common Relic",
+          text: "Auto-bolts fire 18% faster and hit harder.",
+          apply: p => {
+            p.fireRate *= 0.82;
+            p.damage += 4;
+          }
+        },
+        {
+          name: "Gravewake Thrusters",
+          rarity: "Common Relic",
+          text: "Acceleration, handling, speed cap, and dash recharge improve.",
+          apply: p => {
+            p.thrust += 48;
+            p.speedLimit += 28;
+            p.turnGrip += 0.08;
+            p.dashRegen += 0.18;
+          }
+        },
+        {
+          name: "Coven Magnet",
+          rarity: "Common Relic",
+          text: "Soul, heart, and gold pickup radius grows dramatically.",
+          apply: p => p.pickup += 78
+        },
+        {
+          name: "Crimson Aegis",
+          rarity: "Common Relic",
+          text: "+30 max hull blood and heal for 36.",
+          apply: p => {
+            p.maxHp += 30;
+            p.hp = Math.min(p.maxHp, p.hp + 36);
+          }
+        },
+        {
+          name: "Reaper Ricochet",
+          rarity: "Uncommon Relic",
+          text: "Bolts gain one pierce and sharper critical chance.",
+          apply: p => {
+            p.pierce += 1;
+            p.crit += 0.075;
+          }
+        },
+        {
+          name: "Gilded Hunger",
+          rarity: "Uncommon Relic",
+          text: "Gold shards heal slightly and are worth more.",
+          apply: p => {
+            p.goldHeal += 1.1;
+            p.goldMult += 0.35;
+          }
+        },
+        {
+          name: "Nova of the Bat King",
+          rarity: "Uncommon Relic",
+          text: "Dash emits a wider damaging nova of bat sparks.",
+          apply: p => p.dashNova += 1
+        },
+        {
+          name: "Bone-Saw Glyph",
+          rarity: "Uncommon Relic",
+          text: "Orbitals grow larger, spin faster, and deal more damage.",
+          apply: p => {
+            p.orbitalDamage += 8;
+            p.orbitalSize += 2.2;
+            p.orbitalSpeed += 0.18;
+          }
+        },
+        {
+          name: "Vesper Chain",
+          rarity: "Rare Relic",
+          text: "Bolt impacts arc violet lightning into nearby horrors.",
+          apply: p => {
+            p.chain += 1;
+            p.chainDamage += 6;
+            p.chainRange += 18;
+          }
+        },
+        {
+          name: "Corpse-Star Pact",
+          rarity: "Rare Relic",
+          text: "Slain enemies burst, damaging nearby enemies and meteors.",
+          apply: p => {
+            p.corpseNova += 1;
+            p.damage += 2;
+          }
+        },
+        {
+          name: "Seraphic Splinters",
+          rarity: "Rare Relic",
+          text: "Adds one extra bolt per volley. Volleys become slightly slower.",
+          apply: p => {
+            p.multishot += 1;
+            p.bulletSpeed += 40;
+            p.fireRate *= 1.08;
+          }
+        },
+        {
+          name: "Doom Bell",
+          rarity: "Rare Relic",
+          text: "Periodically tolls a screen-shaking blood nova around you.",
+          apply: p => {
+            p.doomBell += 1;
+            p.doomCd = Math.min(p.doomCd, 2.5);
+          }
+        },
+        {
+          name: "Soul Leech",
+          rarity: "Rare Relic",
+          text: "Kills restore hull blood. Bosses and elites restore more.",
+          apply: p => {
+            p.soulLeech += 0.45;
+            p.regen += 0.12;
+          }
+        },
+        {
+          name: "Witchglass Lens",
+          rarity: "Rare Relic",
+          text: "Critical chance and bolt speed increase substantially.",
+          apply: p => {
+            p.crit += 0.12;
+            p.bulletSpeed += 92;
+          }
+        },
+        {
+          name: "Nocturne Trigger",
+          rarity: "Uncommon Relic",
+          text: "Held-mouse blood lances reload faster, pierce deeper, and hit harder.",
+          apply: p => {
+            p.lanceRate *= 0.76;
+            p.lanceDamage += 13;
+            p.lancePierce += 1;
+          }
+        },
+        {
+          name: "Abyssal Carapace",
+          rarity: "Uncommon Relic",
+          text: "Incoming damage is reduced and max hull blood rises.",
+          apply: p => {
+            p.armor += 0.08;
+            p.maxHp += 18;
+            p.hp = Math.min(p.maxHp, p.hp + 18);
+          }
+        },
+        {
+          name: "Rift Tithe",
+          rarity: "Rare Relic",
+          text: "Cursed caches spill extra gold, grant more Heat, and summon richer ambushes.",
+          apply: p => {
+            p.cacheLuck += 1;
+            p.goldMult += 0.18;
+          }
+        },
+        {
+          name: "Frenzy Crown",
+          rarity: "Rare Relic",
+          text: "Bloodfrenzy lasts longer and begins with a larger nova.",
+          apply: p => {
+            p.frenzyBonus += 1;
+            p.damage += 3;
+          }
+        },
+        {
+          name: "Bloodletter Capacitor",
+          rarity: "Uncommon Relic",
+          text: "High combos spool weapons faster, and soul gems trickle dash charge back into your engine.",
+          apply: p => {
+            p.comboHaste += 0.004;
+            p.xpDash += 0.006;
+          }
+        },
+        {
+          name: "Rift Cartographer",
+          rarity: "Rare Relic",
+          text: "Rift gates pay richer rewards, open with stronger shockwaves, and more often leave blessing fountains.",
+          apply: p => {
+            p.riftBonus += 1;
+            p.pickup += 30;
+          }
+        },
+        {
+          name: "Star-Saw Wake",
+          rarity: "Rare Relic",
+          text: "Blood dash throws a crescent of piercing saw-stars behind you.",
+          apply: p => {
+            p.dashTrail += 1;
+            p.lanceDamage += 5;
+          }
+        },
+        {
+          name: "Choir Prism",
+          rarity: "Rare Relic",
+          text: "Adds one prism bolt and extends violet chain lightning.",
+          apply: p => {
+            p.chain += 1;
+            p.chainRange += 34;
+            p.multishot += 1;
+          }
+        }
+      ];
+
+      const bossNames = [
+        "Marrow-Saint Varkos",
+        "The Choir of Teeth",
+        "Countess Null",
+        "Ossuary Warden",
+        "The Red Astronomer"
+      ];
+
+      function resize() {
+        dpr = Math.min(2, window.devicePixelRatio || 1);
+        width = innerWidth;
+        height = innerHeight;
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        seedStars();
+      }
+
+      function seedStars() {
+        state.stars.length = 0;
+        const count = Math.floor((width * height) / 8500);
+        for (let i = 0; i < count; i++) {
+          state.stars.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            r: Math.random() * 1.7 + 0.2,
+            a: Math.random() * 0.55 + 0.12,
+            tw: Math.random() * TAU
+          });
+        }
+      }
+
+      function reset() {
+        state.t = 0;
+        state.spawnTimer = 0;
+        state.meteorTimer = 1.5;
+        state.riftTimer = 22;
+        state.eliteTimer = 18;
+        state.cacheTimer = 9;
+        state.bossTimer = 55;
+        state.surgeTimer = 26;
+        state.difficulty = 1;
+        state.hudTimer = 0;
+        state.kills = 0;
+        state.gold = 0;
+        state.combo = 0;
+        state.comboTimer = 0;
+        state.heat = 0;
+        state.bloodfrenzy = 0;
+        state.blessingTimer = 0;
+        state.level = 1;
+        state.xp = 0;
+        state.xpNeed = 16;
+        state.shake = 0;
+        state.flash = 0;
+        state.enemies.length = 0;
+        state.meteors.length = 0;
+        state.shots.length = 0;
+        state.orbs.length = 0;
+        state.enemyShots.length = 0;
+        state.pickups.length = 0;
+        state.arcs.length = 0;
+        state.particles.length = 0;
+        state.texts.length = 0;
+        state.relicNames.length = 0;
+        state.choiceQueue.length = 0;
+        state.lastHud = Object.create(null);
+        state.sfxThisFrame = 0;
+
+        state.player = {
+          x: width / 2,
+          y: height / 2,
+          vx: 0,
+          vy: 0,
+          angle: -Math.PI / 2,
+          r: 18,
+          hp: 100,
+          maxHp: 100,
+          invuln: 1.2,
+          fireCd: 0,
+          fireRate: 0.58,
+          lanceCd: 0,
+          lanceRate: 0.72,
+          lanceDamage: 26,
+          lancePierce: 2,
+          damage: 16,
+          pierce: 0,
+          crit: 0.08,
+          speedLimit: 440,
+          thrust: 330,
+          friction: 0.988,
+          turnGrip: 0.13,
+          pickup: 96,
+          orbitals: 1,
+          orbitalAngle: 0,
+          orbitalDamage: 18,
+          orbitalSize: 9,
+          orbitalSpeed: 0,
+          dash: 1,
+          dashRegen: 0.42,
+          dashNova: 0,
+          goldHeal: 0,
+          comboHaste: 0,
+          xpDash: 0,
+          riftBonus: 0,
+          goldMult: 1,
+          cacheLuck: 0,
+          armor: 0,
+          frenzyBonus: 0,
+          chain: 0,
+          chainDamage: 10,
+          chainRange: 190,
+          corpseNova: 0,
+          soulLeech: 0,
+          regen: 0,
+          doomBell: 0,
+          doomCd: 6.5,
+          bulletSpeed: 620,
+          multishot: 1,
+          dashTrail: 0
+        };
+
+        for (let i = 0; i < 7; i++) {
+          const point = randomSafePoint(190);
+          spawnMeteor(point.x, point.y, rand(34, 60));
+        }
+
+        updateRelicRack();
+        rebuildSpatial();
+        updateHud(true);
+      }
+
+      function begin() {
+        reset();
+        running = true;
+        paused = false;
+        startModal.classList.add("hidden");
+        levelUpModal.classList.add("hidden");
+        bossHud.classList.add("hidden");
+        last = performance.now();
+        beep(190, 0.08, "sawtooth", 0.04);
+        beep(380, 0.12, "triangle", 0.03, 0.06);
+        requestAnimationFrame(loop);
+      }
+
+      function gameOver() {
+        if (!running) return;
+        running = false;
+        paused = false;
+        levelUpModal.classList.add("hidden");
+        bossHud.classList.add("hidden");
+        startModal.classList.remove("hidden");
+        startModal.querySelector("h2").textContent = "The Bloodrift Claims You";
+        startModal.querySelector("p").innerHTML =
+          `You survived <strong>${formatTime(state.t)}</strong>, reached level <strong>${state.level}</strong>, ` +
+          `slayed <strong>${state.kills}</strong> horrors, hauled <strong>${state.gold}</strong> gold, ` +
+          `and claimed <strong>${state.relicNames.length}</strong> relics.`;
+        startBtn.textContent = "Re-enter the Bloodrift";
+        boom(state.player.x, state.player.y, "#e33a5d", 54);
+        beep(80, 0.35, "sawtooth", 0.08);
+      }
+
+      function loop(now) {
+        if (!running) return;
+        const rawDt = Math.min(0.033, (now - last) / 1000 || 0);
+        last = now;
+
+        if (!paused && levelUpModal.classList.contains("hidden")) {
+          update(rawDt);
+        }
+
+        draw();
+        requestAnimationFrame(loop);
+      }
+
+      function update(dt) {
+        const p = state.player;
+        state.sfxThisFrame = 0;
+        state.t += dt;
+        state.difficulty = 1 + state.t / 48;
+        state.shake = Math.max(0, state.shake - dt * 28);
+        state.flash = Math.max(0, state.flash - dt * 2.8);
+        state.hudTimer -= dt;
+        state.comboTimer -= dt;
+        if (state.comboTimer <= 0) state.combo = 0;
+
+        p.invuln = Math.max(0, p.invuln - dt);
+        p.fireCd -= dt;
+        p.lanceCd -= dt;
+
+        const boostRegen = (state.bloodfrenzy > 0 ? 1.65 : 1) * (state.blessingTimer > 0 ? 1.25 : 1);
+        p.dash = clamp(p.dash + dt * p.dashRegen * boostRegen, 0, 1);
+        p.orbitalAngle += dt * (1.8 + p.orbitals * 0.14 + p.orbitalSpeed);
+
+        updatePowers(dt);
+        movePlayer(dt);
+        autoFire(dt);
+        manualFire();
+        spawnDirector(dt);
+        updateMeteors(dt);
+        updateEnemies(dt);
+        updateEnemyShots(dt);
+        rebuildSpatial();
+        updateShots(dt);
+        updatePickups(dt);
+        updateOrbs(dt);
+        updateArcs(dt);
+        updateParticles(dt);
+        updateTexts(dt);
+        updateOrbitals(dt);
+
+        if (state.hudTimer <= 0) {
+          state.hudTimer = 0.12;
+          updateHud();
+        }
+      }
+
+      function movePlayer(dt) {
+        const p = state.player;
+        let ax = 0;
+        let ay = 0;
+        if (keys.has("w") || keys.has("arrowup")) ay -= 1;
+        if (keys.has("s") || keys.has("arrowdown")) ay += 1;
+        if (keys.has("a") || keys.has("arrowleft")) ax -= 1;
+        if (keys.has("d") || keys.has("arrowright")) ax += 1;
+        const len = Math.hypot(ax, ay) || 1;
+        ax /= len;
+        ay /= len;
+
+        p.vx += ax * p.thrust * dt;
+        p.vy += ay * p.thrust * dt;
+
+        const speed = Math.hypot(p.vx, p.vy);
+        if (speed > p.speedLimit) {
+          p.vx = (p.vx / speed) * p.speedLimit;
+          p.vy = (p.vy / speed) * p.speedLimit;
+        }
+
+        p.vx *= Math.pow(p.friction, dt * 60);
+        p.vy *= Math.pow(p.friction, dt * 60);
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+
+        wrap(p);
+
+        const targetAngle = angleTo(p, pointer);
+        const delta = normalizeAngle(targetAngle - p.angle);
+        p.angle += delta * p.turnGrip * dt * 60;
+      }
+
+      function dash() {
+        const p = state.player;
+        if (p.dash < 0.98 || !running || paused || !levelUpModal.classList.contains("hidden")) return;
+        p.dash = state.bloodfrenzy > 0 ? 0.28 : 0;
+        p.invuln = Math.max(p.invuln, state.bloodfrenzy > 0 ? 0.48 : 0.36);
+        const dashForce = state.bloodfrenzy > 0 ? 760 : 620;
+        p.vx += Math.cos(p.angle) * dashForce;
+        p.vy += Math.sin(p.angle) * dashForce;
+        state.shake = Math.max(state.shake, 7);
+        boom(p.x, p.y, "#5ef6ff", 22);
+        beep(660, 0.06, "triangle", 0.05);
+
+        if (p.dashNova > 0) {
+          for (let i = 0; i < 18 + p.dashNova * 8; i++) {
+            const a = (i / (18 + p.dashNova * 8)) * TAU;
+            state.shots.push({
+              x: p.x,
+              y: p.y,
+              vx: Math.cos(a) * 470,
+              vy: Math.sin(a) * 470,
+              r: 4,
+              life: 0.72,
+              damage: 14 + p.damage * 0.38,
+              pierce: 1 + Math.floor(p.dashNova / 2),
+              hue: "#5ef6ff",
+              kind: "bat",
+              chainable: false,
+              hits: new Set()
+            });
+          }
+        }
+      }
+
+      function autoFire() {
+        const p = state.player;
+        if (p.fireCd > 0) return;
+        const target = nearestTarget(p);
+        if (!target) return;
+
+        const frenzy = state.bloodfrenzy > 0;
+        const blessed = state.blessingTimer > 0;
+        const fireBoost = (frenzy ? 0.52 : 1) * (blessed ? 0.84 : 1);
+        const damageBoost = (frenzy ? 1.34 : 1) * (blessed ? 1.12 : 1);
+        const comboBoost = Math.max(0.66, 1 - state.combo * p.comboHaste);
+        p.fireCd = Math.max(0.07, p.fireRate * fireBoost * comboBoost);
+
+        const a = angleTo(p, target);
+        const levelBonus = state.level >= 10 ? 2 : state.level >= 6 ? 1 : 0;
+        const frenzyBonus = frenzy ? 1 : 0;
+        const count = Math.min(8, p.multishot + levelBonus + frenzyBonus);
+        const spread = count > 1 ? clamp(0.1 + count * 0.018, 0.12, 0.26) : 0;
+
+        for (let i = 0; i < count; i++) {
+          const offset = count === 1 ? 0 : (i - (count - 1) / 2) * spread;
+          const aa = a + offset;
+          const crit = Math.random() < p.crit;
+          state.shots.push({
+            x: p.x + Math.cos(aa) * 20,
+            y: p.y + Math.sin(aa) * 20,
+            vx: Math.cos(aa) * p.bulletSpeed + p.vx * 0.22,
+            vy: Math.sin(aa) * p.bulletSpeed + p.vy * 0.22,
+            r: crit ? 6.5 : 4.7,
+            life: 1.28,
+            damage: p.damage * damageBoost * (crit ? 2.15 : 1),
+            pierce: p.pierce,
+            hue: crit ? "#ffc857" : "#e33a5d",
+            kind: "bolt",
+            chainable: true,
+            hits: new Set()
+          });
+        }
+
+        muzzle(p.x, p.y, a);
+        beep(frenzy ? 320 + Math.random() * 120 : 230 + Math.random() * 90, 0.025, "square", frenzy ? 0.024 : 0.018);
+      }
+
+      function manualFire() {
+        const p = state.player;
+        if (!pointer.down || p.lanceCd > 0) return;
+
+        const frenzy = state.bloodfrenzy > 0;
+        const blessed = state.blessingTimer > 0;
+        const a = angleTo(p, pointer);
+        const speed = p.bulletSpeed * (frenzy ? 1.55 : 1.32);
+        p.lanceCd = Math.max(0.14, p.lanceRate * (frenzy ? 0.48 : 1) * (blessed ? 0.74 : 1));
+
+        state.shots.push({
+          x: p.x + Math.cos(a) * 24,
+          y: p.y + Math.sin(a) * 24,
+          vx: Math.cos(a) * speed + p.vx * 0.18,
+          vy: Math.sin(a) * speed + p.vy * 0.18,
+          r: frenzy ? 7.2 : 5.8,
+          life: frenzy ? 0.98 : 0.82,
+          damage: (p.lanceDamage + p.damage * 0.9) * (frenzy ? 1.45 : 1) * (blessed ? 1.12 : 1),
+          pierce: p.lancePierce + (frenzy ? 2 : 0),
+          hue: frenzy ? "#ffc857" : "#5ef6ff",
+          kind: "lance",
+          chainable: true,
+          hits: new Set()
+        });
+
+        muzzle(p.x, p.y, a);
+        state.shake = Math.max(state.shake, frenzy ? 3.5 : 1.5);
+        beep(frenzy ? 480 : 410, 0.035, "triangle", frenzy ? 0.034 : 0.022);
+      }
+
+      function nearestTarget(from) {
+        let best = null;
+        let bestD = Infinity;
+        for (const e of state.enemies) {
+          const d = dist2(from, e);
+          if (d < bestD) {
+            bestD = d;
+            best = e;
+          }
+        }
+        for (const m of state.meteors) {
+          const d = dist2(from, m) * 1.15;
+          if (d < bestD) {
+            bestD = d;
+            best = m;
+          }
+        }
+        return best;
+      }
+
+      function spawnDirector(dt) {
+        state.spawnTimer -= dt;
+        state.meteorTimer -= dt;
+        state.riftTimer -= dt;
+        state.eliteTimer -= dt;
+        state.cacheTimer -= dt;
+        state.bossTimer -= dt;
+        state.surgeTimer -= dt;
+
+        if (state.spawnTimer <= 0) {
+          state.spawnTimer = clamp(1.05 - state.difficulty * 0.11, 0.16, 1.05);
+          const available = Math.max(0, enemyCap() - state.enemies.length);
+          const pack = Math.min(available, 1 + Math.floor(state.difficulty * 0.7) + (Math.random() < 0.28 ? 2 : 0));
+          for (let i = 0; i < pack; i++) spawnEnemy(false);
+        }
+
+        if (state.meteorTimer <= 0) {
+          state.meteorTimer = rand(2.2, 4.5);
+          spawnMeteorOffscreen(rand(28, 74));
+        }
+
+        if (state.riftTimer <= 0) {
+          state.riftTimer = rand(40, 56);
+          spawnRiftGate();
+        }
+
+        if (state.eliteTimer <= 0) {
+          state.eliteTimer = rand(17, 26);
+          spawnEnemy(true);
+          showToast("ELITE HORROR AWAKENS");
+        }
+
+        if (state.cacheTimer <= 0) {
+          state.cacheTimer = rand(26, 38);
+          spawnCache();
+          showToast("CURSED CACHE MANIFESTS");
+        }
+
+        if (state.surgeTimer <= 0) {
+          state.surgeTimer = rand(30, 42);
+          spawnBatStorm();
+        }
+
+        if (state.bossTimer <= 0 && !state.enemies.some(enemy => enemy.boss)) {
+          state.bossTimer = rand(82, 98);
+          spawnBoss();
+        }
+      }
+
+      function spawnEnemy(elite, forcedType = "") {
+        const boss = forcedType === "boss";
+        if (!boss && state.enemies.length >= enemyCap()) {
+          return null;
+        }
+
+        const edge = Math.floor(Math.random() * 4);
+        const margin = 60;
+        const pos = [
+          { x: rand(0, width), y: -margin },
+          { x: width + margin, y: rand(0, height) },
+          { x: rand(0, width), y: height + margin },
+          { x: -margin, y: rand(0, height) }
+        ][edge];
+        const typeRoll = Math.random();
+        const bat = forcedType === "bat" || (!boss && typeRoll < 0.42);
+        const cultist = forcedType === "cultist" || (!boss && !bat && typeRoll >= 0.58 && typeRoll <= 0.78);
+        const brute = forcedType === "brute" || (!boss && !bat && !cultist && typeRoll > 0.82);
+        const hp = boss
+          ? 620 + state.t * 8.5
+          : elite
+            ? 170 + state.t * 3.8
+            : brute
+              ? 72 + state.t * 0.78
+              : cultist
+                ? 42 + state.t * 0.46
+                : 29 + state.t * 0.36;
+
+        const enemy = {
+          x: pos.x,
+          y: pos.y,
+          vx: rand(-30, 30),
+          vy: rand(-30, 30),
+          r: boss ? 42 : elite ? 27 : brute ? 22 : bat ? 13 : cultist ? 16 : 17,
+          hp,
+          maxHp: hp,
+          speed: boss ? 58 : elite ? 80 : brute ? 62 : bat ? 132 : cultist ? 76 : 94,
+          damage: boss ? 34 : elite ? 24 : brute ? 18 : cultist ? 10 : 12,
+          xp: boss ? 52 : elite ? 14 : brute ? 5 : cultist ? 4 : 3,
+          gold: boss ? 48 : elite ? 12 : brute ? 4 : cultist ? 3 : 1,
+          elite: elite || boss,
+          boss,
+          name: boss ? bossNames[Math.floor(Math.random() * bossNames.length)] : "",
+          bat,
+          brute,
+          cultist,
+          shootCd: rand(0.7, boss ? 1.5 : 2.4),
+          hit: 0,
+          wobble: rand(0, TAU),
+          phase: 0
+        };
+
+        state.enemies.push(enemy);
+        return enemy;
+      }
+
+      function spawnBatStorm() {
+        const count = Math.min(8 + Math.floor(state.difficulty * 2.2), Math.max(0, enemyCap() - state.enemies.length));
+        for (let i = 0; i < count; i++) {
+          spawnEnemy(false, i % 5 === 0 ? "cultist" : "bat");
+        }
+        state.shake = Math.max(state.shake, 5);
+        showToast("BAT STORM");
+      }
+
+      function spawnBoss() {
+        const boss = spawnEnemy(false, "boss");
+        if (!boss) return;
+        showToast(`${boss.name.toUpperCase()} DESCENDS`);
+        state.shake = Math.max(state.shake, 10);
+        beep(92, 0.18, "sawtooth", 0.055);
+        beep(184, 0.22, "triangle", 0.035, 0.08);
+      }
+
+      function spawnMeteorOffscreen(size) {
+        const edge = Math.floor(Math.random() * 4);
+        const pos = [
+          { x: rand(0, width), y: -size },
+          { x: width + size, y: rand(0, height) },
+          { x: rand(0, width), y: height + size },
+          { x: -size, y: rand(0, height) }
+        ][edge];
+        spawnMeteor(pos.x, pos.y, size);
+      }
+
+      function spawnMeteor(x, y, size) {
+        if (state.meteors.length >= LIMITS.meteors) {
+          drop(x, y, "xp", Math.max(1, Math.floor(size / 18)), 1);
+          return null;
+        }
+
+        const sides = Math.floor(rand(8, 15));
+        const verts = [];
+        for (let i = 0; i < sides; i++) {
+          verts.push(rand(0.72, 1.22));
+        }
+        const meteor = {
+          x,
+          y,
+          vx: rand(-95, 95),
+          vy: rand(-95, 95),
+          r: size,
+          hp: size * 1.9,
+          maxHp: size * 1.9,
+          spin: rand(-1.4, 1.4),
+          angle: rand(0, TAU),
+          verts,
+          damage: Math.round(size / 3),
+          xp: Math.max(2, Math.floor(size / 14)),
+          gold: Math.floor(size / 18),
+          hit: 0
+        };
+
+        state.meteors.push(meteor);
+        return meteor;
+      }
+
+      function updateEnemies(dt) {
+        const p = state.player;
+        for (let i = state.enemies.length - 1; i >= 0; i--) {
+          const e = state.enemies[i];
+          e.hit = Math.max(0, e.hit - dt * 5);
+          e.wobble += dt * (e.bat ? 7 : e.boss ? 1.4 : 2);
+          e.shootCd -= dt;
+
+          if (e.boss && e.phase === 0 && e.hp / e.maxHp <= 0.55) {
+            e.phase = 1;
+            e.speed *= 1.22;
+            e.damage += 8;
+            e.shootCd = 0.08;
+            radialEnemyBurst(e, 18, 235);
+            spawnEnemy(false, "bat");
+            spawnEnemy(false, "bat");
+            state.shake = Math.max(state.shake, 11);
+            showToast(`${e.name.toUpperCase()} ENRAGES`);
+          }
+
+          const a = angleTo(e, p);
+          const { dx, dy } = vectorTo(e, p);
+          const distance = Math.hypot(dx, dy);
+          const wob = e.bat ? Math.sin(e.wobble) * 0.9 : e.boss ? Math.sin(e.wobble) * 0.24 : 0;
+          const keepAway = e.cultist && distance < 285 ? -0.42 : 1;
+          const bossBrake = e.boss && distance < 210 ? 0.35 : 1;
+
+          e.vx += Math.cos(a + wob) * e.speed * keepAway * bossBrake * dt;
+          e.vy += Math.sin(a + wob) * e.speed * keepAway * bossBrake * dt;
+
+          if ((e.cultist || e.boss) && distance < (e.boss ? 640 : 520) && e.shootCd <= 0) {
+            fireEnemyShot(e, e.boss ? 3 : 1);
+            e.shootCd = rand(e.boss ? 1.05 : 1.8, e.boss ? 1.55 : 2.8) / Math.min(2.35, state.difficulty);
+          }
+
+          const cap = e.speed * (e.boss ? 1.35 : e.elite ? 1.55 : e.bat ? 1.35 : e.cultist ? 1.12 : 1.08);
+          const s = Math.hypot(e.vx, e.vy);
+          if (s > cap) {
+            e.vx = (e.vx / s) * cap;
+            e.vy = (e.vy / s) * cap;
+          }
+          e.vx *= Math.pow(e.cultist ? 0.978 : 0.984, dt * 60);
+          e.vy *= Math.pow(e.cultist ? 0.978 : 0.984, dt * 60);
+          e.x += e.vx * dt;
+          e.y += e.vy * dt;
+          wrap(e);
+
+          if (circleHit(p, e) && p.invuln <= 0) {
+            hurtPlayer(e.damage);
+            const knock = angleTo(e, p);
+            p.vx += Math.cos(knock) * (e.boss ? 430 : 300);
+            p.vy += Math.sin(knock) * (e.boss ? 430 : 300);
+          }
+
+          if (e.hp <= 0) {
+            killEnemy(e, i);
+          }
+        }
+      }
+
+      function fireEnemyShot(enemy, count) {
+        const p = state.player;
+        const base = angleTo(enemy, p);
+        const spread = count > 1 ? 0.22 : 0;
+        for (let i = 0; i < count; i++) {
+          const offset = count === 1 ? 0 : (i - (count - 1) / 2) * spread;
+          const a = base + offset + rand(-0.045, 0.045);
+          const speed = enemy.boss ? 285 : 245;
+          state.enemyShots.push({
+            x: enemy.x + Math.cos(a) * (enemy.r + 8),
+            y: enemy.y + Math.sin(a) * (enemy.r + 8),
+            vx: Math.cos(a) * speed + enemy.vx * 0.12,
+            vy: Math.sin(a) * speed + enemy.vy * 0.12,
+            r: enemy.boss ? 7 : 5,
+            damage: enemy.boss ? 16 : 11,
+            life: enemy.boss ? 3.2 : 2.6,
+            hue: enemy.boss ? "#ffc857" : "#9c5cff"
+          });
+        }
+        beep(enemy.boss ? 140 : 180, 0.035, "sawtooth", enemy.boss ? 0.026 : 0.018);
+      }
+
+      function radialEnemyBurst(enemy, count, speed = 220) {
+        for (let i = 0; i < count; i++) {
+          const a = (i / count) * TAU + rand(-0.035, 0.035);
+          state.enemyShots.push({
+            x: enemy.x + Math.cos(a) * (enemy.r + 10),
+            y: enemy.y + Math.sin(a) * (enemy.r + 10),
+            vx: Math.cos(a) * speed + enemy.vx * 0.08,
+            vy: Math.sin(a) * speed + enemy.vy * 0.08,
+            r: enemy.boss ? 6 : 4.5,
+            damage: enemy.boss ? 14 : 9,
+            life: 2.8,
+            hue: enemy.boss ? "#ffc857" : "#9c5cff"
+          });
+        }
+        beep(110, 0.08, "sawtooth", 0.035);
+      }
+
+      function updateEnemyShots(dt) {
+        const p = state.player;
+        for (let i = state.enemyShots.length - 1; i >= 0; i--) {
+          const s = state.enemyShots[i];
+          s.life -= dt;
+          s.x += s.vx * dt;
+          s.y += s.vy * dt;
+          wrap(s);
+
+          if (circleHit(s, p)) {
+            if (p.invuln > 0) {
+              state.enemyShots.splice(i, 1);
+              gainHeat(4, s.x, s.y);
+              boom(s.x, s.y, "#5ef6ff", 5);
+              floatingText("PARRY", s.x, s.y, "#5ef6ff");
+              beep(760, 0.035, "triangle", 0.018);
+              continue;
+            }
+
+            hurtPlayer(s.damage);
+            state.enemyShots.splice(i, 1);
+            continue;
+          }
+
+          if (s.life <= 0) {
+            state.enemyShots.splice(i, 1);
+          }
+        }
+      }
+
+      function updateMeteors(dt) {
+        const p = state.player;
+        for (let i = state.meteors.length - 1; i >= 0; i--) {
+          const m = state.meteors[i];
+          m.hit = Math.max(0, m.hit - dt * 5);
+          m.angle += m.spin * dt;
+          m.x += m.vx * dt;
+          m.y += m.vy * dt;
+          wrap(m);
+
+          if (circleHit(p, m) && p.invuln <= 0) {
+            hurtPlayer(m.damage);
+            const a = angleTo(m, p);
+            p.vx += Math.cos(a) * 360;
+            p.vy += Math.sin(a) * 360;
+          }
+
+          if (m.hp <= 0) {
+            breakMeteor(m, i);
+          }
+        }
+      }
+
+      function updateShots(dt) {
+        for (let i = state.shots.length - 1; i >= 0; i--) {
+          const s = state.shots[i];
+          s.life -= dt;
+          s.x += s.vx * dt;
+          s.y += s.vy * dt;
+          wrap(s);
+          let spent = false;
+          if (!s.hits) s.hits = new Set();
+
+          for (let j = state.enemyShots.length - 1; j >= 0 && !spent; j--) {
+            const hostile = state.enemyShots[j];
+            if (circleHit(s, hostile)) {
+              state.enemyShots.splice(j, 1);
+              gainHeat(s.kind === "lance" ? 2 : 1, hostile.x, hostile.y);
+              boom(hostile.x, hostile.y, s.hue, s.kind === "lance" ? 6 : 3);
+              s.pierce -= 1;
+              spent = s.kind !== "lance" && s.pierce < 0;
+            }
+          }
+
+          for (let j = state.enemies.length - 1; j >= 0 && !spent; j--) {
+            const e = state.enemies[j];
+            if (!s.hits.has(e) && circleHit(s, e)) {
+              s.hits.add(e);
+              damageEnemy(e, s.damage);
+              if (s.chainable && state.player.chain > 0) {
+                chainLightning(e, s.damage * 0.42 + state.player.chainDamage, state.player.chain);
+              }
+              s.pierce -= 1;
+              spent = s.pierce < 0;
+              if (state.enemies[j] === e && e.hp <= 0) killEnemy(e, j);
+            }
+          }
+
+          for (let j = state.meteors.length - 1; j >= 0 && !spent; j--) {
+            const m = state.meteors[j];
+            if (!s.hits.has(m) && circleHit(s, m)) {
+              s.hits.add(m);
+              damageMeteor(m, s.damage);
+              if (s.chainable && state.player.chain > 0) {
+                chainLightning(m, s.damage * 0.36 + state.player.chainDamage, state.player.chain);
+              }
+              s.pierce -= 1;
+              spent = s.pierce < 0;
+              if (state.meteors[j] === m && m.hp <= 0) breakMeteor(m, j);
+            }
+          }
+
+          if (s.life <= 0 || spent) {
+            state.shots.splice(i, 1);
+          }
+        }
+      }
+
+      function updatePickups(dt) {
+        const p = state.player;
+        for (let i = state.pickups.length - 1; i >= 0; i--) {
+          const item = state.pickups[i];
+          item.life -= dt;
+          item.pulse += dt * (item.kind === "cache" ? 5.2 : item.kind === "rift" ? 6.4 : 4.1);
+          wrap(item);
+
+          const collectDistance = Math.sqrt(dist2(item, p));
+          const collectRange = p.r + item.r + (item.kind === "cache" ? 18 : item.kind === "rift" ? 34 : 26);
+          if (collectDistance <= collectRange) {
+            state.pickups.splice(i, 1);
+            if (item.kind === "cache") {
+              openCache(item);
+            } else if (item.kind === "rift") {
+              sealRiftGate(item);
+            } else {
+              drinkFountain(item);
+            }
+            continue;
+          }
+
+          if (item.life <= 0) {
+            state.pickups.splice(i, 1);
+            boom(item.x, item.y, item.kind === "cache" ? "#ffc857" : item.kind === "rift" ? "#5ef6ff" : "#67ff9d", 10);
+          }
+        }
+      }
+
+      function updateArcs(dt) {
+        for (let i = state.arcs.length - 1; i >= 0; i--) {
+          state.arcs[i].life -= dt;
+          if (state.arcs[i].life <= 0) state.arcs.splice(i, 1);
+        }
+      }
+
+      function updateOrbitals(dt) {
+        const p = state.player;
+        const count = p.orbitals;
+        const radius = 58 + Math.min(80, count * 8);
+
+        for (let i = 0; i < count; i++) {
+          const a = p.orbitalAngle + (i / count) * TAU;
+          const orb = {
+            x: p.x + Math.cos(a) * radius,
+            y: p.y + Math.sin(a) * radius,
+            r: p.orbitalSize
+          };
+
+          for (const e of state.enemies) {
+            if (circleHit(orb, e)) {
+              damageEnemy(e, p.orbitalDamage * dt * 5.8, true);
+            }
+          }
+
+          for (const m of state.meteors) {
+            if (circleHit(orb, m)) {
+              damageMeteor(m, p.orbitalDamage * dt * 3.2, true);
+            }
+          }
+        }
+      }
+
+      function updateOrbs(dt) {
+        const p = state.player;
+        for (let i = state.orbs.length - 1; i >= 0; i--) {
+          const o = state.orbs[i];
+          o.life -= dt;
+          const pullVec = vectorTo(o, p);
+          const d = Math.hypot(pullVec.dx, pullVec.dy) || 1;
+
+          if (d < p.pickup) {
+            const pull = (1 - d / p.pickup) * 1300;
+            o.vx += (pullVec.dx / d) * pull * dt;
+            o.vy += (pullVec.dy / d) * pull * dt;
+          }
+
+          o.vx *= Math.pow(0.965, dt * 60);
+          o.vy *= Math.pow(0.965, dt * 60);
+          o.x += o.vx * dt;
+          o.y += o.vy * dt;
+          wrap(o);
+
+          const collectDistance = Math.sqrt(dist2(o, p));
+          if (collectDistance < p.r + o.r + 4) {
+            if (o.kind === "xp") addXp(o.value);
+            if (o.kind === "gold") {
+              const gain = Math.max(1, Math.round(o.value * p.goldMult));
+              state.gold += gain;
+              if (p.goldHeal) p.hp = Math.min(p.maxHp, p.hp + p.goldHeal);
+              floatingText(`+${gain}g`, o.x, o.y, "#ffc857");
+              beep(520 + Math.random() * 80, 0.025, "triangle", 0.016);
+            }
+            if (o.kind === "heart") {
+              p.hp = Math.min(p.maxHp, p.hp + o.value);
+              floatingText(`+${o.value}`, o.x, o.y, "#67ff9d");
+              beep(610, 0.035, "sine", 0.018);
+            }
+            state.orbs.splice(i, 1);
+          } else if (o.life <= 0) {
+            state.orbs.splice(i, 1);
+          }
+        }
+      }
+
+      function updateParticles(dt) {
+        for (let i = state.particles.length - 1; i >= 0; i--) {
+          const p = state.particles[i];
+          p.life -= dt;
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.vx *= Math.pow(0.96, dt * 60);
+          p.vy *= Math.pow(0.96, dt * 60);
+          p.r *= Math.pow(0.985, dt * 60);
+          if (p.life <= 0 || p.r < 0.2) state.particles.splice(i, 1);
+        }
+      }
+
+      function updateTexts(dt) {
+        for (let i = state.texts.length - 1; i >= 0; i--) {
+          const t = state.texts[i];
+          t.life -= dt;
+          t.y -= dt * 34;
+          if (t.life <= 0) state.texts.splice(i, 1);
+        }
+      }
+
+      function updatePowers(dt) {
+        const p = state.player;
+        state.bloodfrenzy = Math.max(0, state.bloodfrenzy - dt);
+        state.blessingTimer = Math.max(0, state.blessingTimer - dt);
+
+        if (state.blessingTimer > 0 && p.hp < p.maxHp) {
+          p.hp = Math.min(p.maxHp, p.hp + (1.2 + p.regen * 0.5) * dt);
+        }
+
+        if (state.bloodfrenzy > 0 && p.hp < p.maxHp) {
+          p.hp = Math.min(p.maxHp, p.hp + 0.7 * dt);
+        }
+
+        if (p.regen > 0 && p.hp < p.maxHp) {
+          p.hp = Math.min(p.maxHp, p.hp + p.regen * dt);
+        }
+
+        if (p.doomBell > 0) {
+          p.doomCd -= dt;
+          if (p.doomCd <= 0) {
+            p.doomCd = Math.max(2.85, 7.4 - p.doomBell * 0.72);
+            const radius = 150 + p.doomBell * 34;
+            areaDamage(p.x, p.y, radius, 20 + p.damage * 0.58 + p.doomBell * 4, "#9c5cff");
+            state.shake = Math.max(state.shake, 8);
+            floatingText("DOOM BELL", p.x, p.y - 52, "#9c5cff");
+            beep(120, 0.16, "sawtooth", 0.045);
+          }
+        }
+      }
+
+      function damageEnemy(e, amount, quiet = false) {
+        e.hp -= amount;
+        e.hit = 1;
+        if (!quiet) {
+          blood(e.x, e.y, e.elite ? "#ffc857" : "#e33a5d", 5);
+          state.shake = Math.max(state.shake, e.elite ? 4 : 2);
+        }
+      }
+
+      function damageMeteor(m, amount, quiet = false) {
+        m.hp -= amount;
+        m.hit = 1;
+        if (!quiet) {
+          blood(m.x, m.y, "#cbb7aa", 4);
+          state.shake = Math.max(state.shake, 1.5);
+        }
+      }
+
+      function killEnemy(e, index) {
+        const p = state.player;
+        state.enemies.splice(index, 1);
+        state.kills += 1;
+        state.combo += 1;
+        state.comboTimer = 2.4;
+
+        gainHeat(e.boss ? 48 : e.elite ? 18 : 4 + Math.min(9, state.combo * 0.16), e.x, e.y);
+
+        const comboBonus = Math.min(2.2, 1 + state.combo * 0.018);
+        drop(e.x, e.y, "xp", e.xp * comboBonus, e.boss ? 12 : e.elite ? 5 : 2);
+        if (Math.random() < 0.45 || e.elite || e.boss) {
+          drop(e.x, e.y, "gold", e.gold, e.boss ? 9 : e.elite ? 5 : 1);
+        }
+
+        if (p.soulLeech) {
+          const heal = (e.boss ? 12 : e.elite ? 5 : 1.2) * p.soulLeech;
+          p.hp = Math.min(p.maxHp, p.hp + heal);
+        }
+
+        if (e.boss) {
+          spawnCache(e.x, e.y, true);
+          spawnFountain(e.x + rand(-28, 28), e.y + rand(-28, 28));
+          showToast(`${e.name.toUpperCase()} SLAIN`);
+        } else if (e.elite && Math.random() < 0.55) {
+          spawnCache(e.x, e.y, true);
+        }
+
+        if (p.corpseNova > 0) {
+          const radius = 62 + p.corpseNova * 22 + (e.elite ? 32 : 0) + (e.boss ? 70 : 0);
+          areaDamage(e.x, e.y, radius, 11 + p.damage * 0.34 + p.corpseNova * 6, e.elite ? "#ffc857" : "#e33a5d");
+        }
+
+        if (state.combo === 10 || state.combo % 25 === 0) {
+          showToast(`BLOOD COMBO x${state.combo}`);
+          p.hp = Math.min(p.maxHp, p.hp + 4);
+        }
+
+        boom(e.x, e.y, e.boss ? "#ffc857" : e.elite ? "#ffc857" : "#e33a5d", e.boss ? 46 : e.elite ? 28 : 12);
+        floatingText(e.boss ? e.name.toUpperCase() : e.elite ? "ELITE SLAIN" : `x${Math.max(1, state.combo)}`, e.x, e.y, e.elite ? "#ffc857" : "#f7e9ff");
+        beep(e.boss ? 90 : e.elite ? 150 : 120, e.boss ? 0.08 : 0.04, "sawtooth", e.boss ? 0.04 : 0.026);
+      }
+
+      function breakMeteor(m, index) {
+        state.meteors.splice(index, 1);
+        if (m.r >= 34) gainHeat(3, m.x, m.y);
+        drop(m.x, m.y, "xp", m.xp, 2);
+        if (m.gold > 0) drop(m.x, m.y, "gold", m.gold, 1);
+        if (Math.random() < 0.08) drop(m.x, m.y, "heart", 8 + Math.floor(m.r / 9), 1);
+        boom(m.x, m.y, "#cbb7aa", Math.floor(m.r / 2));
+        state.shake = Math.max(state.shake, clamp(m.r / 7, 2, 8));
+        beep(95, 0.04, "triangle", 0.024);
+
+        if (m.r > 28) {
+          const pieces = Math.random() < 0.5 ? 2 : 3;
+          for (let i = 0; i < pieces; i++) {
+            const child = m.r * rand(0.42, 0.58);
+            const spawned = spawnMeteor(m.x + rand(-8, 8), m.y + rand(-8, 8), child);
+            if (!spawned) {
+              continue;
+            }
+            const a = rand(0, TAU);
+            spawned.vx = Math.cos(a) * rand(80, 180) + m.vx * 0.35;
+            spawned.vy = Math.sin(a) * rand(80, 180) + m.vy * 0.35;
+          }
+        }
+      }
+
+      function hurtPlayer(amount) {
+        const p = state.player;
+        if (!running) return;
+        const mitigated = Math.max(1, amount * (1 - clamp(p.armor, 0, 0.55)));
+        p.hp = Math.max(0, p.hp - mitigated);
+        p.invuln = 0.78;
+        state.flash = 1;
+        state.shake = Math.max(state.shake, 12);
+        boom(p.x, p.y, "#e33a5d", 18);
+        floatingText(`-${Math.round(mitigated)}`, p.x, p.y - 18, "#ff7893");
+        beep(70, 0.12, "sawtooth", 0.05);
+        if (p.hp <= 0) gameOver();
+      }
+
+      function addXp(value) {
+        state.xp += value;
+        beep(700 + Math.random() * 140, 0.018, "sine", 0.012);
+        while (state.xp >= state.xpNeed) {
+          state.xp -= state.xpNeed;
+          state.level += 1;
+          state.xpNeed = Math.floor(state.xpNeed * 1.28 + 7);
+          levelUp("LEVEL UP", true);
+        }
+      }
+
+      function levelUp(title = "LEVEL UP", heal = true, optionCount = 3) {
+        state.choiceQueue.push({ title, heal, optionCount });
+        openNextRelicChoice();
+      }
+
+      function openNextRelicChoice() {
+        if (!running || !levelUpModal.classList.contains("hidden") || state.choiceQueue.length === 0) return;
+
+        const choice = state.choiceQueue.shift();
+        paused = true;
+        showToast(choice.title);
+        choicesTitle.textContent = choice.title === "LEVEL UP" ? "Choose a Relic" : choice.title;
+        if (choice.heal) {
+          state.player.hp = Math.min(state.player.maxHp, state.player.hp + 12);
+        }
+
+        const options = shuffle([...relics]).slice(0, choice.optionCount || 3);
+        choicesEl.innerHTML = "";
+        for (const relic of options) {
+          const btn = document.createElement("button");
+          btn.className = "choice";
+          btn.type = "button";
+          btn.innerHTML = `<em>${relic.rarity}</em><strong>${relic.name}</strong><span>${relic.text}</span>`;
+          btn.addEventListener("click", () => {
+            relic.apply(state.player);
+            recordRelic(relic.name);
+            levelUpModal.classList.add("hidden");
+            floatingText(relic.name, state.player.x, state.player.y - 42, "#ffc857");
+            beep(360, 0.08, "triangle", 0.04);
+            beep(720, 0.14, "sine", 0.025, 0.07);
+
+            if (state.choiceQueue.length > 0) {
+              setTimeout(openNextRelicChoice, 0);
+            } else {
+              paused = false;
+            }
+          });
+          choicesEl.appendChild(btn);
+        }
+        levelUpModal.classList.remove("hidden");
+      }
+
+      function recordRelic(name) {
+        state.relicNames.push(name);
+        updateRelicRack();
+      }
+
+      function updateRelicRack() {
+        relicsEl.textContent = "";
+        if (state.relicNames.length === 0) {
+          relicsEl.textContent = "None yet";
+          return;
+        }
+
+        for (const name of state.relicNames.slice(-8)) {
+          const chip = document.createElement("span");
+          chip.className = "relic-chip";
+          chip.textContent = name;
+          relicsEl.appendChild(chip);
+        }
+      }
+
+      function enemyCap() {
+        return Math.min(LIMITS.enemies, 58 + Math.floor(state.difficulty * 9) + (state.player?.riftBonus || 0) * 4);
+      }
+
+      function pushLimited(array, item, limit) {
+        if (array.length >= limit) {
+          array.splice(0, array.length - limit + 1);
+        }
+        array.push(item);
+        return item;
+      }
+
+      function pushShot(shot) {
+        return pushLimited(state.shots, shot, LIMITS.shots);
+      }
+
+      function pushEnemyShot(shot) {
+        return pushLimited(state.enemyShots, shot, LIMITS.enemyShots);
+      }
+
+      function pushArc(arc) {
+        return pushLimited(state.arcs, arc, LIMITS.arcs);
+      }
+
+      function pushParticle(particle) {
+        return pushLimited(state.particles, particle, LIMITS.particles);
+      }
+
+      function pushText(text) {
+        return pushLimited(state.texts, text, LIMITS.texts);
+      }
+
+      function pushPickup(pickup) {
+        return pushLimited(state.pickups, pickup, LIMITS.pickups);
+      }
+
+      function pushOrb(orb) {
+        state.orbs.push(orb);
+        if (state.orbs.length > LIMITS.orbs) {
+          const overflow = state.orbs.splice(0, state.orbs.length - LIMITS.orbs);
+          for (const oldOrb of overflow) {
+            awardOrb(oldOrb, true);
+          }
+        }
+        return orb;
+      }
+
+      function awardOrb(o, quiet = false) {
+        const p = state.player;
+        if (!p) return;
+
+        if (o.kind === "xp") {
+          addXp(o.value, quiet);
+        }
+
+        if (o.kind === "gold") {
+          const gain = Math.max(1, Math.round(o.value * p.goldMult));
+          state.gold += gain;
+          if (p.goldHeal) p.hp = Math.min(p.maxHp, p.hp + p.goldHeal);
+          if (!quiet) {
+            floatingText(`+${gain}g`, o.x, o.y, "#ffc857");
+            beep(520 + Math.random() * 80, 0.025, "triangle", 0.016);
+          }
+        }
+
+        if (o.kind === "heart") {
+          p.hp = Math.min(p.maxHp, p.hp + o.value);
+          if (!quiet) {
+            floatingText(`+${o.value}`, o.x, o.y, "#67ff9d");
+            beep(610, 0.035, "sine", 0.018);
+          }
+        }
+      }
+
+      function wrapScalar(value, max) {
+        if (max <= 0) return 0;
+        const wrapped = value % max;
+        return wrapped < 0 ? wrapped + max : wrapped;
+      }
+
+      function spatialKey(cx, cy) {
+        return `${cx},${cy}`;
+      }
+
+      function insertSpatial(map, obj) {
+        const cx = Math.floor(wrapScalar(obj.x, width) / SPATIAL_CELL) % spatial.cols;
+        const cy = Math.floor(wrapScalar(obj.y, height) / SPATIAL_CELL) % spatial.rows;
+        const key = spatialKey(cx, cy);
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(obj);
+      }
+
+      function rebuildSpatial() {
+        spatial.cols = Math.max(1, Math.ceil(width / SPATIAL_CELL));
+        spatial.rows = Math.max(1, Math.ceil(height / SPATIAL_CELL));
+        spatial.enemies.clear();
+        spatial.meteors.clear();
+        spatial.enemyShots.clear();
+
+        for (const e of state.enemies) {
+          if (e.hp > 0) insertSpatial(spatial.enemies, e);
+        }
+        for (const m of state.meteors) {
+          if (m.hp > 0) insertSpatial(spatial.meteors, m);
+        }
+        for (const s of state.enemyShots) {
+          insertSpatial(spatial.enemyShots, s);
+        }
+      }
+
+      function querySpatial(map, x, y, radius) {
+        if (width <= 0 || height <= 0) return [];
+        const cx = Math.floor(wrapScalar(x, width) / SPATIAL_CELL) % spatial.cols;
+        const cy = Math.floor(wrapScalar(y, height) / SPATIAL_CELL) % spatial.rows;
+        const spread = Math.max(1, Math.ceil(radius / SPATIAL_CELL));
+        const result = [];
+        const seen = new Set();
+
+        for (let yy = -spread; yy <= spread; yy++) {
+          for (let xx = -spread; xx <= spread; xx++) {
+            const key = spatialKey((cx + xx + spatial.cols) % spatial.cols, (cy + yy + spatial.rows) % spatial.rows);
+            const bucket = map.get(key);
+            if (!bucket) continue;
+            for (const obj of bucket) {
+              if (!seen.has(obj)) {
+                seen.add(obj);
+                result.push(obj);
+              }
+            }
+          }
+        }
+
+        return result;
+      }
+
+      function drop(x, y, kind, value, count) {
+        for (let i = 0; i < count; i++) {
+          const a = rand(0, TAU);
+          const speed = rand(40, 180);
+          pushOrb({
+            x: x + rand(-8, 8),
+            y: y + rand(-8, 8),
+            vx: Math.cos(a) * speed,
+            vy: Math.sin(a) * speed,
+            r: kind === "xp" ? 5 : kind === "heart" ? 6 : 4,
+            kind,
+            value: Math.max(1, Math.round(value / count)),
+            life: 16
+          });
+        }
+      }
+
+      function circleHit(a, b) {
+        const rr = (a.r + b.r) * (a.r + b.r);
+        return dist2(a, b) <= rr;
+      }
+
+      function wrap(o) {
+        const pad = o.r || 0;
+        if (o.x < -pad) o.x = width + pad;
+        if (o.x > width + pad) o.x = -pad;
+        if (o.y < -pad) o.y = height + pad;
+        if (o.y > height + pad) o.y = -pad;
+      }
+
+      function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      function randomSafePoint(minDistance) {
+        const fallback = { x: width / 2, y: height / 2 };
+        for (let tries = 0; tries < 60; tries++) {
+          const point = {
+            x: width <= 90 ? width / 2 : rand(45, width - 45),
+            y: height <= 90 ? height / 2 : rand(45, height - 45),
+            r: 0
+          };
+          if (!state.player || dist2(point, state.player) > minDistance * minDistance) {
+            return point;
+          }
+        }
+        return fallback;
+      }
+
+      function spawnCache(x, y, rare = false) {
+        const point = typeof x === "number" && typeof y === "number" ? { x, y } : randomSafePoint(240);
+        pushPickup({
+          kind: "cache",
+          x: point.x,
+          y: point.y,
+          r: rare ? 25 : 21,
+          pulse: rand(0, TAU),
+          life: rare ? 46 : 34,
+          rare
+        });
+      }
+
+      function spawnFountain(x, y) {
+        const point = typeof x === "number" && typeof y === "number" ? { x, y } : randomSafePoint(220);
+        pushPickup({
+          kind: "fountain",
+          x: point.x,
+          y: point.y,
+          r: 23,
+          pulse: rand(0, TAU),
+          life: 28,
+          rare: false
+        });
+      }
+
+      function spawnRiftGate() {
+        const point = randomSafePoint(260);
+        pushPickup({
+          kind: "rift",
+          x: point.x,
+          y: point.y,
+          r: 28,
+          pulse: rand(0, TAU),
+          life: 38,
+          rare: false
+        });
+        showToast("RIFT GATE OPENS");
+      }
+
+      function sealRiftGate(rift) {
+        const p = state.player;
+        const bonus = p.riftBonus || 0;
+        const heat = 26 + bonus * 9;
+        const gold = Math.round((10 + state.difficulty * 2.4 + bonus * 7) * p.goldMult);
+        state.gold += gold;
+        p.dash = 1;
+        p.invuln = Math.max(p.invuln, 0.72);
+
+        gainHeat(heat, rift.x, rift.y);
+        drop(rift.x, rift.y, "xp", 8 + state.difficulty * 2 + bonus * 4, 4 + bonus);
+        drop(rift.x, rift.y, "gold", gold, 3 + bonus);
+        areaDamage(rift.x, rift.y, 170 + bonus * 28, 21 + p.damage * 0.52 + bonus * 6, "#5ef6ff");
+
+        const wave = Math.min(Math.max(0, enemyCap() - state.enemies.length), 4 + Math.floor(state.difficulty * 0.65) + bonus);
+        for (let i = 0; i < wave; i++) {
+          spawnEnemy(i === 0 && bonus > 0, i % 4 === 0 ? "brute" : i % 3 === 0 ? "cultist" : "bat");
+        }
+
+        if (Math.random() < 0.35 + bonus * 0.18) {
+          spawnFountain(rift.x + rand(-36, 36), rift.y + rand(-36, 36));
+        }
+
+        if (Math.random() < 0.55 + bonus * 0.12) {
+          levelUp("RIFT SPOILS", false, bonus > 0 ? 4 : 3);
+        }
+
+        floatingText(`RIFT SEALED +${gold}g`, rift.x, rift.y - 24, "#5ef6ff");
+        showToast("RIFT SEALED");
+        beep(720, 0.08, "triangle", 0.035);
+      }
+
+      function openCache(cache) {
+        const p = state.player;
+        const luck = p.cacheLuck || 0;
+        const gold = Math.round((cache.rare ? 18 : 9) + state.difficulty * 2 + luck * 5);
+        state.gold += Math.max(1, Math.round(gold * p.goldMult));
+        drop(cache.x, cache.y, "gold", gold, cache.rare ? 5 + luck : 3 + luck);
+        gainHeat(cache.rare ? 30 + luck * 8 : 18 + luck * 6, cache.x, cache.y);
+        p.invuln = Math.max(p.invuln, 0.55);
+        areaDamage(cache.x, cache.y, 130 + luck * 18, 18 + p.damage * 0.42 + luck * 4, cache.rare ? "#ffc857" : "#9c5cff");
+
+        const ambush = Math.min(9, 2 + Math.floor(state.difficulty * 0.8) + luck + (cache.rare ? 2 : 0));
+        for (let i = 0; i < ambush && state.enemies.length < enemyCap(); i++) {
+          spawnEnemy(i === 0 && (cache.rare || luck > 1), i % 4 === 0 ? "cultist" : "bat");
+        }
+
+        showToast(cache.rare ? "BOSS CACHE CRACKED" : "CURSED CACHE CRACKED");
+        levelUp(cache.rare ? "BOSS CACHE" : "CURSED CACHE", false, cache.rare ? 4 : 3);
+        beep(250, 0.09, "triangle", 0.04);
+        beep(500, 0.11, "sine", 0.025, 0.06);
+      }
+
+      function drinkFountain(fountain) {
+        const p = state.player;
+        const heal = Math.round(30 + p.maxHp * 0.18);
+        p.hp = Math.min(p.maxHp, p.hp + heal);
+        p.dash = 1;
+        p.invuln = Math.max(p.invuln, 0.9);
+        state.blessingTimer = Math.max(state.blessingTimer, 7.5);
+        areaDamage(fountain.x, fountain.y, 165, 20 + p.damage * 0.45, "#67ff9d");
+        boom(fountain.x, fountain.y, "#67ff9d", 28);
+        floatingText(`+${heal} BLESSING`, fountain.x, fountain.y - 22, "#67ff9d");
+        showToast("BLOOD FOUNTAIN BLESSING");
+        beep(620, 0.08, "sine", 0.035);
+        beep(930, 0.16, "triangle", 0.02, 0.06);
+      }
+
+      function gainHeat(amount, x = state.player.x, y = state.player.y) {
+        if (!running || amount <= 0) return;
+
+        if (state.bloodfrenzy > 0) {
+          state.heat = clamp(state.heat + amount * 0.28, 0, state.heatMax - 1);
+          return;
+        }
+
+        state.heat = clamp(state.heat + amount, 0, state.heatMax);
+        if (state.heat >= state.heatMax) {
+          triggerBloodfrenzy(x, y);
+        }
+      }
+
+      function triggerBloodfrenzy(x, y) {
+        const p = state.player;
+        state.heat = 0;
+        state.bloodfrenzy = Math.max(state.bloodfrenzy, 6.2 + p.frenzyBonus * 1.3);
+        p.dash = 1;
+        p.invuln = Math.max(p.invuln, 0.85);
+        areaDamage(p.x, p.y, 190 + p.frenzyBonus * 34, 24 + p.damage * 0.78 + p.frenzyBonus * 6, "#ffc857");
+        boom(x, y, "#ffc857", 34);
+        floatingText("BLOODFRENZY", p.x, p.y - 58, "#ffc857");
+        showToast("BLOODFRENZY");
+        beep(180, 0.13, "sawtooth", 0.055);
+        beep(540, 0.16, "triangle", 0.035, 0.07);
+      }
+
+      function areaDamage(x, y, radius, amount, color) {
+        const source = { x, y, r: 0 };
+        const rr = radius * radius;
+
+        for (let i = state.enemies.length - 1; i >= 0; i--) {
+          const e = state.enemies[i];
+          if (dist2(source, e) <= rr) {
+            damageEnemy(e, amount, false);
+            if (e.hp <= 0) killEnemy(e, i);
+          }
+        }
+
+        for (let i = state.meteors.length - 1; i >= 0; i--) {
+          const m = state.meteors[i];
+          if (dist2(source, m) <= rr) {
+            damageMeteor(m, amount * 0.72, false);
+            if (m.hp <= 0) breakMeteor(m, i);
+          }
+        }
+
+        pushArc({
+          x1: x - radius * 0.55,
+          y1: y,
+          x2: x + radius * 0.55,
+          y2: y,
+          life: 0.16,
+          color
+        });
+        boom(x, y, color, Math.floor(radius / 12));
+      }
+
+      function chainLightning(source, amount, jumps) {
+        const hit = new Set([source]);
+        let current = source;
+        let damage = amount;
+
+        for (let jump = 0; jump < jumps; jump++) {
+          const target = nearestDamageable(current, state.player.chainRange, hit);
+          if (!target) break;
+
+          pushArc({
+            x1: current.x,
+            y1: current.y,
+            x2: target.obj.x,
+            y2: target.obj.y,
+            life: 0.18,
+            color: "#9c5cff"
+          });
+
+          if (target.kind === "enemy") {
+            damageEnemy(target.obj, damage, false);
+            if (target.obj.hp <= 0) killEnemy(target.obj, target.index);
+          } else {
+            damageMeteor(target.obj, damage * 0.82, false);
+            if (target.obj.hp <= 0) breakMeteor(target.obj, target.index);
+          }
+
+          hit.add(target.obj);
+          current = target.obj;
+          damage *= 0.78;
+        }
+      }
+
+      function nearestDamageable(from, range, ignored) {
+        const rr = range * range;
+        let best = null;
+        let bestD = rr;
+
+        for (const e of querySpatial(spatial.enemies, from.x, from.y, range)) {
+          if (ignored.has(e) || e.hp <= 0) continue;
+          const d = dist2(from, e);
+          if (d < bestD) {
+            const index = state.enemies.indexOf(e);
+            if (index === -1) continue;
+            bestD = d;
+            best = { obj: e, kind: "enemy", index };
+          }
+        }
+
+        for (const m of querySpatial(spatial.meteors, from.x, from.y, range)) {
+          if (ignored.has(m) || m.hp <= 0) continue;
+          const d = dist2(from, m);
+          if (d < bestD) {
+            const index = state.meteors.indexOf(m);
+            if (index === -1) continue;
+            bestD = d;
+            best = { obj: m, kind: "meteor", index };
+          }
+        }
+
+        return best;
+      }
+
+      function showToast(text) {
+        toast.textContent = text;
+        toast.classList.add("show");
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => toast.classList.remove("show"), 900);
+      }
+
+      function blood(x, y, color, count) {
+        for (let i = 0; i < count; i++) {
+          const a = rand(0, TAU);
+          const speed = rand(40, 260);
+          pushParticle({
+            x,
+            y,
+            vx: Math.cos(a) * speed,
+            vy: Math.sin(a) * speed,
+            r: rand(1, 3.8),
+            life: rand(0.25, 0.7),
+            color
+          });
+        }
+      }
+
+      function boom(x, y, color, count) {
+        for (let i = 0; i < count; i++) {
+          const a = rand(0, TAU);
+          const speed = rand(60, 360);
+          pushParticle({
+            x,
+            y,
+            vx: Math.cos(a) * speed,
+            vy: Math.sin(a) * speed,
+            r: rand(1.5, 6),
+            life: rand(0.35, 1.1),
+            color
+          });
+        }
+      }
+
+      function muzzle(x, y, a) {
+        for (let i = 0; i < 6; i++) {
+          pushParticle({
+            x: x + Math.cos(a) * 22,
+            y: y + Math.sin(a) * 22,
+            vx: Math.cos(a + rand(-0.5, 0.5)) * rand(80, 220),
+            vy: Math.sin(a + rand(-0.5, 0.5)) * rand(80, 220),
+            r: rand(1, 3),
+            life: rand(0.12, 0.28),
+            color: "#ffc857"
+          });
+        }
+      }
+
+      function floatingText(text, x, y, color) {
+        pushText({ text, x, y, color, life: 1.1 });
+      }
+
+      function beep(freq, dur, type = "sine", gain = 0.03, delay = 0) {
+        if (!soundOn) return;
+        if (running) {
+          if (state.sfxThisFrame >= LIMITS.sfxPerFrame) return;
+          state.sfxThisFrame += 1;
+        }
+        try {
+          audioCtx ||= new (window.AudioContext || window.webkitAudioContext)();
+          const t = audioCtx.currentTime + delay;
+          const osc = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, t);
+          osc.frequency.exponentialRampToValueAtTime(Math.max(20, freq * 0.72), t + dur);
+          g.gain.setValueAtTime(0, t);
+          g.gain.linearRampToValueAtTime(gain, t + 0.006);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+          osc.connect(g);
+          g.connect(audioCtx.destination);
+          osc.start(t);
+          osc.stop(t + dur + 0.02);
+        } catch {
+          soundOn = false;
+        }
+      }
+
+      function setHudText(key, node, value, force) {
+        if (force || state.lastHud[key] !== value) {
+          state.lastHud[key] = value;
+          node.textContent = value;
+        }
+      }
+
+      function setHudWidth(key, node, value, force) {
+        if (force || state.lastHud[key] !== value) {
+          state.lastHud[key] = value;
+          node.style.width = value;
+        }
+      }
+
+      function updateHud(force = false) {
+        const p = state.player;
+        if (!p) return;
+        setHudWidth("hp", hpBar, `${clamp((p.hp / p.maxHp) * 100, 0, 100)}%`, force);
+        setHudWidth("xp", xpBar, `${clamp((state.xp / state.xpNeed) * 100, 0, 100)}%`, force);
+        setHudWidth("dash", dashBar, `${clamp(p.dash * 100, 0, 100)}%`, force);
+        setHudText("time", timeText, formatTime(state.t), force);
+        setHudText("level", levelText, String(state.level), force);
+        setHudText("kills", killsText, String(state.kills), force);
+        setHudText("gold", goldText, String(state.gold), force);
+        setHudText("combo", comboText, `x${Math.max(1, state.combo)}`, force);
+        setHudText("heat", heatText, state.bloodfrenzy > 0
+          ? `${Math.ceil(state.bloodfrenzy)}s`
+          : `${Math.floor((state.heat / state.heatMax) * 100)}%`, force);
+        setHudText("threat", threatText, romanThreat(Math.floor(clamp(state.difficulty, 1, 10))), force);
+
+        const boss = state.enemies.find(enemy => enemy.boss);
+        if (boss) {
+          bossHud.classList.remove("hidden");
+          setHudText("bossName", bossNameText, boss.name, force);
+          setHudWidth("bossHp", bossBar, `${clamp((boss.hp / boss.maxHp) * 100, 0, 100)}%`, force);
+        } else {
+          bossHud.classList.add("hidden");
+        }
+      }
+
+      function formatTime(seconds) {
+        const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+        const s = Math.floor(seconds % 60).toString().padStart(2, "0");
+        return `${m}:${s}`;
+      }
+
+      function draw() {
+        ctx.save();
+        ctx.clearRect(0, 0, width, height);
+
+        const shakeX = state.shake ? rand(-state.shake, state.shake) : 0;
+        const shakeY = state.shake ? rand(-state.shake, state.shake) : 0;
+        ctx.translate(shakeX, shakeY);
+
+        drawBackground();
+        drawOrbs();
+        drawPickups();
+        drawMeteors();
+        drawEnemies();
+        drawEnemyShots();
+        drawShots();
+        drawArcs();
+        drawOrbitals();
+        drawPlayer();
+        drawParticles();
+        drawTexts();
+
+        if (state.flash > 0) {
+          ctx.fillStyle = `rgba(227, 58, 93, ${state.flash * 0.18})`;
+          ctx.fillRect(-20, -20, width + 40, height + 40);
+        }
+
+        if (paused && levelUpModal.classList.contains("hidden")) {
+          ctx.fillStyle = "rgba(2, 1, 5, 0.55)";
+          ctx.fillRect(-20, -20, width + 40, height + 40);
+          ctx.fillStyle = "#ffc857";
+          ctx.font = "900 44px system-ui, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("PAUSED", width / 2, height / 2);
+        }
+
+        ctx.restore();
+      }
+
+      function drawBackground() {
+        const g = ctx.createRadialGradient(width * 0.5, height * 0.48, 10, width * 0.5, height * 0.48, Math.max(width, height) * 0.72);
+        g.addColorStop(0, "#19091d");
+        g.addColorStop(0.42, "#0d0612");
+        g.addColorStop(1, "#020105");
+        ctx.fillStyle = g;
+        ctx.fillRect(-40, -40, width + 80, height + 80);
+
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        for (const s of state.stars) {
+          const tw = Math.sin(state.t * 1.8 + s.tw) * 0.18;
+          ctx.globalAlpha = s.a + tw;
+          ctx.fillStyle = s.r > 1.2 ? "#f7e9ff" : "#9c5cff";
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, TAU);
+          ctx.fill();
+        }
+        ctx.restore();
+
+        if (state.bloodfrenzy > 0) {
+          ctx.save();
+          ctx.globalCompositeOperation = "lighter";
+          ctx.globalAlpha = 0.12 + Math.sin(state.t * 9) * 0.035;
+          ctx.fillStyle = "#ffc857";
+          ctx.fillRect(-40, -40, width + 80, height + 80);
+          ctx.restore();
+        }
+
+        ctx.save();
+        ctx.strokeStyle = "rgba(227, 58, 93, 0.08)";
+        ctx.lineWidth = 1;
+        const cx = width / 2;
+        const cy = height / 2;
+        for (let r = 120; r < Math.max(width, height); r += 120) {
+          ctx.beginPath();
+          ctx.ellipse(cx, cy, r * 1.35, r * 0.72, -0.28, 0, TAU);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function drawPlayer() {
+        const p = state.player;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+        ctx.globalAlpha = p.invuln > 0 ? 0.55 + Math.sin(state.t * 42) * 0.22 : 1;
+
+        if (state.blessingTimer > 0 || state.bloodfrenzy > 0) {
+          ctx.save();
+          ctx.globalCompositeOperation = "lighter";
+          ctx.strokeStyle = state.bloodfrenzy > 0 ? "#ffc857" : "#67ff9d";
+          ctx.lineWidth = 2;
+          ctx.globalAlpha = 0.55 + Math.sin(state.t * 12) * 0.2;
+          ctx.beginPath();
+          ctx.arc(0, 0, state.bloodfrenzy > 0 ? 30 : 25, 0, TAU);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        ctx.shadowColor = state.bloodfrenzy > 0 ? "#ffc857" : state.blessingTimer > 0 ? "#67ff9d" : "#e33a5d";
+        ctx.shadowBlur = state.bloodfrenzy > 0 ? 34 : state.blessingTimer > 0 ? 28 : 24;
+        ctx.fillStyle = "#140713";
+        ctx.strokeStyle = "#f7e9ff";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(24, 0);
+        ctx.lineTo(-16, -14);
+        ctx.lineTo(-8, 0);
+        ctx.lineTo(-16, 14);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#e33a5d";
+        ctx.beginPath();
+        ctx.moveTo(8, 0);
+        ctx.lineTo(-10, -6);
+        ctx.lineTo(-6, 0);
+        ctx.lineTo(-10, 6);
+        ctx.closePath();
+        ctx.fill();
+
+        const thrusting = keys.has("w") || keys.has("a") || keys.has("s") || keys.has("d") ||
+          keys.has("arrowup") || keys.has("arrowleft") || keys.has("arrowdown") || keys.has("arrowright");
+        if (thrusting) {
+          ctx.globalCompositeOperation = "lighter";
+          ctx.fillStyle = "#5ef6ff";
+          ctx.beginPath();
+          ctx.moveTo(-13, 0);
+          ctx.lineTo(-31 - Math.random() * 12, -6);
+          ctx.lineTo(-25 - Math.random() * 9, 0);
+          ctx.lineTo(-31 - Math.random() * 12, 6);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function drawOrbitals() {
+        const p = state.player;
+        const count = p.orbitals;
+        const radius = 58 + Math.min(80, count * 8);
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        for (let i = 0; i < count; i++) {
+          const a = p.orbitalAngle + (i / count) * TAU;
+          const x = p.x + Math.cos(a) * radius;
+          const y = p.y + Math.sin(a) * radius;
+          ctx.shadowColor = "#ffc857";
+          ctx.shadowBlur = 18;
+          ctx.fillStyle = "#ffc857";
+          ctx.beginPath();
+          ctx.arc(x, y, p.orbitalSize, 0, TAU);
+          ctx.fill();
+          ctx.strokeStyle = "rgba(247,233,255,0.65)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function drawEnemies() {
+        for (const e of state.enemies) {
+          ctx.save();
+          ctx.translate(e.x, e.y);
+          const hpPct = clamp(e.hp / e.maxHp, 0, 1);
+          ctx.rotate(Math.sin(e.wobble) * (e.boss ? 0.04 : 0.1));
+          ctx.shadowColor = e.boss ? "#ffc857" : e.elite ? "#ffc857" : e.cultist ? "#9c5cff" : "#e33a5d";
+          ctx.shadowBlur = e.boss ? 34 : e.elite ? 26 : e.cultist ? 18 : 14;
+          ctx.fillStyle = e.hit > 0
+            ? "#f7e9ff"
+            : e.boss
+              ? "#2b1119"
+              : e.elite
+                ? "#3b1b12"
+                : e.bat
+                  ? "#210927"
+                  : e.cultist
+                    ? "#180d2b"
+                    : "#260914";
+          ctx.strokeStyle = e.boss ? "#ffc857" : e.elite ? "#ffc857" : e.cultist ? "#9c5cff" : "#e33a5d";
+          ctx.lineWidth = e.boss ? 4 : e.elite ? 3 : 2;
+
+          if (e.boss) {
+            ctx.beginPath();
+            for (let i = 0; i < 14; i++) {
+              const a = (i / 14) * TAU - Math.PI / 2;
+              const r = e.r * (i % 2 ? 0.76 : 1.12);
+              ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.strokeStyle = "rgba(255,200,87,0.55)";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, 0, e.r * 0.58, 0, TAU);
+            ctx.stroke();
+          } else if (e.bat) {
+            ctx.beginPath();
+            ctx.moveTo(-e.r * 1.5, -e.r * 0.25);
+            ctx.quadraticCurveTo(-e.r * 0.5, -e.r * 1.35, 0, -e.r * 0.15);
+            ctx.quadraticCurveTo(e.r * 0.5, -e.r * 1.35, e.r * 1.5, -e.r * 0.25);
+            ctx.quadraticCurveTo(e.r * 0.55, e.r * 0.1, e.r * 0.32, e.r * 0.85);
+            ctx.quadraticCurveTo(0, e.r * 0.35, -e.r * 0.32, e.r * 0.85);
+            ctx.quadraticCurveTo(-e.r * 0.55, e.r * 0.1, -e.r * 1.5, -e.r * 0.25);
+            ctx.fill();
+            ctx.stroke();
+          } else if (e.cultist) {
+            ctx.beginPath();
+            ctx.moveTo(0, -e.r * 1.35);
+            ctx.lineTo(e.r * 1.05, e.r * 0.92);
+            ctx.lineTo(0, e.r * 0.52);
+            ctx.lineTo(-e.r * 1.05, e.r * 0.92);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.strokeStyle = "#5ef6ff";
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(-e.r * 0.35, -e.r * 0.15);
+            ctx.lineTo(0, e.r * 0.28);
+            ctx.lineTo(e.r * 0.35, -e.r * 0.15);
+            ctx.stroke();
+          } else {
+            ctx.beginPath();
+            for (let i = 0; i < 7; i++) {
+              const a = (i / 7) * TAU - Math.PI / 2;
+              const r = e.r * (i % 2 ? 0.72 : 1.1);
+              ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = e.boss ? "#ffc857" : e.elite ? "#ffc857" : e.cultist ? "#5ef6ff" : "#ff7893";
+          ctx.beginPath();
+          ctx.arc(-e.r * 0.28, -e.r * 0.1, e.boss ? 3.2 : 2.3, 0, TAU);
+          ctx.arc(e.r * 0.28, -e.r * 0.1, e.boss ? 3.2 : 2.3, 0, TAU);
+          ctx.fill();
+
+          if (e.elite || e.boss || hpPct < 1) {
+            const barWidth = e.boss ? e.r * 2.4 : e.r * 2;
+            ctx.fillStyle = "rgba(0,0,0,0.5)";
+            ctx.fillRect(-barWidth / 2, -e.r - 14, barWidth, 5);
+            ctx.fillStyle = e.boss ? "#ffc857" : e.elite ? "#ffc857" : "#e33a5d";
+            ctx.fillRect(-barWidth / 2, -e.r - 14, barWidth * hpPct, 5);
+          }
+          ctx.restore();
+        }
+      }
+
+      function drawMeteors() {
+        for (const m of state.meteors) {
+          ctx.save();
+          ctx.translate(m.x, m.y);
+          ctx.rotate(m.angle);
+          ctx.shadowColor = "rgba(203,183,170,0.42)";
+          ctx.shadowBlur = 16;
+          ctx.fillStyle = m.hit > 0 ? "#f7e9ff" : "#2a2022";
+          ctx.strokeStyle = "#cbb7aa";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          for (let i = 0; i < m.verts.length; i++) {
+            const a = (i / m.verts.length) * TAU;
+            const r = m.r * m.verts[i];
+            const x = Math.cos(a) * r;
+            const y = Math.sin(a) * r;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.strokeStyle = "rgba(227,58,93,0.22)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(-m.r * 0.25, -m.r * 0.55);
+          ctx.lineTo(m.r * 0.18, -m.r * 0.08);
+          ctx.lineTo(-m.r * 0.1, m.r * 0.5);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+
+      function drawPickups() {
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        for (const item of state.pickups) {
+          const pulse = Math.sin(item.pulse) * 0.14 + 1;
+          const color = item.kind === "cache" ? item.rare ? "#ffc857" : "#9c5cff" : item.kind === "rift" ? "#5ef6ff" : "#67ff9d";
+
+          ctx.save();
+          ctx.globalAlpha = clamp(item.life / 3, 0.42, 1);
+          ctx.translate(item.x, item.y);
+          ctx.scale(pulse, pulse);
+          ctx.shadowColor = color;
+          ctx.shadowBlur = 22;
+          ctx.strokeStyle = color;
+          ctx.fillStyle = item.kind === "cache" ? "rgba(255,200,87,0.13)" : item.kind === "rift" ? "rgba(94,246,255,0.13)" : "rgba(103,255,157,0.14)";
+          ctx.lineWidth = 2;
+
+          if (item.kind === "cache") {
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+              const a = (i / 6) * TAU + Math.PI / 6;
+              const x = Math.cos(a) * item.r;
+              const y = Math.sin(a) * item.r;
+              if (i === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(-item.r * 0.55, 0);
+            ctx.lineTo(item.r * 0.55, 0);
+            ctx.moveTo(0, -item.r * 0.55);
+            ctx.lineTo(0, item.r * 0.55);
+            ctx.stroke();
+          } else if (item.kind === "rift") {
+            ctx.rotate(state.t * 0.85);
+            ctx.beginPath();
+            ctx.moveTo(0, -item.r);
+            ctx.lineTo(item.r * 0.82, 0);
+            ctx.lineTo(0, item.r);
+            ctx.lineTo(-item.r * 0.82, 0);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.rotate(-state.t * 1.7);
+            ctx.strokeStyle = "rgba(247,233,255,0.8)";
+            ctx.lineWidth = 1.4;
+            ctx.beginPath();
+            ctx.arc(0, 0, item.r * 0.55, 0, TAU);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(-item.r * 0.35, 0);
+            ctx.lineTo(item.r * 0.35, 0);
+            ctx.moveTo(0, -item.r * 0.35);
+            ctx.lineTo(0, item.r * 0.35);
+            ctx.stroke();
+          } else {
+            ctx.beginPath();
+            ctx.arc(0, 0, item.r, 0, TAU);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(0, -item.r * 0.62);
+            ctx.lineTo(0, item.r * 0.62);
+            ctx.moveTo(-item.r * 0.62, 0);
+            ctx.lineTo(item.r * 0.62, 0);
+            ctx.stroke();
+          }
+
+          ctx.restore();
+        }
+        ctx.restore();
+      }
+
+      function drawShots() {
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        for (const s of state.shots) {
+          const a = Math.atan2(s.vy, s.vx);
+          ctx.save();
+          ctx.translate(s.x, s.y);
+          ctx.rotate(a);
+          ctx.shadowColor = s.hue;
+          ctx.shadowBlur = 16;
+          ctx.fillStyle = s.hue;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, s.r * (s.kind === "lance" ? 4.1 : 2.1), s.r, 0, 0, TAU);
+          ctx.fill();
+          ctx.restore();
+        }
+        ctx.restore();
+      }
+
+      function drawEnemyShots() {
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        for (const s of state.enemyShots) {
+          const a = Math.atan2(s.vy, s.vx);
+          ctx.save();
+          ctx.translate(s.x, s.y);
+          ctx.rotate(a);
+          ctx.shadowColor = s.hue;
+          ctx.shadowBlur = 18;
+          ctx.fillStyle = s.hue;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, s.r * 2.6, s.r * 0.85, 0, 0, TAU);
+          ctx.fill();
+          ctx.restore();
+        }
+        ctx.restore();
+      }
+
+      function drawArcs() {
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        ctx.lineCap = "round";
+        for (const arc of state.arcs) {
+          const from = { x: arc.x1, y: arc.y1 };
+          const to = { x: arc.x2, y: arc.y2 };
+          const { dx, dy } = vectorTo(from, to);
+          ctx.globalAlpha = clamp(arc.life * 6, 0, 1);
+          ctx.strokeStyle = arc.color;
+          ctx.shadowColor = arc.color;
+          ctx.shadowBlur = 18;
+          ctx.lineWidth = 2 + Math.random() * 2;
+          ctx.beginPath();
+          ctx.moveTo(arc.x1, arc.y1);
+          ctx.lineTo(arc.x1 + dx * 0.45 + rand(-8, 8), arc.y1 + dy * 0.45 + rand(-8, 8));
+          ctx.lineTo(arc.x1 + dx, arc.y1 + dy);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function drawOrbs() {
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        for (const o of state.orbs) {
+          const color = o.kind === "xp" ? "#9c5cff" : o.kind === "heart" ? "#67ff9d" : "#ffc857";
+          ctx.shadowColor = color;
+          ctx.shadowBlur = 14;
+          ctx.fillStyle = color;
+          ctx.globalAlpha = clamp(o.life, 0, 1);
+          ctx.beginPath();
+          ctx.arc(o.x, o.y, o.r + Math.sin(state.t * 8 + o.x) * 0.8, 0, TAU);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function drawParticles() {
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        for (const p of state.particles) {
+          ctx.globalAlpha = clamp(p.life, 0, 1);
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, TAU);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function drawTexts() {
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.font = "900 14px system-ui, sans-serif";
+        for (const t of state.texts) {
+          ctx.globalAlpha = clamp(t.life, 0, 1);
+          ctx.fillStyle = t.color;
+          ctx.shadowColor = t.color;
+          ctx.shadowBlur = 10;
+          ctx.fillText(t.text, t.x, t.y);
+        }
+        ctx.restore();
+      }
+
+      window.addEventListener("resize", resize);
+      window.addEventListener("keydown", event => {
+        const key = event.key.toLowerCase();
+        keys.add(key);
+        if (key === " ") {
+          event.preventDefault();
+          if (!event.repeat) dash();
+        }
+        if (key === "p" && running && levelUpModal.classList.contains("hidden") && !event.repeat) {
+          paused = !paused;
+          showToast(paused ? "PAUSED" : "UNPAUSED");
+        }
+      });
+      window.addEventListener("keyup", event => keys.delete(event.key.toLowerCase()));
+      window.addEventListener("pointermove", event => {
+        pointer.x = event.clientX;
+        pointer.y = event.clientY;
+      });
+      window.addEventListener("pointerdown", event => {
+        pointer.x = event.clientX;
+        pointer.y = event.clientY;
+        pointer.down = true;
+        if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+      });
+      window.addEventListener("pointerup", () => {
+        pointer.down = false;
+      });
+      window.addEventListener("pointercancel", () => {
+        pointer.down = false;
+      });
+      window.addEventListener("blur", () => {
+        keys.clear();
+        if (running && levelUpModal.classList.contains("hidden")) {
+          paused = true;
+          showToast("PAUSED");
+        }
+      });
+
+      startBtn.addEventListener("click", begin);
+      muteBtn.addEventListener("click", () => {
+        soundOn = !soundOn;
+        muteBtn.textContent = `Sound: ${soundOn ? "On" : "Off"}`;
+        if (soundOn) beep(440, 0.05, "sine", 0.02);
+      });
+
+      resize();
+      reset();
+      draw();
+    })();
+  </script>
+</body>
+</html>
